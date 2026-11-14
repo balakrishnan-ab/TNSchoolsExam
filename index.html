@@ -1,0 +1,2596 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>தேர்வு அறை இருக்கை மேலாண்மை மென்பொருள் (Exam Seating Pro)</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+            body { background: white !important; padding: 0 !important; }
+            .shadow-lg, .shadow-md, .shadow { box-shadow: none !important; }
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        table.official-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.official-tbl th, table.official-tbl td { border: 1px solid #000; padding: 6px 8px; text-align: center; }
+        table.official-tbl th { background-color: #e2e8f0; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<!-- TOP HEADER -->
+<header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-4 shadow-md no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+        <div>
+            <h1 class="text-xl font-bold">🏫 தேர்வு அறை இருக்கை ஒதுக்கீடு & வரைபட மென்பொருள்</h1>
+            <p class="text-xs text-blue-200">பல பள்ளிகளுக்கான ஒருங்கிணைந்த தேர்வு மேலாண்மை தளம் &nbsp;|&nbsp; <span id="cloudStatusBadge" class="bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40">⏳ இணைப்பு சரிபார்க்கப்படுகிறது...</span></p>
+        </div>
+        <div id="userBadgeArea" class="hidden flex items-center gap-3">
+            <span id="loggedSchoolBadge" class="bg-blue-800 px-3 py-1 rounded-full text-sm font-semibold border border-blue-400"></span>
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-semibold">🚪 வெளியேறு</button>
+        </div>
+    </div>
+</header>
+
+<!-- ===================================================================== -->
+<!-- 1. AUTHENTICATION SECTION                                             -->
+<!-- ===================================================================== -->
+<main id="authSection" class="max-w-3xl mx-auto mt-8 p-4 no-print">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="flex border-b bg-slate-50 text-sm font-semibold overflow-x-auto">
+            <button onclick="switchAuthTab('login')" id="tabBtn-login" class="auth-tab-btn flex-1 py-3 px-4 border-b-2 border-blue-700 text-blue-800 bg-white">🔐 பள்ளி உள்நுழைவு</button>
+            <button onclick="switchAuthTab('register')" id="tabBtn-register" class="auth-tab-btn flex-1 py-3 px-4 text-slate-600 hover:text-blue-700">🆕 புதிய பள்ளி பதிவு</button>
+            <button onclick="switchAuthTab('forgot')" id="tabBtn-forgot" class="auth-tab-btn flex-1 py-3 px-4 text-slate-600 hover:text-blue-700">🔄 கடவுச்சொல் மீட்டமைப்பு</button>
+        </div>
+
+        <div class="p-6">
+            <!-- SCHOOL / ADMIN LOGIN -->
+            <div id="authTab-login" class="auth-tab-content space-y-4">
+                <h2 class="text-lg font-bold text-slate-800">பள்ளி உள்நுழைவு (School Login)</h2>
+                <div>
+                    <label class="block text-sm font-medium mb-1">பயனர் பெயர் / பள்ளி குறியீடு (Username / School Code)</label>
+                    <input type="text" id="loginCode" placeholder="எ.கா: ghss_dvk" class="w-full border rounded-lg p-2.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">கடவுச்சொல் (Password)</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" class="w-full border rounded-lg p-2.5">
+                </div>
+                <button onclick="handleSchoolLogin()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg">உள்நுழைய (Login)</button>
+            </div>
+
+            <!-- REGISTER NEW SCHOOL -->
+            <div id="authTab-register" class="auth-tab-content hidden space-y-4">
+                <h2 class="text-lg font-bold text-slate-800">புதிய பள்ளியை உருவாக்குதல் (ஒரு போன் எண்ணிற்கு ஒரு பள்ளி மட்டுமே)</h2>
+                <div class="flex gap-2 items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium mb-1">10 இலக்க கைபேசி எண் (Mobile Number)</label>
+                        <input type="text" id="regPhone" maxlength="10" placeholder="9876543210" class="w-full border rounded-lg p-2.5">
+                    </div>
+                    <button onclick="sendOtp('reg')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg">📲 OTP அனுப்புக</button>
+                </div>
+                <div id="regOtpBanner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">6 இலக்க OTP எண்</label>
+                        <input type="text" id="regOtpInput" maxlength="6" class="w-full border rounded-lg p-2.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">பள்ளி குறியீடு (உள்நுழைய பயன்படும்)</label>
+                        <input type="text" id="regCode" placeholder="எ.கா: ghss_dvk" class="w-full border rounded-lg p-2.5">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">பள்ளியின் முழுப் பெயர்</label>
+                    <input type="text" id="regName" placeholder="எ.கா: அரசு மேல்நிலைப்பள்ளி - தேவனாங்குறிச்சி" class="w-full border rounded-lg p-2.5">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">புதிய கடவுச்சொல்</label>
+                        <input type="password" id="regPass" class="w-full border rounded-lg p-2.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">கடவுச்சொல்லை உறுதிப்படுத்தவும்</label>
+                        <input type="password" id="regPass2" class="w-full border rounded-lg p-2.5">
+                    </div>
+                </div>
+                <button onclick="handleSchoolRegister()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg">✅ சரிபார்த்து பள்ளியை உருவாக்கு</button>
+            </div>
+
+            <!-- FORGOT PASSWORD -->
+            <div id="authTab-forgot" class="auth-tab-content hidden space-y-4">
+                <h2 class="text-lg font-bold text-slate-800">கைபேசி எண் மூலம் கடவுச்சொல் / குறியீடு மீட்டமைப்பு</h2>
+                <div class="flex gap-2 items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium mb-1">பதிவு செய்த 10 இலக்க கைபேசி எண்</label>
+                        <input type="text" id="recPhone" maxlength="10" class="w-full border rounded-lg p-2.5">
+                    </div>
+                    <button onclick="sendOtp('rec')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg">📲 OTP அனுப்புக</button>
+                </div>
+                <div id="recOtpBanner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">OTP எண்</label>
+                        <input type="text" id="recOtpInput" maxlength="6" class="w-full border rounded-lg p-2.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">புதிய கடவுச்சொல்</label>
+                        <input type="password" id="recNewPass" class="w-full border rounded-lg p-2.5">
+                    </div>
+                </div>
+                <button onclick="handlePasswordReset()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg">கடவுச்சொல்லை மாற்று</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ===================================================================== -->
+<!-- 2. SUPER ADMIN DASHBOARD                                              -->
+<!-- ===================================================================== -->
+<section id="adminSection" class="hidden max-w-7xl mx-auto p-4 space-y-6 no-print">
+    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-wrap justify-between items-center gap-3">
+        <div>
+            <div class="text-sm font-bold text-blue-900">☁️ Supabase Cloud Database & SMS OTP நிலை</div>
+            <div class="text-xs text-slate-600" id="admCloudDetailText">config.js கோப்பில் Supabase URL மற்றும் Key இணைக்கப்பட்டால் அனைத்துப் பள்ளிகளின் தரவும் நேரடியாக Cloud-ல் சேமிக்கப்படும்.</div>
+        </div>
+        <button onclick="syncAllFromCloud(true)" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-lg text-xs">🔄 Cloud தரவை உடனே ஒத்திசை (Force Sync)</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl shadow border-l-4 border-blue-600">
+            <div class="text-sm text-slate-500">மொத்த பதிவு செய்த பள்ளிகள்</div>
+            <div class="text-3xl font-bold" id="admTotalSchools">0</div>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow border-l-4 border-emerald-600">
+            <div class="text-sm text-slate-500">செயல்பாட்டில் உள்ள பள்ளிகள்</div>
+            <div class="text-3xl font-bold" id="admActiveSchools">0</div>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow border-l-4 border-amber-500">
+            <div class="text-sm text-slate-500">மொத்த செயல்பாட்டு பதிவுகள்</div>
+            <div class="text-3xl font-bold" id="admTotalLogs">0</div>
+        </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl shadow">
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-bold">📡 பள்ளிகளின் நேரடி செயல்பாடுகள் (Live Activity Monitor)</h2>
+            <button onclick="renderAdminDashboard()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">🔄 புதுப்பி</button>
+        </div>
+        <div class="overflow-x-auto max-h-72">
+            <table class="w-full text-sm text-left border">
+                <thead class="bg-slate-100 border-b">
+                    <tr>
+                        <th class="p-2.5">நேரம்</th>
+                        <th class="p-2.5">பள்ளி பெயர்</th>
+                        <th class="p-2.5">தற்போதைய செயல்பாடு (Task)</th>
+                    </tr>
+                </thead>
+                <tbody id="admLogsBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl shadow">
+        <h2 class="text-lg font-bold mb-3">🏫 பதிவு செய்யப்பட்ட பள்ளிகள் & கட்டுப்பாடு</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border">
+                <thead class="bg-slate-100 border-b">
+                    <tr>
+                        <th class="p-2.5">பள்ளி பெயர்</th>
+                        <th class="p-2.5">குறியீடு</th>
+                        <th class="p-2.5">போன் எண்</th>
+                        <th class="p-2.5">கடைசி உள்நுழைவு</th>
+                        <th class="p-2.5">நிலை</th>
+                        <th class="p-2.5">நடவடிக்கை</th>
+                    </tr>
+                </thead>
+                <tbody id="admSchoolsBody"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<!-- 3. SCHOOL WORKSPACE (WITH FULL EDIT & DELETE IN ALL MASTER LISTS)     -->
+<!-- ===================================================================== -->
+<section id="schoolSection" class="hidden max-w-7xl mx-auto p-4">
+    <!-- NAVIGATION BAR -->
+    <div class="bg-white rounded-xl shadow p-2 mb-6 flex flex-wrap gap-2 no-print">
+        <button onclick="switchWorkTab('teachers')" id="wTab-teachers" class="work-tab-btn bg-blue-700 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">1️⃣ ஆசிரியர்கள் (Teachers)</button>
+        <button onclick="switchWorkTab('subjects')" id="wTab-subjects" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</button>
+        <button onclick="switchWorkTab('strength')" id="wTab-strength" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை</button>
+        <button onclick="switchWorkTab('rooms')" id="wTab-rooms" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">4️⃣ தேர்வு அறைகள் (Rooms)</button>
+        <button onclick="switchWorkTab('timetable')" id="wTab-timetable" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">5️⃣ தேர்வு அட்டவணை (TimeTable)</button>
+        <button onclick="switchWorkTab('allocate')" id="wTab-allocate" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">6️⃣ அறை ஒதுக்கீடு & வரைபடம்</button>
+        <button onclick="switchWorkTab('duty')" id="wTab-duty" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">7️⃣ கண்காணிப்புப் பணி (Duty)</button>
+        <button onclick="switchWorkTab('settings')" id="wTab-settings" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">⚙️ அமைப்புகள்</button>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 1: TEACHERS MASTER (EDIT & DELETE ENABLED)                   -->
+    <!-- ================================================================= -->
+    <div id="workView-teachers" class="work-view bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2 flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold">🧑‍🏫 1. பள்ளியின் ஆசிரியர் விவரங்கள் & சுருக்கக் குறியீடு (Teachers Master)</h2>
+                <p class="text-xs text-slate-500">உதாரணம்: <b>R. VIMAL</b> → <b>RV</b>. சேர்த்த பின் பட்டியலில் திருத்தவும் (✏️ Edit) நீக்கவும் (🗑️ Delete) முடியும்.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-lg border">
+            <input type="hidden" id="tchEditId" value="">
+            <div class="md:col-span-2">
+                <label class="block text-xs font-semibold mb-1">ஆசிரியர் முழுப் பெயர் (Teacher Full Name)</label>
+                <input type="text" id="tchFullName" placeholder="எ.கா: R. VIMAL" class="w-full border rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">சுருக்கக் குறியீடு (Short Code)</label>
+                <input type="text" id="tchShortCode" placeholder="எ.கா: RV" class="w-full border rounded p-2 text-sm uppercase font-bold">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">பதவி / பாடம் (Designation / Dept)</label>
+                <input type="text" id="tchDept" placeholder="எ.கா: PG Asst (CS)" class="w-full border rounded p-2 text-sm">
+            </div>
+            <div class="flex items-end gap-2">
+                <button onclick="saveTeacher()" id="tchSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">➕ சேமி</button>
+                <button onclick="cancelTeacherEdit()" id="tchCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-semibold px-3 py-2 rounded-lg text-sm">ரத்து</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border text-center">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="p-2 border">வ.எண்</th>
+                        <th class="p-2 border">சுருக்கக் குறியீடு</th>
+                        <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
+                        <th class="p-2 border">பதவி / பாடம்</th>
+                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                    </tr>
+                </thead>
+                <tbody id="teachersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 2: CLASSES & SUBJECTS MASTER (EDIT & DELETE ENABLED)         -->
+    <!-- ================================================================= -->
+    <div id="workView-subjects" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2">
+            <h2 class="text-lg font-bold">📚 2. வகுப்புகள் மற்றும் பாடங்களின் சுருக்கக் குறியீடுகள் (Classes & Subjects Master)</h2>
+            <p class="text-xs text-slate-500">உதாரணம்: <b>ENGLISH</b> → <b>ENG</b> | <b>COMPUTER SCIENCE</b> → <b>CS</b> | <b>COM. APPLICATION</b> → <b>CA</b></p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Classes Master -->
+            <div class="bg-slate-50 p-4 rounded-lg border space-y-3">
+                <h3 class="font-bold text-sm text-blue-900">🏫 அ) பள்ளியில் உள்ள வகுப்புகள் (Classes List)</h3>
+                <div class="flex gap-2">
+                    <input type="hidden" id="clsEditId" value="">
+                    <input type="text" id="clsMasterName" placeholder="வகுப்பு (எ.கா: 12-A1)" class="flex-1 border rounded p-2 text-sm">
+                    <select id="clsMasterMedium" class="border rounded p-2 text-sm">
+                        <option value="EM">EM</option>
+                        <option value="TM">TM</option>
+                    </select>
+                    <button onclick="saveClassMaster()" id="clsSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 rounded text-sm">➕ சேர்</button>
+                    <button onclick="cancelClassEdit()" id="clsCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 rounded text-sm">ரத்து</button>
+                </div>
+                <table class="w-full text-xs border text-center bg-white">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 border">வகுப்பு (Class)</th>
+                            <th class="p-2 border">வழி (Medium)</th>
+                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classMasterBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Subjects Master -->
+            <div class="bg-slate-50 p-4 rounded-lg border space-y-3">
+                <h3 class="font-bold text-sm text-emerald-900">📖 ஆ) பாடங்கள் & சுருக்கக் குறியீடுகள் (Subjects & Short Codes)</h3>
+                <div class="flex gap-2">
+                    <input type="hidden" id="subEditId" value="">
+                    <input type="text" id="subFullName" placeholder="பாடம் (எ.கா: COMPUTER SCIENCE)" class="flex-1 border rounded p-2 text-sm">
+                    <input type="text" id="subShortCode" placeholder="குறியீடு (CS)" class="w-24 border rounded p-2 text-sm uppercase font-bold">
+                    <button onclick="saveSubjectMaster()" id="subSaveBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-4 rounded text-sm">➕ சேர்</button>
+                    <button onclick="cancelSubjectEdit()" id="subCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 rounded text-sm">ரத்து</button>
+                </div>
+                <table class="w-full text-xs border text-center bg-white">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 border">சுருக்கக் குறியீடு</th>
+                            <th class="p-2 border">பாடம் முழுப் பெயர்</th>
+                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectMasterBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 3: STRENGTH DETAILS (GIRLS FIRST, AUTO-ROLL, EDIT & DELETE)  -->
+    <!-- ================================================================= -->
+    <div id="workView-strength" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2">
+            <h2 class="text-lg font-bold">📋 3. வகுப்பு வாரியான மாணவியர் & மாணவர் எண்ணிக்கை (Strength Details)</h2>
+            <p class="text-xs text-slate-500">மாணவியர் எண்ணிக்கை, மாணவர் எண்ணிக்கை மற்றும் தொடக்கத் தேர்வு எண்ணை உள்ளிட்டால் தேர்வு எண்கள் தானாக அமையும்; தேவைப்படின் நீங்களே நேரடியாகவும் மாற்றலாம்.</p>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-lg border space-y-4">
+            <input type="hidden" id="strEditId" value="">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">வகுப்பு & வழி (கீழ்விரி பட்டியல்)</label>
+                    <select id="strClassDropdown" class="w-full border rounded p-2 text-sm font-semibold bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-pink-800">👧 மாணவியர் எண்ணிக்கை (Girls Count)</label>
+                    <input type="number" id="strGCount" min="0" value="0" oninput="autoCalcRollNumbers()" class="w-full border border-pink-300 rounded p-2 text-sm font-bold bg-pink-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-blue-800">👦 மாணவர்கள் எண்ணிக்கை (Boys Count)</label>
+                    <input type="number" id="strBCount" min="0" value="0" oninput="autoCalcRollNumbers()" class="w-full border border-blue-300 rounded p-2 text-sm font-bold bg-blue-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-emerald-800">🔢 தொடக்க தேர்வு எண் (Starting Roll No)</label>
+                    <input type="number" id="strBaseStart" min="0" placeholder="எ.கா: 12101" oninput="autoCalcRollNumbers()" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-200">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-pink-700">Girls Start (ஆரம்ப எண்)</label>
+                    <input type="number" id="strGStart" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-pink-700">Girls End (முடிவு எண்)</label>
+                    <input type="number" id="strGEnd" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-blue-700">Boys Start (ஆரம்ப எண்)</label>
+                    <input type="number" id="strBStart" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-blue-700">Boys End (முடிவு எண்)</label>
+                    <input type="number" id="strBEnd" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button onclick="cancelStrengthEdit()" id="strCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">ரத்து</button>
+                <button onclick="saveStrength()" id="strSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-5 py-2 rounded-lg text-sm">➕ மாணவியர் & மாணவர் எண்ணிக்கையை சேமி</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border text-center">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="p-2 border">வகுப்பு</th>
+                        <th class="p-2 border">வழி</th>
+                        <th class="p-2 border bg-pink-50 text-pink-900">Girls (Start - End)</th>
+                        <th class="p-2 border bg-pink-50 text-pink-900">Girls மொத்தம்</th>
+                        <th class="p-2 border bg-blue-50 text-blue-900">Boys (Start - End)</th>
+                        <th class="p-2 border bg-blue-50 text-blue-900">Boys மொத்தம்</th>
+                        <th class="p-2 border">மொத்தம்</th>
+                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                    </tr>
+                </thead>
+                <tbody id="strengthTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 4: ROOMS MASTER (VARIABLE ROWS PER COLUMN + EDIT & DELETE)   -->
+    <!-- ================================================================= -->
+    <div id="workView-rooms" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2">
+            <h2 class="text-lg font-bold">🚪 4. தேர்வு அறைகள் மற்றும் நெடுவரிசை வாரியான வரிசைகள் (Rooms & Column-wise Rows)</h2>
+            <p class="text-xs text-slate-500">அனைத்து நெடுவரிசைகளிலும் ஒரே எண்ணிக்கையிலான வரிசைகள் இல்லையெனில், ஒவ்வொரு நெடுவரிசைக்கும் (Col 1, Col 2, Col 3...) தனித்தனி வரிசை எண்ணிக்கையை உள்ளிடலாம்.</p>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-lg border space-y-4">
+            <input type="hidden" id="rmEditId" value="">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">அறை எண் (Room No)</label>
+                    <input type="text" id="rmNo" placeholder="எ.கா: 2, 3, Hall-1" class="w-full border rounded p-2 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">நெடுவரிசைகள் (Columns)</label>
+                    <input type="number" id="rmCols" value="2" min="1" max="8" oninput="renderRoomColRowInputs()" class="w-full border rounded p-2 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">ஒரு பெஞ்சிற்கு நபர்கள் (2 அல்லது 3)</label>
+                    <select id="rmPerBench" onchange="recalcRoomMaxCapFromCols()" class="w-full border rounded p-2 text-sm font-bold bg-white">
+                        <option value="2">2 நபர்கள் (Left / Right)</option>
+                        <option value="3">3 நபர்கள் (Left / Middle / Right)</option>
+                        <option value="1">1 நபர் (Single)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-emerald-800">அதிகபட்ச மாணவர்கள் (Max Cap)</label>
+                    <input type="number" id="rmMaxCap" value="60" min="1" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="saveRoom()" id="rmSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">➕ அறையை சேமி</button>
+                    <button onclick="cancelRoomEdit()" id="rmCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 py-2 rounded-lg text-sm">ரத்து</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Column-wise Rows Inputs -->
+            <div class="bg-white p-3 rounded border">
+                <label class="block text-xs font-bold text-slate-700 mb-2">ஒவ்வொரு நெடுவரிசையிலும் உள்ள பெஞ்ச் வரிசைகள் (Rows per Column):</label>
+                <div id="roomColRowsContainer" class="flex flex-wrap gap-3"></div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border text-center">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="p-2 border">அறை எண்</th>
+                        <th class="p-2 border">Columns</th>
+                        <th class="p-2 border">நெடுவரிசை வாரியான வரிசைகள் (Col-wise Rows)</th>
+                        <th class="p-2 border">பெஞ்ச் நபர்கள்</th>
+                        <th class="p-2 border bg-emerald-50">அதிகபட்ச மாணவர்கள் (Max Cap)</th>
+                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                    </tr>
+                </thead>
+                <tbody id="roomsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 5: EXAM TIMETABLE (EDIT & DELETE ENABLED)                    -->
+    <!-- ================================================================= -->
+    <div id="workView-timetable" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2">
+            <h2 class="text-lg font-bold">📅 5. தேர்வு கால அட்டவணை (Exam TimeTable)</h2>
+            <p class="text-xs text-slate-500">பாடத்தை கீழ்விரி பட்டியலிலிருந்து தேர்ந்தெடுத்து, வகுப்புகளைத் டிக் செய்து சேமிக்கவும். சேர்த்த பின் திருத்தவும் நீக்கவும் முடியும்.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border">
+            <input type="hidden" id="ttEditId" value="">
+            <div>
+                <label class="block text-xs font-semibold mb-1">தேர்வு பெயர்</label>
+                <input type="text" id="ttTitle" value="அரையாண்டுத் தேர்வு - 2026" class="w-full border rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">தேர்வு தேதி</label>
+                <input type="date" id="ttDate" value="2026-12-11" class="w-full border rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">வேளை (Session)</label>
+                <select id="ttSession" class="w-full border rounded p-2 text-sm">
+                    <option value="FN">FN (முற்பகல்)</option>
+                    <option value="AN">AN (பிற்பகல்)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">பாடம் (கீழ்விரி பட்டியல்)</label>
+                <select id="ttSubjectDropdown" class="w-full border rounded p-2 text-sm font-semibold bg-white"></select>
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-xs font-semibold mb-2">இந்தப் பாடத்தை எழுதும் வகுப்புகளைத் தேர்ந்தெடுக்கவும்:</label>
+                <div id="ttClassCheckboxes" class="flex flex-wrap gap-3"></div>
+            </div>
+            <div class="md:col-span-4 flex justify-end gap-2">
+                <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">ரத்து</button>
+                <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-5 py-2 rounded-lg text-sm">➕ அட்டவணையில் சேர்</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border text-center">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="p-2 border">தேர்வு</th>
+                        <th class="p-2 border">தேதி</th>
+                        <th class="p-2 border">வேளை</th>
+                        <th class="p-2 border">வகுப்பு</th>
+                        <th class="p-2 border">பாடம் (குறியீடு - முழுப் பெயர்)</th>
+                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                    </tr>
+                </thead>
+                <tbody id="timetableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 6: ROOM ALLOCATION & VISUAL SEATING CHART                    -->
+    <!-- ================================================================= -->
+    <div id="workView-allocate" class="work-view hidden space-y-6">
+        <div class="bg-white rounded-xl shadow p-6 space-y-5 no-print">
+            <h2 class="text-lg font-bold border-b pb-2">🧮 6. தேர்வு அறை ஒதுக்கீடு கட்டம் (Excel-Style Matrix - RoomAlotBG)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">1. தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும் (Dropdown):</label>
+                    <select id="allocExamSelect" onchange="initAllocationMatrix()" class="w-full border rounded-lg p-2.5 bg-blue-50 font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">2. தேவைப்படும் அறைகளின் எண்ணிக்கை (Room Count):</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="allocRoomCount" min="1" value="5" onchange="applyRoomCountSelection()" class="w-32 border rounded-lg p-2.5 font-bold">
+                        <span class="text-xs text-slate-500 self-center">கீழே உள்ள அறைகளை டிக் செய்து மாற்றிக்கொள்ளலாம்</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold mb-2">தேர்வுக்குரிய அறைகள் (Active Rooms & Max Capacity):</label>
+                <div id="allocRoomCheckboxes" class="flex flex-wrap gap-3"></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="bg-pink-50 border border-pink-200 p-3 rounded-lg">
+                    <div class="text-xs text-pink-700 font-semibold">👧 மொத்த மாணவிகள் (Girls)</div>
+                    <div class="text-2xl font-bold text-pink-900" id="statGirls">0</div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                    <div class="text-xs text-blue-700 font-semibold">👦 மொத்த மாணவர்கள் (Boys)</div>
+                    <div class="text-2xl font-bold text-blue-900" id="statBoys">0</div>
+                </div>
+                <div class="bg-slate-100 border border-slate-300 p-3 rounded-lg">
+                    <div class="text-xs text-slate-700 font-semibold">👥 மொத்த தேர்வர்கள் / அறை கொள்ளளவு</div>
+                    <div class="text-2xl font-bold text-slate-900"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
+                </div>
+            </div>
+
+            <!-- Auto-Fill Gender & Roll Ordering Controls -->
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="space-y-1.5">
+                        <div class="text-sm font-bold text-amber-900">⚡ தானியங்கி நிரப்பல் முறை (Auto-Fill Gender & Sequence Rule):</div>
+                        <div class="flex flex-wrap gap-4 text-sm">
+                            <label class="font-semibold"><input type="radio" name="genderRule" value="strict" checked> ஆண், பெண் தனித்தனி அறைகள் (Strict Separate Rooms)</label>
+                            <label class="font-semibold"><input type="radio" name="genderRule" value="hybrid"> ஸ்மார்ட் கலப்பு முறை (Separate First, Overflow Mix)</label>
+                            <label class="font-semibold text-blue-900"><input type="radio" name="genderRule" value="continuous"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No Order)</label>
+                        </div>
+                    </div>
+                    <button onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs border-collapse border border-slate-400 text-center" id="matrixTable">
+                    <thead id="matrixHead"></thead>
+                    <tbody id="matrixBody"></tbody>
+                </table>
+            </div>
+
+            <!-- SEATING ARRANGEMENT & PRINT FORMAT OPTIONS -->
+            <div class="bg-slate-50 border p-4 rounded-lg space-y-3">
+                <div class="text-sm font-bold text-slate-800">🪑 பெஞ்ச் இருக்கை வரிசை & அச்சு விருப்பங்கள் (Bench Seating & Print Options):</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div class="bg-white p-3 rounded border space-y-1.5">
+                        <div class="font-bold text-xs text-slate-600">பெஞ்சில் மாணவர் அமரும் வரிசை (2 அல்லது 3 பேர் அமரும் போது):</div>
+                        <label class="block"><input type="radio" name="benchOrderMode" value="interleave" checked> இரு வேறு வகுப்பு/பாட மாணவர்களை மாற்றி அமர வைக்கவும் (Anti-Malpractice)</label>
+                        <label class="block"><input type="radio" name="benchOrderMode" value="continuous"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No) அமர வைக்கவும்</label>
+                    </div>
+                    <div class="bg-white p-3 rounded border space-y-2">
+                        <div class="font-bold text-xs text-slate-600">அச்சுப் பிரதி சுருக்கக் குறியீடுகள் (Print Abbreviations):</div>
+                        <label class="block font-semibold text-blue-900">
+                            <input type="checkbox" id="useShortSubjectPrint" checked class="w-4 h-4 mr-1">
+                            பாடங்களை சுருக்கக் குறியீட்டில் அச்சிடுக (CS, CA, ENG + விளக்கம்)
+                        </label>
+                        <label class="block font-semibold text-emerald-900">
+                            <input type="checkbox" id="useShortTeacherPrint" checked class="w-4 h-4 mr-1">
+                            ஆசிரியர்களை சுருக்கக் குறியீட்டில் அச்சிடுக (RV + முழுப் பெயர்)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="generateFinalOutputs()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg text-base">🚀 Generate Notice Board & Visual Seating Map</button>
+            </div>
+        </div>
+
+        <!-- GENERATED OUTPUTS (PRINTABLE AREA) -->
+        <div id="generatedOutputArea" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow flex flex-wrap justify-between items-center gap-3 no-print">
+                <span class="font-bold text-emerald-700">✅ அறை ஒதுக்கீடு பட்டியல் மற்றும் இருக்கை வரைபடம் தயாராகிவிட்டது!</span>
+                <div class="flex gap-2">
+                    <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm">🖨️ அச்சிடுக / PDF சேமி (Print / Save PDF)</button>
+                    <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-sm">📥 Excel / CSV பதிவிறக்கம்</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow" id="printableNoticeBoard"></div>
+            <div id="printableVisualCharts" class="space-y-6"></div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 7: INVIGILATOR DUTY (EDIT & DELETE ENABLED)                  -->
+    <!-- ================================================================= -->
+    <div id="workView-duty" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-2">
+            <h2 class="text-lg font-bold">🧑‍🏫 7. அறை கண்காணிப்பாளர் பணி ஒதுக்கீடு (Invigilator Duty)</h2>
+            <p class="text-xs text-slate-500">பதிவு செய்யப்பட்ட ஆசிரியர்கள் மற்றும் அறைகளை கீழ்விரி பட்டியலிலிருந்து தேர்ந்தெடுத்துப் பணி ஒதுக்கீடு செய்யவும். திருத்தவும் நீக்கவும் முடியும்.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border">
+            <input type="hidden" id="dutyEditId" value="">
+            <div>
+                <label class="block text-xs font-semibold mb-1">தேர்வு தேதி & வேளை (Dropdown)</label>
+                <select id="dutyExamSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">அறை எண் (Dropdown)</label>
+                <select id="dutyRoomSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">ஆசிரியர் (Dropdown)</label>
+                <select id="dutyTeacherDropdown" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1">பணி நிலை</label>
+                <div class="flex gap-2">
+                    <select id="dutyRoleSelect" class="w-full border rounded p-2 text-sm bg-white">
+                        <option>அறை கண்காணிப்பாளர் (Invigilator)</option>
+                        <option>பறக்கும் படை (Squad)</option>
+                        <option>மாற்றுப் பணி (Reliever)</option>
+                    </select>
+                    <button onclick="saveDuty()" id="dutySaveBtn" class="bg-blue-700 text-white px-4 rounded font-semibold text-sm">சேர்</button>
+                    <button onclick="cancelDutyEdit()" id="dutyCancelBtn" class="hidden bg-slate-500 text-white px-3 rounded font-semibold text-sm">ரத்து</button>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border text-center">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="p-2 border">தேதி & வேளை</th>
+                        <th class="p-2 border">அறை எண்</th>
+                        <th class="p-2 border">சுருக்கக் குறியீடு</th>
+                        <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
+                        <th class="p-2 border">பணி</th>
+                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                    </tr>
+                </thead>
+                <tbody id="dutyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PAGE 8: SCHOOL SETTINGS                                           -->
+    <!-- ================================================================= -->
+    <div id="workView-settings" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-4 max-w-xl no-print">
+        <h2 class="text-lg font-bold border-b pb-2">⚙️ பள்ளி பெயர் & கடவுச்சொல் மாற்றம்</h2>
+        <div>
+            <label class="block text-sm font-medium mb-1">பள்ளியின் பெயர்</label>
+            <input type="text" id="setSchoolName" class="w-full border rounded-lg p-2.5">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">புதிய கடவுச்சொல் (மாற்ற விரும்பினால் மட்டும் உள்ளிடவும்)</label>
+            <input type="password" id="setNewPass" class="w-full border rounded-lg p-2.5">
+        </div>
+        <button onclick="updateSchoolProfile()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-lg">மாற்றங்களை சேமி</button>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+<!-- ===================================================================== -->
+<script>
+    const KEY_SCHOOLS = "esp_schools_v3";
+    const KEY_LOGS = "esp_logs_v3";
+    const KEY_OTPS = "esp_otps_v3";
+    const KEY_SESSION = "esp_session_v3";
+
+    let currentSchool = null;
+    let matrixColumns = [];
+    let matrixState = {};
+    let lastGeneratedSummary = [];
+
+    const _memStore = {};
+    let sbClient = null;
+    let isCloudEnabled = false;
+
+    (function initSupabaseClient() {
+        try {
+            const cfg = window.APP_CONFIG || {};
+            const schemaName = cfg.SUPABASE_SCHEMA || "exam_seating";
+            if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase) {
+                sbClient = window.supabase.createClient(
+                    cfg.SUPABASE_URL.trim(),
+                    cfg.SUPABASE_ANON_KEY.trim(),
+                    { db: { schema: schemaName } }
+                );
+                isCloudEnabled = true;
+            }
+        } catch (e) {
+            isCloudEnabled = false;
+        }
+    })();
+
+    function updateCloudBadge() {
+        const badge = document.getElementById('cloudStatusBadge');
+        const detail = document.getElementById('admCloudDetailText');
+        if (isCloudEnabled) {
+            if (badge) {
+                badge.className = "bg-emerald-500/20 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/50 font-semibold";
+                badge.textContent = "☁️ Cloud Sync Active (SchoolMgt / exam_seating)";
+            }
+            if (detail) {
+                detail.textContent = "✅ Supabase Cloud Database இணைக்கப்பட்டுள்ளது. அனைத்துப் பள்ளிகளின் தரவுகளும் பாதுகாப்பாக Cloud-ல் சேமிக்கப்படுகின்றன.";
+            }
+        } else {
+            if (badge) {
+                badge.className = "bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40";
+                badge.textContent = "💻 Local Browser Mode (config.js-ல் Supabase இணைக்கலாம்)";
+            }
+        }
+    }
+
+    function getData(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : (_memStore[key] !== undefined ? _memStore[key] : fallback);
+        } catch (e) {
+            return _memStore[key] !== undefined ? _memStore[key] : fallback;
+        }
+    }
+
+    function setData(key, val) {
+        _memStore[key] = val;
+        try {
+            localStorage.setItem(key, JSON.stringify(val));
+        } catch (e) {}
+
+        // Background Cloud Sync to Supabase
+        if (isCloudEnabled && sbClient) {
+            if (key === KEY_SCHOOLS && Array.isArray(val)) {
+                val.forEach(s => {
+                    sbClient.from('schools').upsert({
+                        id: s.id, name: s.name, code: s.code, phone: s.phone,
+                        pass: s.pass, active: s.active, created_at: s.createdAt, last_login: s.lastLogin
+                    }).then(() => {});
+                });
+            } else if (key.startsWith('esp_sdata_')) {
+                const parts = key.split('_'); // esp_sdata_<schoolId>_<suffix>
+                const schId = parts.slice(2, -1).join('_');
+                sbClient.from('school_data').upsert({
+                    data_key: key,
+                    school_id: schId,
+                    payload: val,
+                    updated_at: new Date().toISOString()
+                }).then(() => {});
+            } else if (key === KEY_OTPS && val && typeof val === 'object') {
+                Object.entries(val).forEach(([ph, code]) => {
+                    sbClient.from('otps').upsert({ phone: ph, otp: String(code) }).then(() => {});
+                });
+            }
+        }
+    }
+
+    function nowStr() {
+        return new Date().toLocaleString('en-IN');
+    }
+
+    function logActivity(schoolId, schoolName, action) {
+        const entry = { time: nowStr(), schoolId, schoolName, action };
+        const logs = getData(KEY_LOGS, []);
+        logs.unshift(entry);
+        setData(KEY_LOGS, logs.slice(0, 200));
+
+        if (isCloudEnabled && sbClient) {
+            sbClient.from('logs').insert({
+                time: entry.time,
+                school_id: schoolId,
+                school_name: schoolName,
+                action: action
+            }).then(() => {});
+        }
+    }
+
+    function schoolDataKey(suffix) {
+        return `esp_sdata_${currentSchool.id}_${suffix}`;
+    }
+
+    async function pullSchoolsFromCloud() {
+        if (!isCloudEnabled || !sbClient) return;
+        try {
+            const { data, error } = await sbClient.from('schools').select('*');
+            if (!error && Array.isArray(data) && data.length > 0) {
+                const mapped = data.map(r => ({
+                    id: r.id, name: r.name, code: r.code, phone: r.phone,
+                    pass: r.pass, active: r.active, createdAt: r.created_at, lastLogin: r.last_login
+                }));
+                _memStore[KEY_SCHOOLS] = mapped;
+                try { localStorage.setItem(KEY_SCHOOLS, JSON.stringify(mapped)); } catch (e) {}
+            }
+        } catch (e) {}
+    }
+
+    async function pullSchoolWorkspaceFromCloud(schoolId) {
+        if (!isCloudEnabled || !sbClient || !schoolId) return;
+        try {
+            const { data, error } = await sbClient.from('school_data').select('*').eq('school_id', schoolId);
+            if (!error && Array.isArray(data)) {
+                data.forEach(row => {
+                    _memStore[row.data_key] = row.payload;
+                    try { localStorage.setItem(row.data_key, JSON.stringify(row.payload)); } catch (e) {}
+                });
+            }
+        } catch (e) {}
+    }
+
+    async function syncAllFromCloud(showAlert = false) {
+        if (!isCloudEnabled || !sbClient) {
+            if (showAlert) alert("config.js கோப்பில் இன்னும் Supabase URL மற்றும் Key இணைக்கப்படவில்லை.");
+            return;
+        }
+        await pullSchoolsFromCloud();
+        try {
+            const { data: logsData } = await sbClient.from('logs').select('*').order('id', { ascending: false }).limit(200);
+            if (Array.isArray(logsData)) {
+                const mappedLogs = logsData.map(l => ({
+                    time: l.time, schoolId: l.school_id, schoolName: l.school_name, action: l.action
+                }));
+                _memStore[KEY_LOGS] = mappedLogs;
+                try { localStorage.setItem(KEY_LOGS, JSON.stringify(mappedLogs)); } catch (e) {}
+            }
+        } catch (e) {}
+        renderAdminDashboard();
+        if (showAlert) alert("✅ Supabase Cloud-லிருந்து அனைத்துப் பள்ளிகளின் நேரடித் தரவும் புதுப்பிக்கப்பட்டது!");
+    }
+
+    // Seed sample demo school
+    (function seedDemo() {
+        const schools = getData(KEY_SCHOOLS, []);
+        if (schools.length === 0) {
+            const demoSchool = {
+                id: "sch_1",
+                name: "அரசு மேல்நிலைப்பள்ளி - தேவனாங்குறிச்சி",
+                code: "ghss_dvk",
+                phone: "9876543210",
+                pass: "1234",
+                active: true,
+                createdAt: nowStr(),
+                lastLogin: nowStr()
+            };
+            setData(KEY_SCHOOLS, [demoSchool]);
+
+            setData("esp_sdata_sch_1_teachers", [
+                { id: 1, fullName: "R. VIMAL", shortCode: "RV", dept: "PG Asst (Computer Science)" },
+                { id: 2, fullName: "S. KARTHIKEYAN", shortCode: "SK", dept: "PG Asst (Physics)" },
+                { id: 3, fullName: "M. REVATHI", shortCode: "MR", dept: "PG Asst (Chemistry)" },
+                { id: 4, fullName: "E. MADHAVAN", shortCode: "EM", dept: "PG Asst (Economics)" }
+            ]);
+
+            setData("esp_sdata_sch_1_classes_master", [
+                { id: 1, className: "12-A1", medium: "EM" },
+                { id: 2, className: "12-A", medium: "TM" },
+                { id: 3, className: "12-C", medium: "TM" },
+                { id: 4, className: "11-A1", medium: "EM" }
+            ]);
+
+            setData("esp_sdata_sch_1_subjects_master", [
+                { id: 1, fullName: "ENGLISH", shortCode: "ENG" },
+                { id: 2, fullName: "COMPUTER SCIENCE", shortCode: "CS" },
+                { id: 3, fullName: "COM. APPLICATION", shortCode: "CA" },
+                { id: 4, fullName: "PHYSICS", shortCode: "PHY" },
+                { id: 5, fullName: "CHEMISTRY", shortCode: "CHE" }
+            ]);
+
+            setData("esp_sdata_sch_1_strength", [
+                { id: 1, className: "12-A1", medium: "EM", gStart: 12101, gEnd: 12111, gCount: 11, bStart: 12112, bEnd: 12133, bCount: 22 },
+                { id: 2, className: "12-A", medium: "TM", gStart: 12201, gEnd: 12205, gCount: 5, bStart: 12206, bEnd: 12211, bCount: 6 },
+                { id: 3, className: "12-C", medium: "TM", gStart: 12501, gEnd: 12508, gCount: 8, bStart: 12509, bEnd: 12513, bCount: 5 },
+                { id: 4, className: "11-A1", medium: "EM", gStart: 11101, gEnd: 11119, gCount: 19, bStart: 11120, bEnd: 11140, bCount: 21 }
+            ]);
+
+            setData("esp_sdata_sch_1_rooms", [
+                { id: 1, roomNo: "2", cols: 2, colRows: [12, 12], perBench: 2, capacity: 48 },
+                { id: 2, roomNo: "3", cols: 2, colRows: [12, 12], perBench: 2, capacity: 48 },
+                { id: 3, roomNo: "4", cols: 3, colRows: [8, 8, 8], perBench: 3, capacity: 72 }
+            ]);
+
+            setData("esp_sdata_sch_1_timetable", [
+                { id: 1, title: "அரையாண்டுத் தேர்வு - 2026", date: "2026-12-11", session: "FN", className: "12-A1", subjectCode: "CS", subjectFull: "COMPUTER SCIENCE" },
+                { id: 2, title: "அரையாண்டுத் தேர்வு - 2026", date: "2026-12-11", session: "FN", className: "12-A", subjectCode: "CS", subjectFull: "COMPUTER SCIENCE" },
+                { id: 3, title: "அரையாண்டுத் தேர்வு - 2026", date: "2026-12-11", session: "FN", className: "12-C", subjectCode: "CA", subjectFull: "COM. APPLICATION" },
+                { id: 4, title: "அரையாண்டுத் தேர்வு - 2026", date: "2026-12-11", session: "FN", className: "11-A1", subjectCode: "CS", subjectFull: "COMPUTER SCIENCE" }
+            ]);
+
+            logActivity("sch_1", demoSchool.name, "மாதிரி பள்ளி தரவு உருவாக்கப்பட்டது (Demo Ready)");
+        }
+    })();
+
+    // ---------------------------------------------------------
+    // AUTHENTICATION LOGIC
+    // ---------------------------------------------------------
+    function switchAuthTab(tab) {
+        document.querySelectorAll(".auth-tab-content").forEach(el => el.classList.add("hidden"));
+        document.querySelectorAll(".auth-tab-btn").forEach(el => {
+            el.classList.remove("border-b-2", "border-blue-700", "text-blue-800", "bg-white");
+            el.classList.add("text-slate-600");
+        });
+        document.getElementById(`authTab-${tab}`).classList.remove("hidden");
+        const btn = document.getElementById(`tabBtn-${tab}`);
+        btn.classList.add("border-b-2", "border-blue-700", "text-blue-800", "bg-white");
+        btn.classList.remove("text-slate-600");
+    }
+
+    async function sendOtp(mode) {
+        const phone = document.getElementById(mode === 'reg' ? 'regPhone' : 'recPhone').value.trim();
+        if (!/^\d{10}$/.test(phone)) {
+            alert("சரியான 10 இலக்க கைபேசி எண்ணை உள்ளிடவும்.");
+            return;
+        }
+        await pullSchoolsFromCloud();
+        const schools = getData(KEY_SCHOOLS, []);
+        const existing = schools.find(s => s.phone === phone);
+
+        if (mode === 'reg' && existing) {
+            alert("⚠️ இந்த கைபேசி எண்ணில் ஏற்கனவே ஒரு பள்ளி பதிவு செய்யப்பட்டுள்ளது! ஒரு எண்ணிற்கு ஒரு பள்ளி மட்டுமே அனுமதிக்கப்படும்.");
+            return;
+        }
+        if (mode === 'rec' && !existing) {
+            alert("இந்த கைபேசி எண்ணில் எந்தப் பள்ளியும் பதிவு செய்யப்படவில்லை.");
+            return;
+        }
+
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        const otps = getData(KEY_OTPS, {});
+        otps[phone] = otp;
+        setData(KEY_OTPS, otps);
+
+        const banner = document.getElementById(mode === 'reg' ? 'regOtpBanner' : 'recOtpBanner');
+        banner.classList.remove("hidden");
+        banner.innerHTML = `⏳ ${phone} எண்ணிற்கு OTP அனுப்பப்படுகிறது...`;
+
+        try {
+            const res = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, otp })
+            });
+            const data = await res.json();
+            if (data && data.sent) {
+                banner.className = "bg-emerald-50 border border-emerald-400 text-emerald-900 p-3 rounded-lg text-sm font-semibold";
+                banner.innerHTML = mode === 'reg'
+                    ? `✅ <b>${phone}</b> எண்ணிற்கு SMS வழியாக 6 இலக்க OTP அனுப்பப்பட்டுள்ளது!`
+                    : `✅ <b>${phone}</b> எண்ணிற்கு OTP SMS அனுப்பப்பட்டுள்ளது! | பள்ளி குறியீடு: <b>${existing.code}</b>`;
+                return;
+            }
+        } catch (e) {}
+
+        // Fallback to Demo Mode OTP banner if SMS gateway is not configured yet
+        banner.className = "bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold";
+        banner.innerHTML = mode === 'reg'
+            ? `📲 Demo Mode OTP (${phone}): <span class="underline text-lg">${otp}</span> <span class="text-xs font-normal">(Vercel-ல் FAST2SMS_API_KEY இணைத்தால் நேராக SMS செல்லும்)</span>`
+            : `📲 மீட்டமைப்பு Demo OTP (${phone}): <span class="underline text-lg">${otp}</span> | பள்ளி குறியீடு: <b>${existing.code}</b>`;
+    }
+
+    function handleSchoolRegister() {
+        const phone = document.getElementById('regPhone').value.trim();
+        const otpIn = document.getElementById('regOtpInput').value.trim();
+        const code = document.getElementById('regCode').value.trim();
+        const name = document.getElementById('regName').value.trim();
+        const pass = document.getElementById('regPass').value;
+        const pass2 = document.getElementById('regPass2').value;
+
+        if (!phone || !otpIn || !code || !name || !pass) {
+            alert("அனைத்து விவரங்களையும் பூர்த்தி செய்யவும்.");
+            return;
+        }
+        if (pass !== pass2) {
+            alert("கடவுச்சொற்கள் பொருந்தவில்லை!");
+            return;
+        }
+        const otps = getData(KEY_OTPS, {});
+        if (otps[phone] !== otpIn) {
+            alert("தவறான OTP எண்!");
+            return;
+        }
+        const schools = getData(KEY_SCHOOLS, []);
+        if (schools.some(s => s.phone === phone)) {
+            alert("இந்த போன் எண்ணிற்கு ஏற்கனவே பள்ளி உள்ளது!");
+            return;
+        }
+        if (schools.some(s => s.code.toLowerCase() === code.toLowerCase())) {
+            alert("இந்த பள்ளி குறியீடு ஏற்கனவே பயன்பாட்டில் உள்ளது. வேறு குறியீடு தரவும்.");
+            return;
+        }
+
+        const newSchool = {
+            id: "sch_" + Date.now(),
+            name, code, phone, pass,
+            active: true,
+            createdAt: nowStr(),
+            lastLogin: nowStr()
+        };
+        schools.push(newSchool);
+        setData(KEY_SCHOOLS, schools);
+        logActivity(newSchool.id, name, `புதிய பள்ளி உருவாக்கப்பட்டது (Phone: ${phone})`);
+        alert("🎉 பள்ளி வெற்றிகரமாக உருவாக்கப்பட்டது! இப்போது உள்நுழையலாம்.");
+        switchAuthTab('login');
+        document.getElementById('loginCode').value = code;
+    }
+
+    async function handleSchoolLogin() {
+        const code = document.getElementById('loginCode').value.trim();
+        const pass = document.getElementById('loginPass').value;
+
+        if (code.toLowerCase() === "admin" && pass === "admin123") {
+            setData(KEY_SESSION, { role: 'admin' });
+            await syncAllFromCloud(false);
+            enterAdminDashboard();
+            return;
+        }
+
+        await pullSchoolsFromCloud();
+        const schools = getData(KEY_SCHOOLS, []);
+        const found = schools.find(s => s.code.toLowerCase() === code.toLowerCase());
+
+        if (!found) {
+            alert("இந்தப் பள்ளி குறியீடு பதிவு செய்யப்படவில்லை.");
+            return;
+        }
+        if (!found.active) {
+            alert("உங்கள் பள்ளிக் கணக்கு அட்மினால் தற்காலிகமாக நிறுத்தி வைக்கப்பட்டுள்ளது.");
+            return;
+        }
+        if (found.pass !== pass) {
+            alert("தவறான கடவுச்சொல்!");
+            return;
+        }
+
+        found.lastLogin = nowStr();
+        setData(KEY_SCHOOLS, schools);
+        currentSchool = found;
+        setData(KEY_SESSION, { role: 'school', schoolId: found.id });
+        await pullSchoolWorkspaceFromCloud(found.id);
+        logActivity(found.id, found.name, "பள்ளி கணக்கில் உள்நுழைந்தார் (Logged In)");
+        enterSchoolWorkspace();
+    }
+
+    function handlePasswordReset() {
+        const phone = document.getElementById('recPhone').value.trim();
+        const otpIn = document.getElementById('recOtpInput').value.trim();
+        const newPass = document.getElementById('recNewPass').value;
+        const otps = getData(KEY_OTPS, {});
+
+        if (otps[phone] !== otpIn || !newPass) {
+            alert("தவறான OTP அல்லது புதிய கடவுச்சொல்.");
+            return;
+        }
+        const schools = getData(KEY_SCHOOLS, []);
+        const found = schools.find(s => s.phone === phone);
+        if (found) {
+            found.pass = newPass;
+            setData(KEY_SCHOOLS, schools);
+            logActivity(found.id, found.name, "OTP மூலம் கடவுச்சொல் மீட்டமைக்கப்பட்டது");
+            alert("கடவுச்சொல் மாற்றப்பட்டது! இப்போது உள்நுழையலாம்.");
+            switchAuthTab('login');
+        }
+    }
+
+    function logout() {
+        if (currentSchool) {
+            logActivity(currentSchool.id, currentSchool.name, "வெளியேறினார் (Logged Out)");
+        }
+        currentSchool = null;
+        localStorage.removeItem(KEY_SESSION);
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('adminSection').classList.add('hidden');
+        document.getElementById('schoolSection').classList.add('hidden');
+        document.getElementById('userBadgeArea').classList.add('hidden');
+    }
+
+    // ---------------------------------------------------------
+    // SUPER ADMIN DASHBOARD
+    // ---------------------------------------------------------
+    function enterAdminDashboard() {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('schoolSection').classList.add('hidden');
+        document.getElementById('adminSection').classList.remove('hidden');
+        document.getElementById('userBadgeArea').classList.remove('hidden');
+        document.getElementById('loggedSchoolBadge').textContent = "🛡️ Admin Control";
+        renderAdminDashboard();
+    }
+
+    function renderAdminDashboard() {
+        const schools = getData(KEY_SCHOOLS, []);
+        const logs = getData(KEY_LOGS, []);
+
+        document.getElementById('admTotalSchools').textContent = schools.length;
+        document.getElementById('admActiveSchools').textContent = schools.filter(s => s.active).length;
+        document.getElementById('admTotalLogs').textContent = logs.length;
+
+        document.getElementById('admLogsBody').innerHTML = logs.map(l => `
+            <tr class="border-b hover:bg-slate-50">
+                <td class="p-2 text-xs text-slate-500">${l.time}</td>
+                <td class="p-2 font-semibold">${l.schoolName}</td>
+                <td class="p-2 text-blue-800">${l.action}</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('admSchoolsBody').innerHTML = schools.map(s => `
+            <tr class="border-b">
+                <td class="p-2 font-semibold">${s.name}</td>
+                <td class="p-2">${s.code}</td>
+                <td class="p-2">${s.phone}</td>
+                <td class="p-2 text-xs">${s.lastLogin}</td>
+                <td class="p-2">${s.active ? '<span class="text-emerald-700 font-bold">Active</span>' : '<span class="text-red-600 font-bold">Blocked</span>'}</td>
+                <td class="p-2">
+                    <button onclick="toggleSchoolStatus('${s.id}')" class="px-3 py-1 rounded text-xs font-semibold ${s.active ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                        ${s.active ? 'நிறுத்து (Block)' : 'செயல்படுத்து (Activate)'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function toggleSchoolStatus(id) {
+        const schools = getData(KEY_SCHOOLS, []);
+        const s = schools.find(x => x.id === id);
+        if (s) {
+            s.active = !s.active;
+            setData(KEY_SCHOOLS, schools);
+            renderAdminDashboard();
+        }
+    }
+
+    // ---------------------------------------------------------
+    // SCHOOL WORKSPACE & TABS
+    // ---------------------------------------------------------
+    function enterSchoolWorkspace() {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('adminSection').classList.add('hidden');
+        document.getElementById('schoolSection').classList.remove('hidden');
+        document.getElementById('userBadgeArea').classList.remove('hidden');
+        document.getElementById('loggedSchoolBadge').textContent = `🏫 ${currentSchool.name}`;
+        document.getElementById('setSchoolName').value = currentSchool.name;
+        switchWorkTab('teachers');
+    }
+
+    function switchWorkTab(tabName) {
+        document.querySelectorAll('.work-view').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.work-tab-btn').forEach(el => {
+            el.classList.remove('bg-blue-700', 'text-white');
+            el.classList.add('bg-slate-100', 'text-slate-700');
+        });
+        document.getElementById(`workView-${tabName}`).classList.remove('hidden');
+        const activeBtn = document.getElementById(`wTab-${tabName}`);
+        activeBtn.classList.add('bg-blue-700', 'text-white');
+        activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+
+        if (tabName === 'teachers') renderTeachersTable();
+        if (tabName === 'subjects') renderClassesAndSubjectsMaster();
+        if (tabName === 'strength') setupStrengthView();
+        if (tabName === 'rooms') { renderRoomColRowInputs(); renderRoomsTable(); }
+        if (tabName === 'timetable') setupTimetableView();
+        if (tabName === 'allocate') setupAllocationView();
+        if (tabName === 'duty') setupDutyView();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 1: TEACHERS MASTER (SAVE / EDIT / DELETE)
+    // ---------------------------------------------------------
+    function saveTeacher() {
+        const editId = document.getElementById('tchEditId').value;
+        const fullName = document.getElementById('tchFullName').value.trim();
+        const shortCode = document.getElementById('tchShortCode').value.trim().toUpperCase();
+        const dept = document.getElementById('tchDept').value.trim();
+
+        if (!fullName || !shortCode) {
+            alert("ஆசிரியர் முழுப் பெயர் மற்றும் சுருக்கக் குறியீடு இரண்டையும் உள்ளிடவும்.");
+            return;
+        }
+        const list = getData(schoolDataKey('teachers'), []);
+        if (editId) {
+            const idx = list.findIndex(t => String(t.id) === String(editId));
+            if (idx > -1) {
+                list[idx] = { ...list[idx], fullName, shortCode, dept };
+                logActivity(currentSchool.id, currentSchool.name, `ஆசிரியர் விவரம் திருத்தப்பட்டது: ${shortCode} - ${fullName}`);
+            }
+        } else {
+            if (list.some(t => t.shortCode.toUpperCase() === shortCode)) {
+                alert(`'${shortCode}' என்ற சுருக்கக் குறியீடு ஏற்கனவே உள்ளது!`);
+                return;
+            }
+            list.push({ id: Date.now(), fullName, shortCode, dept });
+            logActivity(currentSchool.id, currentSchool.name, `ஆசிரியர் சேர்க்கப்பட்டார்: ${shortCode} - ${fullName}`);
+        }
+        setData(schoolDataKey('teachers'), list);
+        cancelTeacherEdit();
+        renderTeachersTable();
+    }
+
+    function editTeacher(id) {
+        const list = getData(schoolDataKey('teachers'), []);
+        const t = list.find(x => x.id === id);
+        if (!t) return;
+        document.getElementById('tchEditId').value = t.id;
+        document.getElementById('tchFullName').value = t.fullName;
+        document.getElementById('tchShortCode').value = t.shortCode;
+        document.getElementById('tchDept').value = t.dept || '';
+        document.getElementById('tchSaveBtn').textContent = "💾 புதுப்பி (Update)";
+        document.getElementById('tchCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelTeacherEdit() {
+        document.getElementById('tchEditId').value = '';
+        document.getElementById('tchFullName').value = '';
+        document.getElementById('tchShortCode').value = '';
+        document.getElementById('tchDept').value = '';
+        document.getElementById('tchSaveBtn').textContent = "➕ சேமி";
+        document.getElementById('tchCancelBtn').classList.add('hidden');
+    }
+
+    function renderTeachersTable() {
+        const list = getData(schoolDataKey('teachers'), []);
+        document.getElementById('teachersTableBody').innerHTML = list.map((t, idx) => `
+            <tr class="border-b">
+                <td class="p-2 border">${idx + 1}</td>
+                <td class="p-2 border font-bold text-blue-800">${t.shortCode}</td>
+                <td class="p-2 border font-semibold">${t.fullName}</td>
+                <td class="p-2 border text-slate-600">${t.dept || '-'}</td>
+                <td class="p-2 border space-x-2">
+                    <button onclick="editTeacher(${t.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs">✏️ திருத்து</button>
+                    <button onclick="deleteTeacher(${t.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold text-xs">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteTeacher(id) {
+        if (!confirm("இந்த ஆசிரியர் பதிவை நீக்க வேண்டுமா?")) return;
+        const list = getData(schoolDataKey('teachers'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('teachers'), list);
+        renderTeachersTable();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 2: CLASSES & SUBJECTS MASTER (SAVE / EDIT / DELETE)
+    // ---------------------------------------------------------
+    function saveClassMaster() {
+        const editId = document.getElementById('clsEditId').value;
+        const className = document.getElementById('clsMasterName').value.trim();
+        const medium = document.getElementById('clsMasterMedium').value;
+        if (!className) { alert("வகுப்பு பெயரை உள்ளிடவும்."); return; }
+
+        const list = getData(schoolDataKey('classes_master'), []);
+        if (editId) {
+            const idx = list.findIndex(c => String(c.id) === String(editId));
+            if (idx > -1) list[idx] = { ...list[idx], className, medium };
+        } else {
+            if (list.some(c => c.className.toLowerCase() === className.toLowerCase() && c.medium === medium)) {
+                alert("இந்த வகுப்பு ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.");
+                return;
+            }
+            list.push({ id: Date.now(), className, medium });
+        }
+        setData(schoolDataKey('classes_master'), list);
+        cancelClassEdit();
+        renderClassesAndSubjectsMaster();
+    }
+
+    function editClassMaster(id) {
+        const list = getData(schoolDataKey('classes_master'), []);
+        const c = list.find(x => x.id === id);
+        if (!c) return;
+        document.getElementById('clsEditId').value = c.id;
+        document.getElementById('clsMasterName').value = c.className;
+        document.getElementById('clsMasterMedium').value = c.medium;
+        document.getElementById('clsSaveBtn').textContent = "💾 புதுப்பி";
+        document.getElementById('clsCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelClassEdit() {
+        document.getElementById('clsEditId').value = '';
+        document.getElementById('clsMasterName').value = '';
+        document.getElementById('clsSaveBtn').textContent = "➕ சேர்";
+        document.getElementById('clsCancelBtn').classList.add('hidden');
+    }
+
+    function deleteClassMaster(id) {
+        if (!confirm("இந்த வகுப்பை நீக்க வேண்டுமா?")) return;
+        const list = getData(schoolDataKey('classes_master'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('classes_master'), list);
+        renderClassesAndSubjectsMaster();
+    }
+
+    function saveSubjectMaster() {
+        const editId = document.getElementById('subEditId').value;
+        const fullName = document.getElementById('subFullName').value.trim().toUpperCase();
+        const shortCode = document.getElementById('subShortCode').value.trim().toUpperCase();
+        if (!fullName || !shortCode) {
+            alert("பாடம் முழுப் பெயர் மற்றும் சுருக்கக் குறியீடு இரண்டையும் உள்ளிடவும்.");
+            return;
+        }
+        const list = getData(schoolDataKey('subjects_master'), []);
+        if (editId) {
+            const idx = list.findIndex(s => String(s.id) === String(editId));
+            if (idx > -1) list[idx] = { ...list[idx], fullName, shortCode };
+        } else {
+            if (list.some(s => s.shortCode.toUpperCase() === shortCode)) {
+                alert(`'${shortCode}' என்ற பாடக் குறியீடு ஏற்கனவே உள்ளது.`);
+                return;
+            }
+            list.push({ id: Date.now(), fullName, shortCode });
+        }
+        setData(schoolDataKey('subjects_master'), list);
+        cancelSubjectEdit();
+        renderClassesAndSubjectsMaster();
+    }
+
+    function editSubjectMaster(id) {
+        const list = getData(schoolDataKey('subjects_master'), []);
+        const s = list.find(x => x.id === id);
+        if (!s) return;
+        document.getElementById('subEditId').value = s.id;
+        document.getElementById('subFullName').value = s.fullName;
+        document.getElementById('subShortCode').value = s.shortCode;
+        document.getElementById('subSaveBtn').textContent = "💾 புதுப்பி";
+        document.getElementById('subCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelSubjectEdit() {
+        document.getElementById('subEditId').value = '';
+        document.getElementById('subFullName').value = '';
+        document.getElementById('subShortCode').value = '';
+        document.getElementById('subSaveBtn').textContent = "➕ சேர்";
+        document.getElementById('subCancelBtn').classList.add('hidden');
+    }
+
+    function deleteSubjectMaster(id) {
+        if (!confirm("இந்தப் பாடத்தை நீக்க வேண்டுமா?")) return;
+        const list = getData(schoolDataKey('subjects_master'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('subjects_master'), list);
+        renderClassesAndSubjectsMaster();
+    }
+
+    function renderClassesAndSubjectsMaster() {
+        const classes = getData(schoolDataKey('classes_master'), []);
+        document.getElementById('classMasterBody').innerHTML = classes.map(c => `
+            <tr class="border-b">
+                <td class="p-2 border font-bold">${c.className}</td>
+                <td class="p-2 border">${c.medium}</td>
+                <td class="p-2 border space-x-1">
+                    <button onclick="editClassMaster(${c.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">✏️ திருத்து</button>
+                    <button onclick="deleteClassMaster(${c.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+
+        const subjects = getData(schoolDataKey('subjects_master'), []);
+        document.getElementById('subjectMasterBody').innerHTML = subjects.map(s => `
+            <tr class="border-b">
+                <td class="p-2 border font-bold text-emerald-800">${s.shortCode}</td>
+                <td class="p-2 border font-semibold">${s.fullName}</td>
+                <td class="p-2 border space-x-1">
+                    <button onclick="editSubjectMaster(${s.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">✏️ திருத்து</button>
+                    <button onclick="deleteSubjectMaster(${s.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 3: STRENGTH DETAILS (GIRLS FIRST, SAVE / EDIT / DELETE)
+    // ---------------------------------------------------------
+    function setupStrengthView() {
+        const classes = getData(schoolDataKey('classes_master'), []);
+        const dd = document.getElementById('strClassDropdown');
+        if (classes.length === 0) {
+            dd.innerHTML = `<option value="">-- முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும் --</option>`;
+        } else {
+            dd.innerHTML = classes.map(c => `<option value="${c.className}|${c.medium}">${c.className} (${c.medium})</option>`).join('');
+        }
+        renderStrengthTable();
+    }
+
+    function autoCalcRollNumbers() {
+        const gCount = parseInt(document.getElementById('strGCount').value) || 0;
+        const bCount = parseInt(document.getElementById('strBCount').value) || 0;
+        const baseStart = parseInt(document.getElementById('strBaseStart').value) || 0;
+
+        if (baseStart <= 0) return;
+
+        let nextRoll = baseStart;
+        if (gCount > 0) {
+            document.getElementById('strGStart').value = nextRoll;
+            document.getElementById('strGEnd').value = nextRoll + gCount - 1;
+            nextRoll = nextRoll + gCount;
+        } else {
+            document.getElementById('strGStart').value = 0;
+            document.getElementById('strGEnd').value = 0;
+        }
+
+        if (bCount > 0) {
+            document.getElementById('strBStart').value = nextRoll;
+            document.getElementById('strBEnd').value = nextRoll + bCount - 1;
+        } else {
+            document.getElementById('strBStart').value = 0;
+            document.getElementById('strBEnd').value = 0;
+        }
+    }
+
+    function syncCountFromManualRoll() {
+        const gStart = parseInt(document.getElementById('strGStart').value) || 0;
+        const gEnd = parseInt(document.getElementById('strGEnd').value) || 0;
+        const bStart = parseInt(document.getElementById('strBStart').value) || 0;
+        const bEnd = parseInt(document.getElementById('strBEnd').value) || 0;
+
+        document.getElementById('strGCount').value = (gEnd >= gStart && gStart > 0) ? (gEnd - gStart + 1) : 0;
+        document.getElementById('strBCount').value = (bEnd >= bStart && bStart > 0) ? (bEnd - bStart + 1) : 0;
+    }
+
+    function saveStrength() {
+        const editId = document.getElementById('strEditId').value;
+        const clsVal = document.getElementById('strClassDropdown').value;
+        if (!clsVal) {
+            alert("முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்த்துவிட்டுத் தேர்ந்தெடுக்கவும்.");
+            return;
+        }
+        const [className, medium] = clsVal.split('|');
+        const gStart = parseInt(document.getElementById('strGStart').value) || 0;
+        const gEnd = parseInt(document.getElementById('strGEnd').value) || 0;
+        const bStart = parseInt(document.getElementById('strBStart').value) || 0;
+        const bEnd = parseInt(document.getElementById('strBEnd').value) || 0;
+
+        const gCount = (gEnd >= gStart && gStart > 0) ? (gEnd - gStart + 1) : 0;
+        const bCount = (bEnd >= bStart && bStart > 0) ? (bEnd - bStart + 1) : 0;
+
+        if (gCount === 0 && bCount === 0) {
+            alert("மாணவியர் அல்லது மாணவர்கள் எண்ணிக்கை மற்றும் தேர்வு எண்களை உள்ளிடவும்.");
+            return;
+        }
+
+        const list = getData(schoolDataKey('strength'), []);
+        if (editId) {
+            const idx = list.findIndex(x => String(x.id) === String(editId));
+            if (idx > -1) list[idx] = { ...list[idx], className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount };
+            logActivity(currentSchool.id, currentSchool.name, `மாணவர் எண்ணிக்கை திருத்தப்பட்டது: ${className} (${medium})`);
+        } else {
+            list.push({ id: Date.now(), className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount });
+            logActivity(currentSchool.id, currentSchool.name, `மாணவியர்/மாணவர் எண்ணிக்கை சேர்க்கப்பட்டது: ${className} (${medium})`);
+        }
+        setData(schoolDataKey('strength'), list);
+        cancelStrengthEdit();
+        renderStrengthTable();
+    }
+
+    function editStrength(id) {
+        const list = getData(schoolDataKey('strength'), []);
+        const r = list.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('strEditId').value = r.id;
+        document.getElementById('strClassDropdown').value = `${r.className}|${r.medium}`;
+        document.getElementById('strGCount').value = r.gCount;
+        document.getElementById('strBCount').value = r.bCount;
+        document.getElementById('strBaseStart').value = r.gStart || r.bStart || '';
+        document.getElementById('strGStart').value = r.gStart;
+        document.getElementById('strGEnd').value = r.gEnd;
+        document.getElementById('strBStart').value = r.bStart;
+        document.getElementById('strBEnd').value = r.bEnd;
+        document.getElementById('strSaveBtn').textContent = "💾 புதுப்பி (Update)";
+        document.getElementById('strCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelStrengthEdit() {
+        document.getElementById('strEditId').value = '';
+        document.getElementById('strGCount').value = 0;
+        document.getElementById('strBCount').value = 0;
+        document.getElementById('strBaseStart').value = '';
+        document.getElementById('strGStart').value = '';
+        document.getElementById('strGEnd').value = '';
+        document.getElementById('strBStart').value = '';
+        document.getElementById('strBEnd').value = '';
+        document.getElementById('strSaveBtn').textContent = "➕ மாணவியர் & மாணவர் எண்ணிக்கையை சேமி";
+        document.getElementById('strCancelBtn').classList.add('hidden');
+    }
+
+    function renderStrengthTable() {
+        const list = getData(schoolDataKey('strength'), []);
+        document.getElementById('strengthTableBody').innerHTML = list.map(r => `
+            <tr class="border-b">
+                <td class="p-2 border font-bold">${r.className}</td>
+                <td class="p-2 border">${r.medium}</td>
+                <td class="p-2 border bg-pink-50/40">${r.gCount > 0 ? `${r.gStart} - ${r.gEnd}` : '-'}</td>
+                <td class="p-2 border font-semibold text-pink-700 bg-pink-50/40">${r.gCount}</td>
+                <td class="p-2 border bg-blue-50/40">${r.bCount > 0 ? `${r.bStart} - ${r.bEnd}` : '-'}</td>
+                <td class="p-2 border font-semibold text-blue-700 bg-blue-50/40">${r.bCount}</td>
+                <td class="p-2 border font-bold">${r.gCount + r.bCount}</td>
+                <td class="p-2 border space-x-1">
+                    <button onclick="editStrength(${r.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs">✏️ திருத்து</button>
+                    <button onclick="deleteStrength(${r.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold text-xs">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteStrength(id) {
+        if (!confirm("இந்த வகுப்பு எண்ணிக்கை விவரத்தை நீக்க வேண்டுமா?")) return;
+        const list = getData(schoolDataKey('strength'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('strength'), list);
+        renderStrengthTable();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 4: ROOMS MASTER (VARIABLE ROWS PER COLUMN + EDIT & DELETE)
+    // ---------------------------------------------------------
+    function renderRoomColRowInputs(existingColRows = null) {
+        const cols = Math.max(1, Math.min(8, parseInt(document.getElementById('rmCols').value) || 2));
+        const container = document.getElementById('roomColRowsContainer');
+        let html = '';
+        for (let i = 0; i < cols; i++) {
+            const val = (existingColRows && existingColRows[i] !== undefined) ? existingColRows[i] : 15;
+            html += `
+                <div class="bg-slate-50 border rounded p-2 text-center">
+                    <label class="block text-[11px] font-bold text-blue-900 mb-1">Col ${i + 1} வரிசைகள்</label>
+                    <input type="number" min="1" max="30" value="${val}" oninput="recalcRoomMaxCapFromCols()" class="rm-col-row-inp w-20 border rounded p-1 text-center font-bold text-sm">
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+        recalcRoomMaxCapFromCols();
+    }
+
+    function recalcRoomMaxCapFromCols() {
+        const perBench = parseInt(document.getElementById('rmPerBench').value) || 2;
+        const rowInputs = Array.from(document.querySelectorAll('.rm-col-row-inp'));
+        const totalBenches = rowInputs.reduce((sum, inp) => sum + (parseInt(inp.value) || 0), 0);
+        document.getElementById('rmMaxCap').value = totalBenches * perBench;
+    }
+
+    function saveRoom() {
+        const editId = document.getElementById('rmEditId').value;
+        const roomNo = document.getElementById('rmNo').value.trim();
+        const cols = parseInt(document.getElementById('rmCols').value) || 2;
+        const perBench = parseInt(document.getElementById('rmPerBench').value) || 2;
+        const colRows = Array.from(document.querySelectorAll('.rm-col-row-inp')).map(inp => parseInt(inp.value) || 1);
+        const capacity = parseInt(document.getElementById('rmMaxCap').value) || (colRows.reduce((a, b) => a + b, 0) * perBench);
+
+        if (!roomNo) { alert("அறை எண்ணை உள்ளிடவும்."); return; }
+
+        const rooms = getData(schoolDataKey('rooms'), []);
+        if (editId) {
+            const idx = rooms.findIndex(r => String(r.id) === String(editId));
+            if (idx > -1) rooms[idx] = { ...rooms[idx], roomNo, cols, colRows, perBench, capacity };
+            logActivity(currentSchool.id, currentSchool.name, `அறை விவரம் திருத்தப்பட்டது: Room ${roomNo}`);
+        } else {
+            if (rooms.some(r => r.roomNo.toLowerCase() === roomNo.toLowerCase())) {
+                alert(`Room ${roomNo} ஏற்கனவே உள்ளது!`);
+                return;
+            }
+            rooms.push({ id: Date.now(), roomNo, cols, colRows, perBench, capacity });
+            logActivity(currentSchool.id, currentSchool.name, `அறை சேர்க்கப்பட்டது: Room ${roomNo} (Max Cap: ${capacity})`);
+        }
+        setData(schoolDataKey('rooms'), rooms);
+        cancelRoomEdit();
+        renderRoomsTable();
+    }
+
+    function editRoom(id) {
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const r = rooms.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('rmEditId').value = r.id;
+        document.getElementById('rmNo').value = r.roomNo;
+        document.getElementById('rmCols').value = r.cols;
+        document.getElementById('rmPerBench').value = r.perBench || 2;
+        const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
+        renderRoomColRowInputs(cRows);
+        document.getElementById('rmMaxCap').value = r.capacity;
+        document.getElementById('rmSaveBtn').textContent = "💾 புதுப்பி";
+        document.getElementById('rmCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelRoomEdit() {
+        document.getElementById('rmEditId').value = '';
+        document.getElementById('rmNo').value = '';
+        document.getElementById('rmCols').value = 2;
+        document.getElementById('rmPerBench').value = 2;
+        renderRoomColRowInputs([15, 15]);
+        document.getElementById('rmSaveBtn').textContent = "➕ அறையை சேமி";
+        document.getElementById('rmCancelBtn').classList.add('hidden');
+    }
+
+    function renderRoomsTable() {
+        const rooms = getData(schoolDataKey('rooms'), []);
+        document.getElementById('roomsTableBody').innerHTML = rooms.map(r => {
+            const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
+            const cRowsText = cRows.map((cnt, idx) => `Col ${idx + 1}: <b>${cnt}</b>`).join(' | ');
+            return `
+                <tr class="border-b">
+                    <td class="p-2 border font-bold">${r.roomNo}</td>
+                    <td class="p-2 border">${r.cols}</td>
+                    <td class="p-2 border text-xs">${cRowsText}</td>
+                    <td class="p-2 border">${r.perBench || 2}</td>
+                    <td class="p-2 border font-bold text-emerald-700 bg-emerald-50">${r.capacity}</td>
+                    <td class="p-2 border space-x-1">
+                        <button onclick="editRoom(${r.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs">✏️ திருத்து</button>
+                        <button onclick="deleteRoom(${r.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold text-xs">🗑️ நீக்கு</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function deleteRoom(id) {
+        if (!confirm("இந்த அறையை நீக்க வேண்டுமா?")) return;
+        const rooms = getData(schoolDataKey('rooms'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('rooms'), rooms);
+        renderRoomsTable();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 5: EXAM TIMETABLE (SAVE / EDIT / DELETE)
+    // ---------------------------------------------------------
+    function setupTimetableView() {
+        const subjects = getData(schoolDataKey('subjects_master'), []);
+        const subDd = document.getElementById('ttSubjectDropdown');
+        if (subjects.length === 0) {
+            subDd.innerHTML = `<option value="">-- முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் பாடங்களைச் சேர்க்கவும் --</option>`;
+        } else {
+            subDd.innerHTML = subjects.map(s => `<option value="${s.shortCode}|${s.fullName}">${s.shortCode} - ${s.fullName}</option>`).join('');
+        }
+
+        const classesMaster = getData(schoolDataKey('classes_master'), []);
+        const uniqueClasses = [...new Set(classesMaster.map(c => c.className))];
+        document.getElementById('ttClassCheckboxes').innerHTML = uniqueClasses.length
+            ? uniqueClasses.map(c => `<label class="bg-white border px-3 py-1.5 rounded shadow-sm text-sm font-semibold"><input type="checkbox" class="tt-cls-cb mr-1" value="${c}"> ${c}</label>`).join('')
+            : `<span class="text-red-600 text-sm">முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும்.</span>`;
+
+        renderTimetableTable();
+    }
+
+    function saveTimetable() {
+        const editId = document.getElementById('ttEditId').value;
+        const title = document.getElementById('ttTitle').value.trim();
+        const date = document.getElementById('ttDate').value;
+        const session = document.getElementById('ttSession').value;
+        const subVal = document.getElementById('ttSubjectDropdown').value;
+        const selected = Array.from(document.querySelectorAll('.tt-cls-cb:checked')).map(cb => cb.value);
+
+        if (!date || !subVal || selected.length === 0) {
+            alert("தேதி, பாடம் மற்றும் வகுப்புகளைத் தேர்ந்தெடுக்கவும்.");
+            return;
+        }
+        const [subjectCode, subjectFull] = subVal.split('|');
+        const tt = getData(schoolDataKey('timetable'), []);
+
+        if (editId) {
+            const idx = tt.findIndex(x => String(x.id) === String(editId));
+            if (idx > -1) {
+                tt[idx] = { ...tt[idx], title, date, session, className: selected[0], subjectCode, subjectFull };
+            }
+        } else {
+            selected.forEach((cls, idx) => {
+                tt.push({ id: Date.now() + idx, title, date, session, className: cls, subjectCode, subjectFull });
+            });
+            logActivity(currentSchool.id, currentSchool.name, `தேர்வு அட்டவணை சேர்க்கப்பட்டது: ${date} ${session} (${subjectCode})`);
+        }
+        setData(schoolDataKey('timetable'), tt);
+        cancelTimetableEdit();
+        renderTimetableTable();
+    }
+
+    function editTimetable(id) {
+        const tt = getData(schoolDataKey('timetable'), []);
+        const t = tt.find(x => x.id === id);
+        if (!t) return;
+        document.getElementById('ttEditId').value = t.id;
+        document.getElementById('ttTitle').value = t.title;
+        document.getElementById('ttDate').value = t.date;
+        document.getElementById('ttSession').value = t.session;
+        document.getElementById('ttSubjectDropdown').value = `${t.subjectCode}|${t.subjectFull}`;
+        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = (cb.value === t.className));
+        document.getElementById('ttSaveBtn').textContent = "💾 புதுப்பி";
+        document.getElementById('ttCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelTimetableEdit() {
+        document.getElementById('ttEditId').value = '';
+        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = false);
+        document.getElementById('ttSaveBtn').textContent = "➕ அட்டவணையில் சேர்";
+        document.getElementById('ttCancelBtn').classList.add('hidden');
+    }
+
+    function renderTimetableTable() {
+        const tt = getData(schoolDataKey('timetable'), []);
+        document.getElementById('timetableBody').innerHTML = tt.map(t => `
+            <tr class="border-b">
+                <td class="p-2 border">${t.title}</td>
+                <td class="p-2 border font-semibold">${t.date}</td>
+                <td class="p-2 border">${t.session}</td>
+                <td class="p-2 border font-bold">${t.className}</td>
+                <td class="p-2 border text-blue-800 font-semibold">${t.subjectCode} (${t.subjectFull})</td>
+                <td class="p-2 border space-x-1">
+                    <button onclick="editTimetable(${t.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs">✏️ திருத்து</button>
+                    <button onclick="deleteTimetable(${t.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold text-xs">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteTimetable(id) {
+        if (!confirm("இந்த அட்டவணைப் பதிவை நீக்க வேண்டுமா?")) return;
+        const tt = getData(schoolDataKey('timetable'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('timetable'), tt);
+        renderTimetableTable();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 6: ROOM ALLOCATION MATRIX & VISUAL SEATING MAP
+    // ---------------------------------------------------------
+    function setupAllocationView() {
+        const tt = getData(schoolDataKey('timetable'), []);
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const uniqueSessions = [];
+        const seen = new Set();
+        tt.forEach(t => {
+            const key = `${t.date}|${t.session}|${t.title}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueSessions.push({ key, label: `${t.date} (${t.session}) - ${t.title}` });
+            }
+        });
+
+        const sel = document.getElementById('allocExamSelect');
+        sel.innerHTML = uniqueSessions.map(u => `<option value="${u.key}">${u.label}</option>`).join('');
+
+        document.getElementById('allocRoomCount').value = Math.min(5, rooms.length || 1);
+        document.getElementById('allocRoomCheckboxes').innerHTML = rooms.map((r, idx) => `
+            <label class="bg-slate-50 border px-3 py-1.5 rounded text-sm font-semibold">
+                <input type="checkbox" class="alloc-rm-cb mr-1" value="${r.roomNo}" ${idx < 5 ? 'checked' : ''} onchange="initAllocationMatrix()">
+                Room ${r.roomNo} (Max: ${r.capacity}, ${r.perBench || 2}/bench)
+            </label>
+        `).join('');
+
+        initAllocationMatrix();
+    }
+
+    function applyRoomCountSelection() {
+        const count = parseInt(document.getElementById('allocRoomCount').value) || 1;
+        const cbs = document.querySelectorAll('.alloc-rm-cb');
+        cbs.forEach((cb, i) => cb.checked = (i < count));
+        initAllocationMatrix();
+    }
+
+    function getActiveRooms() {
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const checkedNos = Array.from(document.querySelectorAll('.alloc-rm-cb:checked')).map(cb => cb.value);
+        return rooms.filter(r => checkedNos.includes(r.roomNo));
+    }
+
+    function initAllocationMatrix() {
+        const examVal = document.getElementById('allocExamSelect').value;
+        if (!examVal) return;
+        const [selDate, selSess] = examVal.split('|');
+
+        const tt = getData(schoolDataKey('timetable'), []).filter(t => t.date === selDate && t.session === selSess);
+        const strengths = getData(schoolDataKey('strength'), []);
+        const activeRooms = getActiveRooms();
+
+        matrixColumns = [];
+        let totGirls = 0, totBoys = 0;
+
+        // Girls columns first, Boys columns second
+        tt.forEach(t => {
+            const sCode = t.subjectCode || t.subject;
+            const sFull = t.subjectFull || sCode;
+            const stList = strengths.filter(s => s.className === t.className);
+            stList.forEach(st => {
+                if (st.gCount > 0) {
+                    totGirls += st.gCount;
+                    matrixColumns.push({
+                        key: `G_${st.id}_${sCode}`,
+                        gender: 'Girls',
+                        classLabel: `${st.className}(${st.medium})`,
+                        subjectCode: sCode,
+                        subjectFull: sFull,
+                        startRoll: st.gStart,
+                        maxCount: st.gCount
+                    });
+                }
+            });
+        });
+
+        tt.forEach(t => {
+            const sCode = t.subjectCode || t.subject;
+            const sFull = t.subjectFull || sCode;
+            const stList = strengths.filter(s => s.className === t.className);
+            stList.forEach(st => {
+                if (st.bCount > 0) {
+                    totBoys += st.bCount;
+                    matrixColumns.push({
+                        key: `B_${st.id}_${sCode}`,
+                        gender: 'Boys',
+                        classLabel: `${st.className}(${st.medium})`,
+                        subjectCode: sCode,
+                        subjectFull: sFull,
+                        startRoll: st.bStart,
+                        maxCount: st.bCount
+                    });
+                }
+            });
+        });
+
+        const totCap = activeRooms.reduce((acc, r) => acc + r.capacity, 0);
+        document.getElementById('statGirls').textContent = totGirls;
+        document.getElementById('statBoys').textContent = totBoys;
+        document.getElementById('statTotal').textContent = totGirls + totBoys;
+        document.getElementById('statCap').textContent = totCap;
+
+        activeRooms.forEach(rm => {
+            if (!matrixState[rm.roomNo]) matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => {
+                if (matrixState[rm.roomNo][col.key] === undefined) {
+                    matrixState[rm.roomNo][col.key] = 0;
+                }
+            });
+        });
+
+        renderMatrixTable();
+    }
+
+    function renderMatrixTable() {
+        const activeRooms = getActiveRooms();
+        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
+        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+
+        const remMap = {};
+        matrixColumns.forEach(col => {
+            let used = 0;
+            activeRooms.forEach(rm => used += (parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0));
+            remMap[col.key] = col.maxCount - used;
+        });
+
+        let headHtml = `
+            <tr class="bg-slate-200 font-bold">
+                <th rowspan="3" class="border border-slate-400 p-2">Room</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Max Cap</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Cols / Rows</th>
+                ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1.5 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
+                ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1.5 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
+                <th rowspan="3" class="border border-slate-400 p-2 bg-emerald-100">Room Total</th>
+            </tr>
+            <tr class="bg-amber-100 font-semibold">
+                ${matrixColumns.map(c => `<th class="border border-slate-400 p-1">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
+            </tr>
+            <tr class="bg-slate-50 text-[11px]">
+                ${matrixColumns.map(c => {
+                    const rem = remMap[c.key];
+                    const badgeCls = rem === 0 ? 'text-emerald-700 font-bold' : (rem < 0 ? 'text-red-600 font-bold' : 'text-amber-800 font-bold');
+                    return `<th class="border border-slate-400 p-1">மொத்தம்: ${c.maxCount}<br><span class="${badgeCls}">மீதம்: ${rem}</span></th>`;
+                }).join('')}
+            </tr>
+        `;
+        document.getElementById('matrixHead').innerHTML = headHtml;
+
+        let bodyHtml = activeRooms.map(rm => {
+            let rowSum = 0;
+            const cells = matrixColumns.map(col => {
+                const val = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
+                rowSum += val;
+                return `<td class="border border-slate-400 p-1">
+                    <input type="number" min="0" value="${val}" onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
+                        class="w-14 text-center border rounded p-1 font-bold ${val > 0 ? 'bg-yellow-50 border-amber-400' : ''}">
+                </td>`;
+            }).join('');
+
+            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
+            const overCap = rowSum > rm.capacity;
+            return `
+                <tr>
+                    <td class="border border-slate-400 p-2 font-bold bg-slate-100">${rm.roomNo}</td>
+                    <td class="border border-slate-400 p-2 font-semibold">${rm.capacity}</td>
+                    <td class="border border-slate-400 p-2 text-[11px]">${cRows.join(' + ')}</td>
+                    ${cells}
+                    <td class="border border-slate-400 p-2 font-bold ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
+                        ${rowSum} ${overCap ? '⚠️' : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        document.getElementById('matrixBody').innerHTML = bodyHtml;
+    }
+
+    function updateMatrixCell(roomNo, colKey, val) {
+        if (!matrixState[roomNo]) matrixState[roomNo] = {};
+        matrixState[roomNo][colKey] = parseInt(val) || 0;
+        renderMatrixTable();
+    }
+
+    function autoFillMatrix() {
+        const activeRooms = getActiveRooms();
+        const rule = document.querySelector('input[name="genderRule"]:checked').value;
+
+        activeRooms.forEach(rm => {
+            matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
+        });
+
+        const rem = {};
+        matrixColumns.forEach(col => rem[col.key] = col.maxCount);
+        const roomCapRem = {};
+        activeRooms.forEach(rm => roomCapRem[rm.roomNo] = rm.capacity);
+
+        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
+        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+
+        if (rule === 'strict') {
+            // Girls rooms first, Boys rooms second (never mix Boys & Girls in same room)
+            activeRooms.forEach(rm => {
+                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+                if (girlsLeft > 0) {
+                    girlsCols.forEach(c => {
+                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                        matrixState[rm.roomNo][c.key] = take;
+                        rem[c.key] -= take;
+                        roomCapRem[rm.roomNo] -= take;
+                    });
+                } else {
+                    boysCols.forEach(c => {
+                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                        matrixState[rm.roomNo][c.key] = take;
+                        rem[c.key] -= take;
+                        roomCapRem[rm.roomNo] -= take;
+                    });
+                }
+            });
+        } else if (rule === 'hybrid') {
+            activeRooms.forEach(rm => {
+                girlsCols.forEach(c => {
+                    const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] = take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                });
+                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+                if (girlsLeft === 0) {
+                    boysCols.forEach(c => {
+                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                        matrixState[rm.roomNo][c.key] = take;
+                        rem[c.key] -= take;
+                        roomCapRem[rm.roomNo] -= take;
+                    });
+                }
+            });
+        } else {
+            // Continuous Roll Number order across classes (Girls -> Boys of each class sequentially)
+            const sortedByRoll = [...matrixColumns].sort((a, b) => a.startRoll - b.startRoll);
+            activeRooms.forEach(rm => {
+                sortedByRoll.forEach(c => {
+                    const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] = take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                });
+            });
+        }
+
+        renderMatrixTable();
+    }
+
+    function generateFinalOutputs() {
+        const examVal = document.getElementById('allocExamSelect').value;
+        if (!examVal) return;
+        const [selDate, selSess, selTitle] = examVal.split('|');
+        const activeRooms = getActiveRooms();
+        const benchOrderMode = document.querySelector('input[name="benchOrderMode"]:checked').value;
+        const useShortSub = document.getElementById('useShortSubjectPrint').checked;
+        const useShortTch = document.getElementById('useShortTeacherPrint').checked;
+
+        logActivity(currentSchool.id, currentSchool.name, `அறை ஒதுக்கீடு & வரைபடம் உருவாக்கப்பட்டது (${selDate} ${selSess})`);
+
+        const runningRoll = {};
+        matrixColumns.forEach(c => runningRoll[c.key] = c.startRoll);
+
+        const summaryGroups = [];
+        const roomSeatMap = {};
+        const usedSubjectsMap = new Map();
+        lastGeneratedSummary = [];
+
+        activeRooms.forEach(rm => {
+            const items = [];
+            let roomTotal = 0;
+            roomSeatMap[rm.roomNo] = [];
+
+            matrixColumns.forEach(col => {
+                const cnt = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
+                if (cnt > 0) {
+                    const st = runningRoll[col.key];
+                    const en = st + cnt - 1;
+                    runningRoll[col.key] = en + 1;
+                    roomTotal += cnt;
+                    usedSubjectsMap.set(col.subjectCode, col.subjectFull);
+
+                    const subjDisplay = useShortSub ? col.subjectCode : col.subjectFull;
+                    // Extract Grade (e.g. 12, 11) and Medium (EM, TM) from classLabel like "12-A1(EM)"
+                    const gradeMatch = col.classLabel.match(/^(\d+)/);
+                    const gradePrefix = gradeMatch ? gradeMatch[1] + "th" : col.classLabel.split('-')[0];
+                    const medMatch = col.classLabel.match(/\(([^)]+)\)/);
+                    const medLabel = medMatch ? medMatch[1] : "";
+                    const qpKey = `${gradePrefix} ${subjDisplay}${medLabel ? '(' + medLabel + ')' : ''}`;
+
+                    const rec = {
+                        room: rm.roomNo,
+                        classLabel: col.classLabel,
+                        subject: subjDisplay,
+                        qpKey: qpKey,
+                        gender: col.gender,
+                        start: st,
+                        end: en,
+                        count: cnt
+                    };
+                    items.push(rec);
+                    lastGeneratedSummary.push(rec);
+
+                    for (let rNum = st; rNum <= en; rNum++) {
+                        roomSeatMap[rm.roomNo].push({
+                            roll: rNum,
+                            classLabel: col.classLabel,
+                            subject: subjDisplay,
+                            gender: col.gender
+                        });
+                    }
+                }
+            });
+
+            if (items.length > 0) {
+                summaryGroups.push({ roomNo: rm.roomNo, roomTotal, items });
+            }
+        });
+
+        let grandTotal = 0;
+        const allQpKeysSet = new Set();
+        summaryGroups.forEach(grp => {
+            grp.qpBreakdown = {};
+            grp.items.forEach(it => {
+                grp.qpBreakdown[it.qpKey] = (grp.qpBreakdown[it.qpKey] || 0) + it.count;
+                allQpKeysSet.add(it.qpKey);
+            });
+        });
+        const allQpKeys = Array.from(allQpKeysSet);
+
+        // 1. STUDENT NOTICE BOARD TABLE (Clean, without QP packing column)
+        let studentRowsHtml = summaryGroups.map(grp => {
+            grandTotal += grp.roomTotal;
+            return grp.items.map((it, idx) => `
+                <tr>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomNo}</td>` : ''}
+                    <td>${it.classLabel}</td>
+                    <td class="font-semibold">${it.subject}</td>
+                    <td>${it.gender}</td>
+                    <td>${it.start}</td>
+                    <td>${it.end}</td>
+                    <td>${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomTotal}</td>` : ''}
+                </tr>
+            `).join('');
+        }).join('');
+
+        // 2. EXAM COMMITTEE COPY TABLE (With Extra Column for Question Paper Count per Subject & Medium)
+        let committeeRowsHtml = summaryGroups.map(grp => {
+            const qpLines = Object.entries(grp.qpBreakdown)
+                .map(([k, v]) => `<div class="whitespace-nowrap"><b>${k}</b> = <span class="font-bold text-blue-900">${v}</span></div>`)
+                .join('');
+            return grp.items.map((it, idx) => `
+                <tr>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomNo}</td>` : ''}
+                    <td>${it.classLabel}</td>
+                    <td class="font-semibold">${it.subject}</td>
+                    <td>${it.gender}</td>
+                    <td>${it.start}</td>
+                    <td>${it.end}</td>
+                    <td>${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" style="text-align:left; background-color:#f8fafc; font-size:12px;">${qpLines}</td>` : ''}
+                </tr>
+            `).join('');
+        }).join('');
+
+        // Overall Subject & Medium Question Paper Summary Table for Exam Committee
+        const overallQpTotals = {};
+        allQpKeys.forEach(k => overallQpTotals[k] = 0);
+        let qpMatrixRowsHtml = summaryGroups.map(grp => {
+            const cells = allQpKeys.map(k => {
+                const v = grp.qpBreakdown[k] || 0;
+                overallQpTotals[k] += v;
+                return `<td>${v > 0 ? `<b>${v}</b>` : '-'}</td>`;
+            }).join('');
+            return `<tr><td class="font-bold">Room ${grp.roomNo}</td>${cells}<td class="font-bold bg-slate-100">${grp.roomTotal}</td></tr>`;
+        }).join('');
+
+        const qpSummaryTableHtml = allQpKeys.length > 0 ? `
+            <h3 class="font-bold text-sm mt-5 mb-2">📦 அறை வாரியான & மொத்த வினாத்தாள் தொகுப்பு (Question Paper Packing Summary - Subject & Medium Wise)</h3>
+            <table class="official-tbl">
+                <thead>
+                    <tr>
+                        <th>Room No</th>
+                        ${allQpKeys.map(k => `<th>${k}</th>`).join('')}
+                        <th>அறை மொத்தம்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${qpMatrixRowsHtml}
+                    <tr class="bg-slate-200 font-bold">
+                        <td>மொத்த வினாத்தாள்கள் (Total QP)</td>
+                        ${allQpKeys.map(k => `<td>${overallQpTotals[k]}</td>`).join('')}
+                        <td>${grandTotal}</td>
+                    </tr>
+                </tbody>
+            </table>
+        ` : '';
+
+        let subLegendHtml = '';
+        if (useShortSub && usedSubjectsMap.size > 0) {
+            const pairs = Array.from(usedSubjectsMap.entries()).map(([code, full]) => `<b>${code}</b> = ${full}`);
+            subLegendHtml = `<div class="mt-3 p-2 bg-slate-50 border border-slate-400 text-xs"><b>பாடக் குறியீடுகள் (Subject Abbreviations):</b> ${pairs.join(' &nbsp;|&nbsp; ')}</div>`;
+        }
+
+        const duties = getData(schoolDataKey('duty'), []).filter(d => d.date === selDate && d.session === selSess);
+        let dutyHtml = '';
+        if (duties.length > 0) {
+            const usedTeachersMap = new Map();
+            duties.forEach(d => {
+                if (d.shortCode) usedTeachersMap.set(d.shortCode, d.teacherName);
+            });
+            let tchLegendHtml = '';
+            if (useShortTch && usedTeachersMap.size > 0) {
+                const tPairs = Array.from(usedTeachersMap.entries()).map(([code, full]) => `<b>${code}</b> = ${full}`);
+                tchLegendHtml = `<div class="mt-2 p-2 bg-slate-50 border border-slate-400 text-xs"><b>ஆசிரியர் குறியீடுகள் (Teacher Abbreviations):</b> ${tPairs.join(' &nbsp;|&nbsp; ')}</div>`;
+            }
+
+            dutyHtml = `
+                <h3 class="font-bold text-sm mt-5 mb-2">🧑‍🏫 அறை கண்காணிப்பாளர் பணி ஒதுக்கீடு (Invigilator Duty List)</h3>
+                <table class="official-tbl">
+                    <thead>
+                        <tr><th>Room No</th><th>ஆசிரியர் (Invigilator)</th><th>பணி (Role)</th><th>கையொப்பம் (Signature)</th></tr>
+                    </thead>
+                    <tbody>
+                        ${duties.map(d => {
+                            const tchLabel = (useShortTch && d.shortCode) ? `<b>${d.shortCode}</b>` : d.teacherName;
+                            return `<tr><td class="font-bold">${d.roomNo}</td><td>${tchLabel}</td><td>${d.role}</td><td></td></tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+                ${tchLegendHtml}
+            `;
+        }
+
+        document.getElementById('printableNoticeBoard').innerHTML = `
+            <!-- COPY 1: STUDENT NOTICE BOARD COPY -->
+            <div class="border-b-2 border-dashed border-slate-400 pb-6 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold bg-blue-100 text-blue-900 px-2.5 py-0.5 rounded border border-blue-300">நகல் 1: மாணவர்கள் தகவல் பலகை (STUDENT NOTICE BOARD COPY)</span>
+                </div>
+                <div class="text-center border-b-2 border-black pb-3 mb-4">
+                    <h2 class="text-xl font-bold">${currentSchool.name}</h2>
+                    <p class="text-sm font-semibold">${selTitle} | Date: ${selDate} | Time: ${selSess}</p>
+                    <p class="text-sm font-bold mt-1">தேர்வு அறை ஒதுக்கீடு விவரம் (EXAM HALL SEATING ALLOCATION)</p>
+                </div>
+                <table class="official-tbl">
+                    <thead>
+                        <tr>
+                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${studentRowsHtml}
+                        <tr class="bg-slate-100 font-bold">
+                            <td colspan="6" style="text-align:right;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
+                            <td>${grandTotal}</td>
+                            <td>${grandTotal}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                ${subLegendHtml}
+            </div>
+
+            <!-- COPY 2: EXAM COMMITTEE COPY (NEW PAGE ON PRINT + QP BREAKDOWN COLUMN) -->
+            <div class="page-break pt-2">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded border border-emerald-300">நகல் 2: தேர்வுக் குழு நகல் (EXAM COMMITTEE & QUESTION PAPER COPY)</span>
+                </div>
+                <div class="text-center border-b-2 border-black pb-3 mb-4">
+                    <h2 class="text-xl font-bold">${currentSchool.name}</h2>
+                    <p class="text-sm font-semibold">${selTitle} | Date: ${selDate} | Time: ${selSess}</p>
+                    <p class="text-sm font-bold mt-1">தேர்வுக் குழு அறை ஒதுக்கீடு & வினாத்தாள் விவரம் (EXAM COMMITTEE MASTER SHEET)</p>
+                </div>
+                <table class="official-tbl">
+                    <thead>
+                        <tr>
+                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th><th style="background-color:#dbeafe;">வினாத்தாள் விவரம்<br>(QP Count: Class / Sub / Medium)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${committeeRowsHtml}
+                        <tr class="bg-slate-100 font-bold">
+                            <td colspan="6" style="text-align:right;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
+                            <td>${grandTotal}</td>
+                            <td>${grandTotal}</td>
+                            <td class="bg-blue-50">மொத்தம்: ${grandTotal}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                ${qpSummaryTableHtml}
+                ${subLegendHtml}
+                ${dutyHtml}
+            </div>
+        `;
+
+        // Build Interactive Visual Seating Maps per Room (Drag & Drop + Click-to-Swap/Move)
+        window.roomVisualData = {};
+        window.selectedSeatSwap = null;
+
+        activeRooms.forEach(rm => {
+            const students = roomSeatMap[rm.roomNo] || [];
+            if (students.length === 0) return;
+
+            const perBench = rm.perBench || 2;
+            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
+            let ordered = [...students];
+
+            if (benchOrderMode === 'continuous') {
+                ordered.sort((a, b) => a.roll - b.roll);
+            } else if (benchOrderMode === 'interleave' && ordered.length > perBench) {
+                const groups = [];
+                const chunkSize = Math.ceil(ordered.length / perBench);
+                for (let g = 0; g < perBench; g++) {
+                    groups.push(ordered.slice(g * chunkSize, (g + 1) * chunkSize));
+                }
+                const interleaved = [];
+                for (let i = 0; i < chunkSize; i++) {
+                    for (let g = 0; g < perBench; g++) {
+                        if (groups[g] && i < groups[g].length) {
+                            interleaved.push(groups[g][i]);
+                        }
+                    }
+                }
+                ordered = interleaved;
+            }
+
+            const effectiveColRows = [...cRows];
+            let configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            const neededBenches = Math.ceil(ordered.length / perBench);
+            let overflowWarningHtml = '';
+
+            if (neededBenches > configuredBenches) {
+                const extraBenches = neededBenches - configuredBenches;
+                overflowWarningHtml = `<div class="mb-3 p-2 bg-red-50 border border-red-400 text-red-900 text-xs rounded text-center font-semibold">⚠️ குறிப்பு: இந்த அறையில் ${configuredBenches} பெஞ்சுகள் (${configuredBenches * perBench} இருக்கைகள்) மட்டுமே அமைக்கப்பட்டுள்ளன; ஆனால் ${ordered.length} மாணவர்கள் ஒதுக்கப்பட்டுள்ளதால் மீதமுள்ள மாணவர்களுக்கும் கூடுதல் பெஞ்சுகள் கீழே தானாக இணைக்கப்பட்டுள்ளன. ('4️⃣ தேர்வு அறைகள்' பகுதியில் வரிசைகளை மாற்றிக்கொள்ளலாம்).</div>`;
+                for (let eb = 0; eb < extraBenches; eb++) {
+                    effectiveColRows[eb % rm.cols] = (effectiveColRows[eb % rm.cols] || 0) + 1;
+                }
+            }
+            const totalRenderedBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            const totalSlots = totalRenderedBenches * perBench;
+
+            // Fill slots array (student object or null for empty bench slot)
+            const slots = [];
+            for (let i = 0; i < totalSlots; i++) {
+                slots.push(ordered[i] || null);
+            }
+
+            window.roomVisualData[rm.roomNo] = {
+                rm: rm,
+                studentCount: students.length,
+                selTitle: selTitle,
+                selDate: selDate,
+                selSess: selSess,
+                perBench: perBench,
+                effectiveColRows: effectiveColRows,
+                totalRenderedBenches: totalRenderedBenches,
+                overflowWarningHtml: overflowWarningHtml,
+                slots: slots,
+                initialSlots: slots.map(x => x ? { ...x } : null)
+            };
+        });
+
+        renderAllVisualRooms();
+        document.getElementById('generatedOutputArea').classList.remove('hidden');
+        document.getElementById('generatedOutputArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderAllVisualRooms() {
+        if (!window.roomVisualData) return;
+        const roomNos = Object.keys(window.roomVisualData);
+        let htmlOut = '';
+        roomNos.forEach(rNo => {
+            htmlOut += `<div id="roomCardContainer_${rNo}" class="page-break">${buildSingleRoomHtml(rNo)}</div>`;
+        });
+        document.getElementById('printableVisualCharts').innerHTML = htmlOut;
+    }
+
+    function buildSingleRoomHtml(rNo) {
+        const data = window.roomVisualData[rNo];
+        if (!data) return '';
+        const { rm, studentCount, selTitle, selDate, selSess, perBench, effectiveColRows, totalRenderedBenches, overflowWarningHtml, slots } = data;
+
+        let seatIdx = 0;
+        let colsHtml = '';
+        const seatColors = [
+            "bg-blue-100 text-blue-900 border-blue-300",
+            "bg-amber-100 text-amber-900 border-amber-300",
+            "bg-emerald-100 text-emerald-900 border-emerald-300"
+        ];
+
+        for (let c = 0; c < rm.cols; c++) {
+            const rowsInThisCol = effectiveColRows[c] || 0;
+            let benchesHtml = '';
+            for (let r = 0; r < rowsInThisCol; r++) {
+                let seatsInnerHtml = '';
+                for (let s = 0; s < perBench; s++) {
+                    const currentIdx = seatIdx++;
+                    const stu = slots[currentIdx];
+                    const isSelected = window.selectedSeatSwap && window.selectedSeatSwap.roomNo === rNo && window.selectedSeatSwap.idx === currentIdx;
+                    const colorCls = stu ? seatColors[s % seatColors.length] : "bg-white text-slate-400 border-dashed border-slate-300";
+                    const activeRing = isSelected ? "ring-4 ring-rose-500 scale-105 bg-rose-100 border-rose-600" : "hover:ring-2 hover:ring-blue-500";
+
+                    seatsInnerHtml += `
+                        <div draggable="true"
+                             ondragstart="onSeatDragStart(event, '${rNo}', ${currentIdx})"
+                             ondragover="onSeatDragOver(event)"
+                             ondrop="onSeatDrop(event, '${rNo}', ${currentIdx})"
+                             onclick="handleSeatClick('${rNo}', ${currentIdx})"
+                             title="இருக்கையை மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும் (Click to Swap or Drag & Drop)"
+                             class="${colorCls} ${activeRing} border rounded py-1 px-0.5 cursor-pointer transition select-none">
+                            ${stu ? `${stu.roll}<br><span class="text-[9px] font-normal">${stu.classLabel} [${stu.subject}]</span>` : '---'}
+                        </div>
+                    `;
+                }
+                benchesHtml += `
+                    <div class="border border-slate-700 rounded p-1.5 mb-1.5 text-center bg-slate-50">
+                        <div class="text-[10px] text-slate-500 mb-1">Bench ${r + 1}</div>
+                        <div class="grid grid-cols-${perBench} gap-1 text-xs font-bold">
+                            ${seatsInnerHtml}
+                        </div>
+                    </div>
+                `;
+            }
+            colsHtml += `<div><div class="text-center font-bold text-xs mb-2 bg-slate-200 py-1 rounded">வரிசை ${c + 1} (Col ${c + 1} - ${rowsInThisCol} Benches × ${perBench} = ${rowsInThisCol * perBench})</div>${benchesHtml}</div>`;
+        }
+
+        return `
+            <div class="bg-white p-6 rounded-xl shadow border-2 border-slate-800">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-2 no-print">
+                    <span class="text-[11px] font-semibold bg-indigo-50 text-indigo-800 px-2.5 py-1 rounded border border-indigo-200">
+                        ✋ இருக்கையை மாற்ற: ஒரு மாணவரை <b>இழுத்து மற்றொரு இடத்தில் விடவும் (Drag & Drop)</b> அல்லது <b>இரு இருக்கைகளை அடுத்தடுத்து கிளிக் செய்து (Click to Swap)</b> மாற்றவும்.
+                    </span>
+                    <button onclick="resetRoomSeats('${rNo}')" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-1 rounded">🔄 பழையபடி மீட்டமை (Reset)</button>
+                </div>
+                <div class="text-center border-b border-black pb-2 mb-3">
+                    <h3 class="font-bold text-lg">${currentSchool.name}</h3>
+                    <p class="text-xs font-semibold">${selTitle} | Date: ${selDate} | Session: ${selSess}</p>
+                    <div class="mt-1 inline-block bg-slate-800 text-white px-4 py-1 rounded font-bold text-sm">ROOM NO: ${rm.roomNo} (மொத்த மாணவர்கள்: ${studentCount} | ${totalRenderedBenches} Benches × ${perBench} = ${totalRenderedBenches * perBench} Seats)</div>
+                </div>
+                ${overflowWarningHtml}
+                <div class="text-center border border-dashed border-slate-600 py-1.5 mb-4 font-bold text-xs bg-slate-50">
+                    [ கரும்பலகை / ஆசிரியர் மேசை - BLACKBOARD ]
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-${rm.cols} gap-4">
+                    ${colsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function swapSeatsInRoom(rNo, idxA, idxB) {
+        const data = window.roomVisualData[rNo];
+        if (!data || idxA === idxB) return;
+        const temp = data.slots[idxA];
+        data.slots[idxA] = data.slots[idxB];
+        data.slots[idxB] = temp;
+        window.selectedSeatSwap = null;
+        const container = document.getElementById(`roomCardContainer_${rNo}`);
+        if (container) container.innerHTML = buildSingleRoomHtml(rNo);
+    }
+
+    function handleSeatClick(rNo, idx) {
+        if (!window.selectedSeatSwap) {
+            window.selectedSeatSwap = { roomNo: rNo, idx: idx };
+            const container = document.getElementById(`roomCardContainer_${rNo}`);
+            if (container) container.innerHTML = buildSingleRoomHtml(rNo);
+        } else if (window.selectedSeatSwap.roomNo === rNo) {
+            if (window.selectedSeatSwap.idx === idx) {
+                window.selectedSeatSwap = null;
+                const container = document.getElementById(`roomCardContainer_${rNo}`);
+                if (container) container.innerHTML = buildSingleRoomHtml(rNo);
+            } else {
+                swapSeatsInRoom(rNo, window.selectedSeatSwap.idx, idx);
+            }
+        } else {
+            // Clicked a seat in a different room -> switch selection to this room
+            const prevRoom = window.selectedSeatSwap.roomNo;
+            window.selectedSeatSwap = { roomNo: rNo, idx: idx };
+            const prevCont = document.getElementById(`roomCardContainer_${prevRoom}`);
+            if (prevCont) prevCont.innerHTML = buildSingleRoomHtml(prevRoom);
+            const currCont = document.getElementById(`roomCardContainer_${rNo}`);
+            if (currCont) currCont.innerHTML = buildSingleRoomHtml(rNo);
+        }
+    }
+
+    function onSeatDragStart(ev, rNo, idx) {
+        ev.dataTransfer.setData("text/plain", JSON.stringify({ roomNo: rNo, idx: idx }));
+    }
+
+    function onSeatDragOver(ev) {
+        ev.preventDefault();
+    }
+
+    function onSeatDrop(ev, targetRoomNo, targetIdx) {
+        ev.preventDefault();
+        try {
+            const raw = ev.dataTransfer.getData("text/plain");
+            const src = JSON.parse(raw);
+            if (src && src.roomNo === targetRoomNo) {
+                swapSeatsInRoom(targetRoomNo, src.idx, targetIdx);
+            }
+        } catch (e) {}
+    }
+
+    function resetRoomSeats(rNo) {
+        const data = window.roomVisualData[rNo];
+        if (!data) return;
+        data.slots = data.initialSlots.map(x => x ? { ...x } : null);
+        window.selectedSeatSwap = null;
+        const container = document.getElementById(`roomCardContainer_${rNo}`);
+        if (container) container.innerHTML = buildSingleRoomHtml(rNo);
+    }
+
+    function downloadCSV() {
+        if (!lastGeneratedSummary.length) return;
+        let csv = "Room,Class,Subject,Gender,Start,End,Count\n";
+        lastGeneratedSummary.forEach(r => {
+            csv += `${r.room},${r.classLabel},${r.subject},${r.gender},${r.start},${r.end},${r.count}\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Exam_Room_Allocation.csv";
+        link.click();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 7: INVIGILATOR DUTY (SAVE / EDIT / DELETE)
+    // ---------------------------------------------------------
+    function setupDutyView() {
+        const tt = getData(schoolDataKey('timetable'), []);
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const teachers = getData(schoolDataKey('teachers'), []);
+        const uniqueSessions = [...new Set(tt.map(t => `${t.date}|${t.session}`))];
+
+        document.getElementById('dutyExamSelect').innerHTML = uniqueSessions.length
+            ? uniqueSessions.map(u => {
+                const [d, s] = u.split('|');
+                return `<option value="${u}">${d} (${s})</option>`;
+            }).join('')
+            : `<option value="">-- தேர்வு அட்டவணை இல்லை --</option>`;
+
+        document.getElementById('dutyRoomSelect').innerHTML = rooms.length
+            ? rooms.map(r => `<option value="${r.roomNo}">Room ${r.roomNo}</option>`).join('')
+            : `<option value="">-- அறைகள் இல்லை --</option>`;
+
+        document.getElementById('dutyTeacherDropdown').innerHTML = teachers.length
+            ? teachers.map(t => `<option value="${t.shortCode}|${t.fullName}">${t.shortCode} - ${t.fullName}</option>`).join('')
+            : `<option value="">-- முதலில் '1️⃣ ஆசிரியர்கள்' பகுதியில் சேர்க்கவும் --</option>`;
+
+        renderDutyTable();
+    }
+
+    function saveDuty() {
+        const editId = document.getElementById('dutyEditId').value;
+        const examVal = document.getElementById('dutyExamSelect').value;
+        const roomNo = document.getElementById('dutyRoomSelect').value;
+        const tchVal = document.getElementById('dutyTeacherDropdown').value;
+        const role = document.getElementById('dutyRoleSelect').value;
+
+        if (!examVal || !roomNo || !tchVal) {
+            alert("தேர்வு, அறை மற்றும் ஆசிரியர் ஆகியவற்றைத் தேர்ந்தெடுக்கவும்.");
+            return;
+        }
+        const [date, session] = examVal.split('|');
+        const [shortCode, teacherName] = tchVal.split('|');
+        const duties = getData(schoolDataKey('duty'), []);
+
+        if (editId) {
+            const idx = duties.findIndex(x => String(x.id) === String(editId));
+            if (idx > -1) duties[idx] = { ...duties[idx], date, session, roomNo, shortCode, teacherName, role };
+        } else {
+            duties.push({ id: Date.now(), date, session, roomNo, shortCode, teacherName, role });
+            logActivity(currentSchool.id, currentSchool.name, `கண்காணிப்பாளர் பணி ஒதுக்கீடு: Room ${roomNo} - ${shortCode}`);
+        }
+        setData(schoolDataKey('duty'), duties);
+        cancelDutyEdit();
+        renderDutyTable();
+    }
+
+    function editDuty(id) {
+        const duties = getData(schoolDataKey('duty'), []);
+        const d = duties.find(x => x.id === id);
+        if (!d) return;
+        document.getElementById('dutyEditId').value = d.id;
+        document.getElementById('dutyExamSelect').value = `${d.date}|${d.session}`;
+        document.getElementById('dutyRoomSelect').value = d.roomNo;
+        document.getElementById('dutyTeacherDropdown').value = `${d.shortCode}|${d.teacherName}`;
+        document.getElementById('dutyRoleSelect').value = d.role;
+        document.getElementById('dutySaveBtn').textContent = "💾 புதுப்பி";
+        document.getElementById('dutyCancelBtn').classList.remove('hidden');
+    }
+
+    function cancelDutyEdit() {
+        document.getElementById('dutyEditId').value = '';
+        document.getElementById('dutySaveBtn').textContent = "சேர்";
+        document.getElementById('dutyCancelBtn').classList.add('hidden');
+    }
+
+    function renderDutyTable() {
+        const duties = getData(schoolDataKey('duty'), []);
+        document.getElementById('dutyTableBody').innerHTML = duties.map(d => `
+            <tr class="border-b">
+                <td class="p-2 border">${d.date} (${d.session})</td>
+                <td class="p-2 border font-bold">${d.roomNo}</td>
+                <td class="p-2 border font-bold text-blue-800">${d.shortCode || '-'}</td>
+                <td class="p-2 border font-semibold">${d.teacherName}</td>
+                <td class="p-2 border">${d.role}</td>
+                <td class="p-2 border space-x-1">
+                    <button onclick="editDuty(${d.id})" class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs">✏️ திருத்து</button>
+                    <button onclick="deleteDuty(${d.id})" class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold text-xs">🗑️ நீக்கு</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteDuty(id) {
+        if (!confirm("இந்தப் பணி ஒதுக்கீட்டை நீக்க வேண்டுமா?")) return;
+        const duties = getData(schoolDataKey('duty'), []).filter(x => x.id !== id);
+        setData(schoolDataKey('duty'), duties);
+        renderDutyTable();
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 8: SETTINGS
+    // ---------------------------------------------------------
+    function updateSchoolProfile() {
+        const newName = document.getElementById('setSchoolName').value.trim();
+        const newPass = document.getElementById('setNewPass').value;
+        if (!newName) return;
+
+        const schools = getData(KEY_SCHOOLS, []);
+        const s = schools.find(x => x.id === currentSchool.id);
+        if (s) {
+            s.name = newName;
+            if (newPass) s.pass = newPass;
+            setData(KEY_SCHOOLS, schools);
+            currentSchool = s;
+            document.getElementById('loggedSchoolBadge').textContent = `🏫 ${s.name}`;
+            logActivity(s.id, s.name, "பள்ளி பெயர் / கடவுச்சொல் புதுப்பிக்கப்பட்டது");
+            alert("விவரங்கள் வெற்றிகரமாக மாற்றப்பட்டன!");
+        }
+    }
+
+    window.onload = async function() {
+        updateCloudBadge();
+        await pullSchoolsFromCloud();
+        const sess = getData(KEY_SESSION, null);
+        if (sess) {
+            if (sess.role === 'admin') {
+                await syncAllFromCloud(false);
+                enterAdminDashboard();
+            } else if (sess.role === 'school') {
+                const schools = getData(KEY_SCHOOLS, []);
+                const found = schools.find(s => s.id === sess.schoolId && s.active);
+                if (found) {
+                    currentSchool = found;
+                    await pullSchoolWorkspaceFromCloud(found.id);
+                    enterSchoolWorkspace();
+                }
+            }
+        }
+    };
+</script>
+</body>
+</html>
