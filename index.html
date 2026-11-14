@@ -196,6 +196,18 @@
 <!-- 3. SCHOOL WORKSPACE (WITH FULL EDIT & DELETE IN ALL MASTER LISTS)     -->
 <!-- ===================================================================== -->
 <section id="schoolSection" class="hidden max-w-7xl mx-auto p-4">
+    <!-- SUPER ADMIN REMOTE VIEW / EDIT BANNER -->
+    <div id="adminImpersonateBanner" class="hidden bg-amber-900 text-white p-3.5 rounded-xl shadow-md mb-4 flex flex-wrap justify-between items-center gap-3 no-print border-2 border-amber-400">
+        <div class="flex items-center gap-2.5">
+            <span class="text-xl">🛡️</span>
+            <div>
+                <div class="text-sm font-bold">சூப்பர் அட்மின் கண்காணிப்பு & திருத்த முறை (Admin Remote Edit Mode)</div>
+                <div class="text-xs text-amber-200" id="adminImpersonateSchoolText">இப்போது நீங்கள் தேர்ந்தெடுத்த பள்ளியின் தேர்வு அட்டவணை, அறை ஒதுக்கீடு மற்றும் அனைத்து விவரங்களையும் பார்க்கவும் மாற்றவும் முடியும்.</div>
+            </div>
+        </div>
+        <button onclick="exitAdminSchoolInspect()" class="bg-white text-amber-950 hover:bg-amber-100 font-bold px-4 py-2 rounded-lg text-xs shadow">⬅️ அட்மின் முகப்பிற்குத் திரும்பு (Back to Admin)</button>
+    </div>
+
     <!-- NAVIGATION BAR -->
     <div class="bg-white rounded-xl shadow p-2 mb-6 flex flex-wrap gap-2 no-print">
         <button onclick="switchWorkTab('teachers')" id="wTab-teachers" class="work-tab-btn bg-blue-700 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">1️⃣ ஆசிரியர்கள் (Teachers)</button>
@@ -1084,9 +1096,10 @@
     }
 
     function logout() {
-        if (currentSchool) {
+        if (currentSchool && !isAdminImpersonating) {
             logActivity(currentSchool.id, currentSchool.name, "வெளியேறினார் (Logged Out)");
         }
+        isAdminImpersonating = false;
         currentSchool = null;
         localStorage.removeItem(KEY_SESSION);
         document.getElementById('authSection').classList.remove('hidden');
@@ -1124,16 +1137,24 @@
         `).join('');
 
         document.getElementById('admSchoolsBody').innerHTML = schools.map(s => `
-            <tr class="border-b">
+            <tr class="border-b hover:bg-slate-50">
                 <td class="p-2 font-semibold">${s.name}</td>
-                <td class="p-2">${s.code}</td>
-                <td class="p-2">${s.phone}</td>
-                <td class="p-2 text-xs">${s.lastLogin}</td>
+                <td class="p-2 font-mono text-xs">${s.code}</td>
+                <td class="p-2 text-xs">${s.phone}</td>
+                <td class="p-2 text-xs">${s.lastLogin || '-'}</td>
                 <td class="p-2">${s.active ? '<span class="text-emerald-700 font-bold">Active</span>' : '<span class="text-red-600 font-bold">Blocked</span>'}</td>
                 <td class="p-2">
-                    <button onclick="toggleSchoolStatus('${s.id}')" class="px-3 py-1 rounded text-xs font-semibold ${s.active ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
-                        ${s.active ? 'நிறுத்து (Block)' : 'செயல்படுத்து (Activate)'}
-                    </button>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="adminInspectSchool('${s.id}')" class="px-2.5 py-1 rounded text-xs font-bold bg-blue-100 hover:bg-blue-200 text-blue-900 border border-blue-300" title="தேர்வு அட்டவணை மற்றும் அறை ஒதுக்கீட்டைப் பார்க்க / திருத்த">
+                            👁️ பார்வையிடு / திருத்து
+                        </button>
+                        <button onclick="toggleSchoolStatus('${s.id}')" class="px-2.5 py-1 rounded text-xs font-semibold ${s.active ? 'bg-amber-100 hover:bg-amber-200 text-amber-800' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800'}">
+                            ${s.active ? '⛔ நிறுத்து' : '✅ இயக்கு'}
+                        </button>
+                        <button onclick="deleteSchoolByAdmin('${s.id}')" class="px-2.5 py-1 rounded text-xs font-bold bg-red-600 hover:bg-red-700 text-white" title="இந்தப் பள்ளியை நிரந்தரமாக நீக்க">
+                            🗑️ நீக்கு
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -1149,6 +1170,63 @@
         }
     }
 
+    let isAdminImpersonating = false;
+
+    async function adminInspectSchool(schoolId) {
+        const schools = getData(KEY_SCHOOLS, []);
+        const target = schools.find(s => s.id === schoolId);
+        if (!target) return;
+
+        // Pull latest workspace data for this school from Supabase Cloud
+        await pullSchoolWorkspaceFromCloud(target.id);
+
+        isAdminImpersonating = true;
+        currentSchool = target;
+        logActivity('admin', 'Super Admin', `பள்ளி விவரங்களைப் பார்வையிடுகிறார் / திருத்துகிறார்: ${target.name} (${target.code})`);
+        enterSchoolWorkspace();
+    }
+
+    async function exitAdminSchoolInspect() {
+        isAdminImpersonating = false;
+        currentSchool = null;
+        await syncAllFromCloud(false);
+        enterAdminDashboard();
+    }
+
+    async function deleteSchoolByAdmin(schoolId) {
+        const schools = getData(KEY_SCHOOLS, []);
+        const target = schools.find(s => s.id === schoolId);
+        if (!target) return;
+
+        const ok1 = confirm(`⚠️ எச்சரிக்கை: "${target.name}" (${target.code}) என்ற பள்ளியை நீக்க விரும்புகிறீர்களா?\n\nஇப்பள்ளியின் ஆசிரியர்கள், வகுப்புகள், தேர்வு அட்டவணை மற்றும் அறை ஒதுக்கீடு அனைத்தும் நீக்கப்படும்.`);
+        if (!ok1) return;
+
+        // Remove from local schools list
+        const updatedSchools = schools.filter(s => s.id !== schoolId);
+        _memStore[KEY_SCHOOLS] = updatedSchools;
+        try { localStorage.setItem(KEY_SCHOOLS, JSON.stringify(updatedSchools)); } catch (e) {}
+
+        // Remove local workspace keys for this school
+        const suffixes = ['teachers', 'subjects', 'classes', 'strength', 'rooms', 'timetable', 'duty'];
+        suffixes.forEach(suf => {
+            const k = `esp_sdata_${schoolId}_${suf}`;
+            delete _memStore[k];
+            try { localStorage.removeItem(k); } catch (e) {}
+        });
+
+        // Remove from Supabase Cloud (`schools` and `school_data` tables inside `exam_seating` schema)
+        if (isCloudEnabled && sbClient) {
+            try {
+                await sbClient.from('school_data').delete().eq('school_id', schoolId);
+                await sbClient.from('schools').delete().eq('id', schoolId);
+            } catch (e) {}
+        }
+
+        logActivity('admin', 'Super Admin', `பள்ளி நீக்கப்பட்டது (Deleted): ${target.name} (${target.code})`);
+        renderAdminDashboard();
+        alert(`🗑️ "${target.name}" பள்ளி வெற்றிகரமாக நீக்கப்பட்டது.`);
+    }
+
     // ---------------------------------------------------------
     // SCHOOL WORKSPACE & TABS
     // ---------------------------------------------------------
@@ -1157,7 +1235,18 @@
         document.getElementById('adminSection').classList.add('hidden');
         document.getElementById('schoolSection').classList.remove('hidden');
         document.getElementById('userBadgeArea').classList.remove('hidden');
-        document.getElementById('loggedSchoolBadge').textContent = `🏫 ${currentSchool.name}`;
+
+        const impBanner = document.getElementById('adminImpersonateBanner');
+        const impText = document.getElementById('adminImpersonateSchoolText');
+        if (isAdminImpersonating) {
+            if (impBanner) impBanner.classList.remove('hidden');
+            if (impText) impText.textContent = `தேர்ந்தெடுக்கப்பட்ட பள்ளி: ${currentSchool.name} (${currentSchool.code}) — நீங்கள் இப்போது இப்பள்ளியின் தேர்வு அட்டவணை, அறை ஒதுக்கீடு மற்றும் அனைத்து விவரங்களையும் பார்க்கவும் மாற்றவும் முடியும்.`;
+            document.getElementById('loggedSchoolBadge').textContent = `🛡️ Admin → ${currentSchool.name}`;
+        } else {
+            if (impBanner) impBanner.classList.add('hidden');
+            document.getElementById('loggedSchoolBadge').textContent = `🏫 ${currentSchool.name}`;
+        }
+
         document.getElementById('setSchoolName').value = currentSchool.name;
         switchWorkTab('teachers');
     }
