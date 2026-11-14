@@ -64,13 +64,13 @@
 
             <!-- REGISTER NEW SCHOOL -->
             <div id="authTab-register" class="auth-tab-content hidden space-y-4">
-                <h2 class="text-lg font-bold text-slate-800">புதிய பள்ளியை உருவாக்குதல் (ஒரு போன் எண்ணிற்கு ஒரு பள்ளி மட்டுமே)</h2>
-                <div class="flex gap-2 items-end">
+                <h2 class="text-lg font-bold text-slate-800">புதிய பள்ளியை உருவாக்குதல் (ஒரு மின்னஞ்சலுக்கு ஒரு பள்ளி மட்டுமே)</h2>
+                <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">10 இலக்க கைபேசி எண் (Mobile Number)</label>
-                        <input type="text" id="regPhone" maxlength="10" placeholder="9876543210" class="w-full border rounded-lg p-2.5">
+                        <label class="block text-sm font-medium mb-1">பள்ளி / ஆசிரியர் மின்னஞ்சல் முகவரி (Email ID)</label>
+                        <input type="email" id="regEmail" placeholder="schoolname@gmail.com" class="w-full border rounded-lg p-2.5">
                     </div>
-                    <button onclick="sendOtp('reg')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg">📲 OTP அனுப்புக</button>
+                    <button onclick="sendOtp('reg')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg whitespace-nowrap">📧 மின்னஞ்சலுக்கு OTP அனுப்புக</button>
                 </div>
                 <div id="regOtpBanner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -102,13 +102,13 @@
 
             <!-- FORGOT PASSWORD -->
             <div id="authTab-forgot" class="auth-tab-content hidden space-y-4">
-                <h2 class="text-lg font-bold text-slate-800">கைபேசி எண் மூலம் கடவுச்சொல் / குறியீடு மீட்டமைப்பு</h2>
-                <div class="flex gap-2 items-end">
+                <h2 class="text-lg font-bold text-slate-800">மின்னஞ்சல் மூலம் கடவுச்சொல் / குறியீடு மீட்டமைப்பு</h2>
+                <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium mb-1">பதிவு செய்த 10 இலக்க கைபேசி எண்</label>
-                        <input type="text" id="recPhone" maxlength="10" class="w-full border rounded-lg p-2.5">
+                        <label class="block text-sm font-medium mb-1">பதிவு செய்த மின்னஞ்சல் முகவரி (Registered Email ID)</label>
+                        <input type="email" id="recEmail" placeholder="schoolname@gmail.com" class="w-full border rounded-lg p-2.5">
                     </div>
-                    <button onclick="sendOtp('rec')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg">📲 OTP அனுப்புக</button>
+                    <button onclick="sendOtp('rec')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-lg whitespace-nowrap">📧 மின்னஞ்சலுக்கு OTP அனுப்புக</button>
                 </div>
                 <div id="recOtpBanner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,7 +133,7 @@
 <section id="adminSection" class="hidden max-w-7xl mx-auto p-4 space-y-6 no-print">
     <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-wrap justify-between items-center gap-3">
         <div>
-            <div class="text-sm font-bold text-blue-900">☁️ Supabase Cloud Database & SMS OTP நிலை</div>
+            <div class="text-sm font-bold text-blue-900">☁️ Supabase Cloud Database & Free Email OTP நிலை</div>
             <div class="text-xs text-slate-600" id="admCloudDetailText">config.js கோப்பில் Supabase URL மற்றும் Key இணைக்கப்பட்டால் அனைத்துப் பள்ளிகளின் தரவும் நேரடியாக Cloud-ல் சேமிக்கப்படும்.</div>
         </div>
         <button onclick="syncAllFromCloud(true)" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-lg text-xs">🔄 Cloud தரவை உடனே ஒத்திசை (Force Sync)</button>
@@ -180,7 +180,7 @@
                     <tr>
                         <th class="p-2.5">பள்ளி பெயர்</th>
                         <th class="p-2.5">குறியீடு</th>
-                        <th class="p-2.5">போன் எண்</th>
+                        <th class="p-2.5">மின்னஞ்சல் (Email ID)</th>
                         <th class="p-2.5">கடைசி உள்நுழைவு</th>
                         <th class="p-2.5">நிலை</th>
                         <th class="p-2.5">நடவடிக்கை</th>
@@ -850,7 +850,7 @@
                 id: "sch_1",
                 name: "அரசு மேல்நிலைப்பள்ளி - தேவனாங்குறிச்சி",
                 code: "ghss_dvk",
-                phone: "9876543210",
+                phone: "ghssdvk@gmail.com",
                 pass: "1234",
                 active: true,
                 createdAt: nowStr(),
@@ -920,65 +920,74 @@
     }
 
     async function sendOtp(mode) {
-        const phone = document.getElementById(mode === 'reg' ? 'regPhone' : 'recPhone').value.trim();
-        if (!/^\d{10}$/.test(phone)) {
-            alert("சரியான 10 இலக்க கைபேசி எண்ணை உள்ளிடவும்.");
+        const email = document.getElementById(mode === 'reg' ? 'regEmail' : 'recEmail').value.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("சரியான மின்னஞ்சல் முகவரியை (Email ID) உள்ளிடவும். எ.கா: school@gmail.com");
             return;
         }
         await pullSchoolsFromCloud();
         const schools = getData(KEY_SCHOOLS, []);
-        const existing = schools.find(s => s.phone === phone);
+        const existing = schools.find(s => (s.phone || '').toLowerCase() === email);
 
         if (mode === 'reg' && existing) {
-            alert("⚠️ இந்த கைபேசி எண்ணில் ஏற்கனவே ஒரு பள்ளி பதிவு செய்யப்பட்டுள்ளது! ஒரு எண்ணிற்கு ஒரு பள்ளி மட்டுமே அனுமதிக்கப்படும்.");
+            alert("⚠️ இந்த மின்னஞ்சல் முகவரியில் ஏற்கனவே ஒரு பள்ளி பதிவு செய்யப்பட்டுள்ளது! ஒரு மின்னஞ்சலுக்கு ஒரு பள்ளி மட்டுமே அனுமதிக்கப்படும்.");
             return;
         }
         if (mode === 'rec' && !existing) {
-            alert("இந்த கைபேசி எண்ணில் எந்தப் பள்ளியும் பதிவு செய்யப்படவில்லை.");
+            alert("இந்த மின்னஞ்சல் முகவரியில் எந்தப் பள்ளியும் பதிவு செய்யப்படவில்லை.");
             return;
         }
 
         const otp = String(Math.floor(100000 + Math.random() * 900000));
         const otps = getData(KEY_OTPS, {});
-        otps[phone] = otp;
+        otps[email] = otp;
         setData(KEY_OTPS, otps);
 
         const banner = document.getElementById(mode === 'reg' ? 'regOtpBanner' : 'recOtpBanner');
         banner.classList.remove("hidden");
-        banner.innerHTML = `⏳ ${phone} எண்ணிற்கு OTP அனுப்பப்படுகிறது...`;
+        banner.className = "bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm font-semibold";
+        banner.innerHTML = `⏳ <b>${email}</b> முகவரிக்கு OTP மின்னஞ்சல் அனுப்பப்படுகிறது...`;
+
+        const scriptUrl = (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_SCRIPT_OTP_URL) || "";
 
         try {
             const res = await fetch('/api/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone, otp })
+                body: JSON.stringify({
+                    email,
+                    otp,
+                    schoolCode: existing ? existing.code : '',
+                    scriptUrl
+                })
             });
             const data = await res.json();
             if (data && data.sent) {
                 banner.className = "bg-emerald-50 border border-emerald-400 text-emerald-900 p-3 rounded-lg text-sm font-semibold";
                 banner.innerHTML = mode === 'reg'
-                    ? `✅ <b>${phone}</b> எண்ணிற்கு SMS வழியாக 6 இலக்க OTP அனுப்பப்பட்டுள்ளது!`
-                    : `✅ <b>${phone}</b> எண்ணிற்கு OTP SMS அனுப்பப்பட்டுள்ளது! | பள்ளி குறியீடு: <b>${existing.code}</b>`;
+                    ? `✅ <b>${email}</b> மின்னஞ்சலுக்கு 6 இலக்க OTP அனுப்பப்பட்டுள்ளது! (Inbox / Spam பகுதியைப் பார்க்கவும்)`
+                    : `✅ <b>${email}</b> மின்னஞ்சலுக்கு OTP அனுப்பப்பட்டுள்ளது! | பள்ளி குறியீடு: <b>${existing.code}</b>`;
                 return;
             }
         } catch (e) {}
 
-        // Fallback to Demo Mode OTP banner if SMS gateway is not configured yet
+        // Fallback to Demo Mode OTP banner if Email script/key is not configured yet
         banner.className = "bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-lg text-sm font-semibold";
         banner.innerHTML = mode === 'reg'
-            ? `📲 Demo Mode OTP (${phone}): <span class="underline text-lg">${otp}</span> <span class="text-xs font-normal">(Vercel-ல் FAST2SMS_API_KEY இணைத்தால் நேராக SMS செல்லும்)</span>`
-            : `📲 மீட்டமைப்பு Demo OTP (${phone}): <span class="underline text-lg">${otp}</span> | பள்ளி குறியீடு: <b>${existing.code}</b>`;
+            ? `📧 Demo Mode OTP (${email}): <span class="underline text-lg">${otp}</span> <span class="text-xs font-normal">(GOOGLE_SCRIPT_OTP_URL இணைத்தால் நேராக Gmail-க்கு OTP செல்லும்)</span>`
+            : `📧 மீட்டமைப்பு Demo OTP (${email}): <span class="underline text-lg">${otp}</span> | பள்ளி குறியீடு: <b>${existing.code}</b>`;
     }
 
     function handleSchoolRegister() {
-        const phone = document.getElementById('regPhone').value.trim();
+        const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const otpIn = document.getElementById('regOtpInput').value.trim();
         const code = document.getElementById('regCode').value.trim();
         const name = document.getElementById('regName').value.trim();
         const pass = document.getElementById('regPass').value;
         const pass2 = document.getElementById('regPass2').value;
 
-        if (!phone || !otpIn || !code || !name || !pass) {
+        if (!email || !otpIn || !code || !name || !pass) {
             alert("அனைத்து விவரங்களையும் பூர்த்தி செய்யவும்.");
             return;
         }
@@ -987,13 +996,13 @@
             return;
         }
         const otps = getData(KEY_OTPS, {});
-        if (otps[phone] !== otpIn) {
+        if (otps[email] !== otpIn) {
             alert("தவறான OTP எண்!");
             return;
         }
         const schools = getData(KEY_SCHOOLS, []);
-        if (schools.some(s => s.phone === phone)) {
-            alert("இந்த போன் எண்ணிற்கு ஏற்கனவே பள்ளி உள்ளது!");
+        if (schools.some(s => (s.phone || '').toLowerCase() === email)) {
+            alert("இந்த மின்னஞ்சல் முகவரிக்கு ஏற்கனவே பள்ளி உள்ளது!");
             return;
         }
         if (schools.some(s => s.code.toLowerCase() === code.toLowerCase())) {
@@ -1003,14 +1012,14 @@
 
         const newSchool = {
             id: "sch_" + Date.now(),
-            name, code, phone, pass,
+            name, code, phone: email, pass,
             active: true,
             createdAt: nowStr(),
             lastLogin: nowStr()
         };
         schools.push(newSchool);
         setData(KEY_SCHOOLS, schools);
-        logActivity(newSchool.id, name, `புதிய பள்ளி உருவாக்கப்பட்டது (Phone: ${phone})`);
+        logActivity(newSchool.id, name, `புதிய பள்ளி உருவாக்கப்பட்டது (Email: ${email})`);
         alert("🎉 பள்ளி வெற்றிகரமாக உருவாக்கப்பட்டது! இப்போது உள்நுழையலாம்.");
         switchAuthTab('login');
         document.getElementById('loginCode').value = code;
@@ -1054,21 +1063,21 @@
     }
 
     function handlePasswordReset() {
-        const phone = document.getElementById('recPhone').value.trim();
+        const email = document.getElementById('recEmail').value.trim().toLowerCase();
         const otpIn = document.getElementById('recOtpInput').value.trim();
         const newPass = document.getElementById('recNewPass').value;
         const otps = getData(KEY_OTPS, {});
 
-        if (otps[phone] !== otpIn || !newPass) {
+        if (otps[email] !== otpIn || !newPass) {
             alert("தவறான OTP அல்லது புதிய கடவுச்சொல்.");
             return;
         }
         const schools = getData(KEY_SCHOOLS, []);
-        const found = schools.find(s => s.phone === phone);
+        const found = schools.find(s => (s.phone || '').toLowerCase() === email);
         if (found) {
             found.pass = newPass;
             setData(KEY_SCHOOLS, schools);
-            logActivity(found.id, found.name, "OTP மூலம் கடவுச்சொல் மீட்டமைக்கப்பட்டது");
+            logActivity(found.id, found.name, "Email OTP மூலம் கடவுச்சொல் மீட்டமைக்கப்பட்டது");
             alert("கடவுச்சொல் மாற்றப்பட்டது! இப்போது உள்நுழையலாம்.");
             switchAuthTab('login');
         }
