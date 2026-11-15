@@ -105,12 +105,94 @@
             <h1 class="text-xl font-bold">🏫 தேர்வு அறை இருக்கை ஒதுக்கீடு & வரைபட மென்பொருள்</h1>
             <p class="text-xs text-blue-200">பல பள்ளிகளுக்கான ஒருங்கிணைந்த தேர்வு மேலாண்மை தளம் &nbsp;|&nbsp; <span id="cloudStatusBadge" class="bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40">⏳ இணைப்பு சரிபார்க்கப்படுகிறது...</span></p>
         </div>
-        <div id="userBadgeArea" class="hidden flex items-center gap-3">
-            <span id="loggedSchoolBadge" class="bg-blue-800 px-3 py-1 rounded-full text-sm font-semibold border border-blue-400"></span>
-            <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-semibold">🚪 வெளியேறு</button>
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="openAboutFaqModal()" class="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold border border-white/30 transition">ℹ️ About Us & FAQ</button>
+            <div id="userBadgeArea" class="hidden flex items-center gap-2.5">
+                <span id="loggedSchoolBadge" class="bg-blue-800 px-3 py-1 rounded-full text-sm font-semibold border border-blue-400"></span>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-semibold">🚪 வெளியேறு</button>
+            </div>
         </div>
     </div>
 </header>
+
+<!-- ===================================================================== -->
+<!-- ABOUT US & FAQ MODAL                                                  -->
+<!-- ===================================================================== -->
+<div id="aboutFaqModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 md:p-6 overflow-y-auto no-print">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-blue-900">
+        <div class="bg-gradient-to-r from-blue-950 to-blue-800 text-white p-5 flex justify-between items-center sticky top-0 z-10">
+            <div>
+                <h2 class="text-lg md:text-xl font-extrabold">ℹ️ எங்களைப் பற்றி & அடிக்கடி கேட்கப்படும் கேள்விகள் (About Us & FAQ)</h2>
+                <p class="text-xs text-blue-200">தமிழ்நாடு பள்ளிகளுக்கான ஒருங்கிணைந்த தேர்வு அறை & கண்காணிப்புப் பணி மேலாண்மை மென்பொருள்</p>
+            </div>
+            <button onclick="closeAboutFaqModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-sm">✖ மூடு</button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- DEVELOPER / CREATOR PROFILE CARD -->
+            <div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50 border-2 border-blue-300 rounded-xl p-5 shadow-sm">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="space-y-1.5">
+                        <span class="inline-block bg-blue-900 text-white text-[11px] font-bold px-3 py-0.5 rounded-full">👨‍💻 உருவாக்குநர் & வடிவமைப்பாளர் (Creator & Developer)</span>
+                        <h3 class="text-2xl font-black text-blue-950">அ. பாலகிருஷ்ணன்</h3>
+                        <p class="text-base font-extrabold text-indigo-900">கணினி பயிற்றுநர் நிலை - 1 (Computer Instructor Grade - I)</p>
+                        <p class="text-sm font-bold text-slate-800">🏫 அரசு மேல்நிலைப்பள்ளி, தேவனாங்குறிச்சி,</p>
+                        <p class="text-sm font-semibold text-slate-700">📍 திருச்செங்கோடு வட்டம், நாமக்கல் மாவட்டம், தமிழ்நாடு.</p>
+                    </div>
+                    <div class="bg-white border-2 border-emerald-500 rounded-xl p-4 text-center shadow-sm shrink-0 w-full md:w-auto">
+                        <div class="text-xs font-bold text-emerald-800">📞 தொடர்பு எண் (Contact Number)</div>
+                        <a href="tel:9442702449" class="block text-2xl font-black text-emerald-950 tracking-wide mt-1 hover:underline">9442702449</a>
+                        <a href="https://wa.me/919442702449" target="_blank" class="mt-2 inline-block bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1 rounded-lg">📲 WhatsApp தொடர்பு</a>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-blue-200 text-xs text-slate-700 leading-relaxed">
+                    அரசு மற்றும் அரசு உதவிபெறும் பள்ளிகளில் நடைபெறும் காலாண்டு, அரையாண்டு, திருப்புதல் மற்றும் பொதுத் தேர்வுகளின் போது ஆசிரியர்களின் நேரத்தை மிச்சப்படுத்தவும், தேர்வு அறை இருக்கை ஒதுக்கீடு (Anti-Malpractice Seating), வினாத்தாள் கணக்கீடு மற்றும் கண்காணிப்புப் பணி சுழற்சி அட்டவணையைத் துல்லியமாக உருவாக்கவும் இம்மென்பொருள் உருவாக்கப்பட்டுள்ளது.
+                </div>
+            </div>
+
+            <!-- FAQ ACCORDION SECTION -->
+            <div class="space-y-3">
+                <h3 class="text-lg font-extrabold text-slate-900 border-b pb-2">❓ அடிக்கடி கேட்கப்படும் கேள்விகள் (FAQ)</h3>
+
+                <details class="bg-slate-50 border border-slate-300 rounded-lg p-3.5 group" open>
+                    <summary class="font-bold text-sm text-blue-950 cursor-pointer">1. காலாண்டு, அரையாண்டு, திருப்புதல் தேர்வுகளைத் தனித்தனியாக எவ்வாறு நிர்வகிப்பது?</summary>
+                    <p class="text-xs text-slate-700 mt-2 leading-relaxed">
+                        உள்நுழைந்தவுடன் மேலே உள்ள <b>"🎯 நடப்புத் தேர்வு (Active Exam)"</b> பகுதியில் காலாண்டு (Quarterly), அரையாண்டு (Half-Yearly), திருப்புதல் தேர்வு (Revision) என ஒவ்வொரு தேர்வையும் தனித்தனியாக உருவாக்கலாம். எந்தத் தேர்வு <b>Active (நடப்புத் தேர்வு)</b> நிலையில் உள்ளதோ அதன் தேர்வு அட்டவணை, மாணவர் எண்ணிக்கை, அறை ஒதுக்கீடு மற்றும் கண்காணிப்புப் பணி ஆகியவை செயல்படும். <b>முடிவுற்ற தேர்வுகள் (Completed)</b> பூட்டப்பட்டு (Read-Only) பாதுகாப்பாக இருக்கும்; அவற்றைப் பார்வையிடவும் அச்சிடவும் மட்டுமே முடியும்.
+                    </p>
+                </details>
+
+                <details class="bg-slate-50 border border-slate-300 rounded-lg p-3.5">
+                    <summary class="font-bold text-sm text-blue-950 cursor-pointer">2. புதிய பள்ளி எவ்வாறு பதிவு செய்வது? OTP எவ்வாறு வரும்?</summary>
+                    <p class="text-xs text-slate-700 mt-2 leading-relaxed">
+                        முகப்புப் பக்கத்தில் <b>"🆕 புதிய பள்ளி பதிவு"</b> தாவலைத் தேர்ந்தெடுத்து பள்ளியின் மின்னஞ்சல் முகவரியை (Email ID) உள்ளிட்டு <b>"📧 மின்னஞ்சலுக்கு OTP அனுப்புக"</b> பொத்தானை அழுத்தினால், உங்கள் மின்னஞ்சலுக்கு 6 இலக்க OTP வரும். ஒரு மின்னஞ்சல் முகவரிக்கு ஒரு பள்ளி மட்டுமே பதிவு செய்ய முடியும்.
+                    </p>
+                </details>
+
+                <details class="bg-slate-50 border border-slate-300 rounded-lg p-3.5">
+                    <summary class="font-bold text-sm text-blue-950 cursor-pointer">3. வீட்டில் உருவாக்கிய இருக்கை அமைப்பை பள்ளியில் சென்று திறந்து அச்சிட முடியுமா?</summary>
+                    <p class="text-xs text-slate-700 mt-2 leading-relaxed">
+                        ஆம்! அனைத்துத் தரவுகளும் <b>Supabase Cloud</b> தரவுத்தளத்தில் சேமிக்கப்படுவதால், வீட்டில் உருவாக்கிய இருக்கை அமைப்பை <b>"💾 சேமிக்கப்பட்ட இருக்கை அமைப்புகள்"</b> பக்கத்தில் சேமித்துவிட்டு, பள்ளியில் உள்ள கணினி அல்லது மொபைலில் உள்நுழைந்து திறந்து பார்க்கலாம், திருத்தலாம், அச்சிடலாம். ஒரு தேர்வு நாள் & வேளைக்கு அதிகபட்சம் 3 அமைப்புகள் வரை சேமிக்கலாம்.
+                    </p>
+                </details>
+
+                <details class="bg-slate-50 border border-slate-300 rounded-lg p-3.5">
+                    <summary class="font-bold text-sm text-blue-950 cursor-pointer">4. ஒரே வகுப்பு (12-ஆம் வகுப்பு / 11-ஆம் வகுப்பு) மாணவர்கள் அருகருகே அமராமல் எவ்வாறு தடுக்கப்படுகிறது?</summary>
+                    <p class="text-xs text-slate-700 mt-2 leading-relaxed">
+                        இருக்கை ஒதுக்கீட்டின் போது <b>Anti-Malpractice</b> முறை செயல்படுத்தப்பட்டுள்ளது. இது முதலில் 12-ஆம் வகுப்பு மற்றும் 11-ஆம் வகுப்பு மாணவர்களை அடுத்தடுத்து அமரவைக்கும்; தவிர்க்க முடியாத சூழலில் மட்டுமே ஒரே வகுப்பின் வெவ்வேறு பாட மாணவர்களை அமரவைக்கும். மேலும் திரையில் ஒவ்வொரு இருக்கையையும் இழுத்து (Drag & Drop) மாற்றிக்கொள்ளவும் முடியும்.
+                    </p>
+                </details>
+
+                <details class="bg-slate-50 border border-slate-300 rounded-lg p-3.5">
+                    <summary class="font-bold text-sm text-blue-950 cursor-pointer">5. Report பகுதியில் என்னென்ன விவரங்களை அச்சிடலாம்?</summary>
+                    <p class="text-xs text-slate-700 mt-2 leading-relaxed">
+                        <b>"📑 9️⃣ அறிக்கைகள் (Reports)"</b> பகுதியில் நடப்புத் தேர்வின் <b>முழுமையான தேர்வு அட்டவணை (Exam TimeTable)</b>, <b>வகுப்பு வாரியான மாணவ, மாணவியர் எண்ணிக்கை & தேர்வு எண் தொடக்கம் - முடிவு பட்டியல் (Class-wise Roll Number Master)</b>, மற்றும் <b>அறை கொள்ளளவு அறிக்கை</b> ஆகியவற்றை தனித்தனியாகத் தேர்ந்தெடுத்து ஒரே கிளிக்கில் அச்சிடலாம் அல்லது வாட்ஸ்அப்பில் பகிரலாம்.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- ===================================================================== -->
 <!-- 1. AUTHENTICATION SECTION                                             -->
@@ -121,6 +203,7 @@
             <button onclick="switchAuthTab('login')" id="tabBtn-login" class="auth-tab-btn flex-1 py-3 px-4 border-b-2 border-blue-700 text-blue-800 bg-white">🔐 பள்ளி உள்நுழைவு</button>
             <button onclick="switchAuthTab('register')" id="tabBtn-register" class="auth-tab-btn flex-1 py-3 px-4 text-slate-600 hover:text-blue-700">🆕 புதிய பள்ளி பதிவு</button>
             <button onclick="switchAuthTab('forgot')" id="tabBtn-forgot" class="auth-tab-btn flex-1 py-3 px-4 text-slate-600 hover:text-blue-700">🔄 கடவுச்சொல் மீட்டமைப்பு</button>
+            <button onclick="openAboutFaqModal()" class="py-3 px-4 text-indigo-800 hover:bg-indigo-50 font-bold whitespace-nowrap">ℹ️ About Us & FAQ</button>
         </div>
 
         <div class="p-6">
@@ -284,6 +367,64 @@
         <button onclick="exitAdminSchoolInspect()" class="bg-white text-amber-950 hover:bg-amber-100 font-bold px-4 py-2 rounded-lg text-xs shadow">⬅️ அட்மின் முகப்பிற்குத் திரும்பு (Back to Admin)</button>
     </div>
 
+    <!-- ================================================================= -->
+    <!-- EXAM CYCLE SELECTOR BAR (ACTIVE EXAM VS COMPLETED READ-ONLY EXAMS) -->
+    <!-- ================================================================= -->
+    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-xl shadow-md p-3.5 mb-4 border border-blue-700 no-print">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[260px]">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-300 whitespace-nowrap">🎯 தேர்வுத் தொகுப்பு (Exam):</span>
+                <select id="activeExamCycleSelect" onchange="onExamCycleChange(this.value)" class="border-2 border-amber-400 bg-white text-slate-950 font-extrabold text-sm rounded-lg px-3 py-1.5 min-w-[240px] cursor-pointer">
+                </select>
+                <span id="examCycleStatusPill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white">🟢 நடப்புத் தேர்வு (Active)</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="btnActivateSelectedExam" onclick="setSelectedExamAsActive()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">✅ இதை நடப்புத் தேர்வாக மாற்று (Set Active)</button>
+                <button id="btnCompleteSelectedExam" onclick="markSelectedExamCompleted()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🔒 தேர்வை முடித்து பூட்டு (Mark Completed)</button>
+                <button onclick="openNewExamCycleModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs border border-blue-400 shadow">➕ புதிய தேர்வு உருவாக்கு (New Exam)</button>
+            </div>
+        </div>
+        <div id="completedExamReadOnlyBanner" class="hidden mt-2.5 bg-amber-100 text-amber-950 border border-amber-400 rounded-lg px-3 py-1.5 text-xs font-bold flex items-center justify-between gap-2">
+            <span>🔒 இது <b>முடிவுற்ற தேர்வு (Completed Exam)</b> — இதில் எவ்வித மாற்றமும் செய்ய இயலாது; விவரங்களைப் பார்வையிடவும் <b>Reports / Print</b> எடுக்கவும் மட்டுமே முடியும்.</span>
+        </div>
+    </div>
+
+    <!-- MODAL FOR CREATING A NEW EXAM CYCLE -->
+    <div id="newExamCycleModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 space-y-4 border-2 border-blue-900 text-slate-800">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-base font-extrabold text-blue-950">➕ புதிய தேர்வுத் தொகுப்பை உருவாக்குதல்</h3>
+                <button onclick="closeNewExamCycleModal()" class="text-slate-500 hover:text-red-600 font-bold">✖</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold mb-1">தேர்வின் வகை (Exam Category):</label>
+                    <select id="newExamTypeSelect" onchange="autoFillNewExamTitle()" class="w-full border rounded-lg p-2 text-sm font-semibold bg-slate-50">
+                        <option value="காலாண்டுத் தேர்வு (Quarterly Exam)">காலாண்டுத் தேர்வு (Quarterly Exam)</option>
+                        <option value="அரையாண்டுத் தேர்வு (Half-Yearly Exam)">அரையாண்டுத் தேர்வு (Half-Yearly Exam)</option>
+                        <option value="முதல் திருப்புதல் தேர்வு (First Revision Exam)">முதல் திருப்புதல் தேர்வு (First Revision Exam)</option>
+                        <option value="இரண்டாம் திருப்புதல் தேர்வு (Second Revision Exam)">இரண்டாம் திருப்புதல் தேர்வு (Second Revision Exam)</option>
+                        <option value="மூன்றாம் திருப்புதல் தேர்வு (Third Revision Exam)">மூன்றாம் திருப்புதல் தேர்வு (Third Revision Exam)</option>
+                        <option value="இடைப்பருவத் தேர்வு (Mid-Term Exam)">இடைப்பருவத் தேர்வு (Mid-Term Exam)</option>
+                        <option value="முழு ஆண்டு / பொதுத் தேர்வு (Annual / Public Exam)">முழு ஆண்டு / பொதுத் தேர்வு (Annual / Public Exam)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">தேர்வின் முழுப் பெயர் & கல்வியாண்டு (Exam Title):</label>
+                    <input type="text" id="newExamTitleInput" placeholder="எ.கா: அரையாண்டுத் தேர்வு - 2026" class="w-full border rounded-lg p-2 text-sm font-bold">
+                </div>
+                <label class="flex items-center gap-2 text-xs font-semibold bg-blue-50 p-2.5 rounded-lg border border-blue-200 cursor-pointer">
+                    <input type="checkbox" id="copyRollNumbersFromCurrent" checked class="w-4 h-4">
+                    தற்போதைய தேர்வின் வகுப்பு வாரியான மாணவர் எண்ணிக்கை & தேர்வு எண்களை (Roll Numbers) நகலெடுத்துக் கொள்
+                </label>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t">
+                <button onclick="closeNewExamCycleModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-lg text-xs">ரத்து</button>
+                <button onclick="createNewExamCycle()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs">✅ உருவாக்கி நடப்புத் தேர்வாக்கு</button>
+            </div>
+        </div>
+    </div>
+
     <!-- COMPACT DROPDOWN NAVIGATION BAR -->
     <div class="bg-white rounded-xl shadow p-3 mb-5 flex flex-wrap items-center justify-between gap-3 border border-slate-200 no-print">
         <div class="flex items-center gap-2 flex-1 min-w-[260px]">
@@ -297,7 +438,8 @@
                 <option value="allocate">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Allocation)</option>
                 <option value="saved">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள் (Saved Plans - Cloud)</option>
                 <option value="duty">8️⃣ கண்காணிப்புப் பணி (Invigilator Duty)</option>
-                <option value="settings">⚙️ 9️⃣ பள்ளி அமைப்புகள் (Settings)</option>
+                <option value="reports">📑 9️⃣ அறிக்கைகள் & தேர்வுக் கோப்பு (Reports)</option>
+                <option value="settings">⚙️ 🔟 பள்ளி அமைப்புகள் (Settings)</option>
             </select>
         </div>
         <div class="flex items-center gap-2">
@@ -851,6 +993,45 @@
     </div>
 
     <!-- ================================================================= -->
+    <!-- PAGE 9: DEDICATED REPORTS & EXAM MASTER FILE                      -->
+    <!-- ================================================================= -->
+    <div id="workView-reports" class="work-view hidden space-y-6">
+        <div class="bg-white rounded-xl shadow p-5 space-y-4 border border-slate-200 no-print">
+            <div class="flex flex-wrap justify-between items-center gap-3 border-b pb-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">📑 9. தேர்வு அறிக்கைகள் & ஒருங்கிணைந்த தேர்வுக் கோப்பு (Exam Reports & Master File)</h2>
+                    <p class="text-xs text-slate-600">தேர்ந்தெடுக்கப்பட்ட தேர்வின் <b>தேர்வு அட்டவணை</b> மற்றும் <b>வகுப்பு வாரியான மாணவ, மாணவியர் எண்ணிக்கை & தேர்வு எண் தொடக்கம் - முடிவு</b> ஆகியவற்றைத் தொகுத்து தேவைக்கேற்ப தனித்தனியாகவோ அல்லது மொத்தமாகவோ அச்சிடலாம்.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="printSelectedReports()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">🖨️ தேர்ந்தெடுத்த அறிக்கைகளை அச்சிடு (Print)</button>
+                    <button onclick="downloadExamMasterCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">📥 முழுத் தேர்வுக் கோப்பு பதிவிறக்கம் (Excel / CSV)</button>
+                    <button onclick="shareReportsToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">📲 வாட்ஸ்அப்பிற்கு அனுப்பு (WhatsApp)</button>
+                </div>
+            </div>
+
+            <!-- REPORT SELECTION CHECKBOXES -->
+            <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl flex flex-wrap items-center gap-4 text-xs md:text-sm">
+                <span class="font-extrabold text-blue-950">📌 அச்சிட வேண்டிய அறிக்கைகளைத் தேர்ந்தெடுக்கவும்:</span>
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
+                    <input type="checkbox" id="repChkTimetable" checked onchange="renderReportsPage()" class="w-4 h-4">
+                    📅 1. தேர்வு அட்டவணை அறிக்கை (Exam TimeTable)
+                </label>
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
+                    <input type="checkbox" id="repChkStrength" checked onchange="renderReportsPage()" class="w-4 h-4">
+                    👥 2. வகுப்பு வாரியான ஆண் / பெண் & தேர்வு எண் (Roll No) அறிக்கை
+                </label>
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
+                    <input type="checkbox" id="repChkRooms" onchange="renderReportsPage()" class="w-4 h-4">
+                    🚪 3. தேர்வு அறைகள் & இருக்கை கொள்ளளவு அறிக்கை (Rooms Summary)
+                </label>
+            </div>
+        </div>
+
+        <!-- PRINTABLE REPORT OUTPUT CONTAINER -->
+        <div id="printableReportsArea" class="bg-white rounded-xl shadow p-6 space-y-6 border border-slate-200"></div>
+    </div>
+
+    <!-- ================================================================= -->
     <!-- PAGE 8: SCHOOL SETTINGS                                           -->
     <!-- ================================================================= -->
     <div id="workView-settings" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-4 max-w-xl no-print">
@@ -982,8 +1163,14 @@
         }
     }
 
+    let selectedExamCycleId = 'default';
+
     function schoolDataKey(suffix) {
-        return `esp_sdata_${currentSchool.id}_${suffix}`;
+        const masterSuffixes = ['teachers', 'subjects_master', 'classes_master', 'rooms', 'exam_cycles'];
+        if (masterSuffixes.includes(suffix) || !selectedExamCycleId || selectedExamCycleId === 'default') {
+            return `esp_sdata_${currentSchool.id}_${suffix}`;
+        }
+        return `esp_sdata_${currentSchool.id}_${selectedExamCycleId}_${suffix}`;
     }
 
     async function pullSchoolsFromCloud() {
@@ -1410,6 +1597,475 @@
     // ---------------------------------------------------------
     // SCHOOL WORKSPACE & TABS
     // ---------------------------------------------------------
+    
+    // ---------------------------------------------------------
+    // ABOUT US & FAQ MODAL CONTROLS
+    // ---------------------------------------------------------
+    function openAboutFaqModal() {
+        const m = document.getElementById('aboutFaqModal');
+        if (m) m.classList.remove('hidden');
+    }
+
+    function closeAboutFaqModal() {
+        const m = document.getElementById('aboutFaqModal');
+        if (m) m.classList.add('hidden');
+    }
+
+    // ---------------------------------------------------------
+    // MULTI-EXAM CYCLE MANAGEMENT (ACTIVE VS COMPLETED READ-ONLY)
+    // ---------------------------------------------------------
+    function getExamCyclesList() {
+        let cycles = getData(schoolDataKey('exam_cycles'), []);
+        if (!Array.isArray(cycles) || cycles.length === 0) {
+            // Infer initial exam title from existing timetable if present
+            const existingTt = getData(`esp_sdata_${currentSchool.id}_timetable`, []);
+            const firstTitle = (existingTt.length > 0 && existingTt[0].title)
+                ? existingTt[0].title
+                : "நடப்புத் தேர்வு - 2026 (Active Exam)";
+            cycles = [{
+                id: 'default',
+                title: firstTitle,
+                status: 'active',
+                createdAt: nowStr()
+            }];
+            setData(schoolDataKey('exam_cycles'), cycles);
+        }
+        return cycles;
+    }
+
+    function getCurrentExamCycleObj() {
+        const cycles = getExamCyclesList();
+        return cycles.find(c => c.id === selectedExamCycleId) || cycles[0];
+    }
+
+    function initExamCycles() {
+        const cycles = getExamCyclesList();
+        const activeOne = cycles.find(c => c.status === 'active') || cycles[0];
+        selectedExamCycleId = activeOne.id;
+        renderExamCycleSelector();
+    }
+
+    function renderExamCycleSelector() {
+        const cycles = getExamCyclesList();
+        const sel = document.getElementById('activeExamCycleSelect');
+        if (!sel) return;
+
+        sel.innerHTML = cycles.map(c => {
+            const tag = c.status === 'active' ? '🟢 [நடப்பு - Active]' : '🔒 [முடிவுற்றது - Read-Only]';
+            return `<option value="${c.id}">${tag} ${c.title}</option>`;
+        }).join('');
+        sel.value = selectedExamCycleId;
+
+        const curr = getCurrentExamCycleObj();
+        const pill = document.getElementById('examCycleStatusPill');
+        const btnAct = document.getElementById('btnActivateSelectedExam');
+        const btnComp = document.getElementById('btnCompleteSelectedExam');
+        const roBanner = document.getElementById('completedExamReadOnlyBanner');
+
+        if (curr && curr.status === 'active') {
+            if (pill) {
+                pill.textContent = "🟢 நடப்புத் தேர்வு (Active)";
+                pill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white";
+            }
+            if (btnAct) btnAct.classList.add('hidden');
+            if (btnComp) btnComp.classList.remove('hidden');
+            if (roBanner) roBanner.classList.add('hidden');
+        } else {
+            if (pill) {
+                pill.textContent = "🔒 முடிவுற்ற தேர்வு (Completed - View Only)";
+                pill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-400 text-slate-950";
+            }
+            if (btnAct) btnAct.classList.remove('hidden');
+            if (btnComp) btnComp.classList.add('hidden');
+            if (roBanner) roBanner.classList.remove('hidden');
+        }
+
+        // Pre-fill Timetable Title input with selected active exam title if empty
+        const ttTitleInp = document.getElementById('ttTitle');
+        if (ttTitleInp && curr) {
+            ttTitleInp.value = curr.title;
+        }
+        applyExamReadOnlyLock();
+    }
+
+    function applyExamReadOnlyLock() {
+        const curr = getCurrentExamCycleObj();
+        const isLocked = curr && curr.status !== 'active';
+
+        // Exam-specific views that must become read-only when viewing a completed exam
+        const lockedViews = ['workView-strength', 'workView-timetable', 'workView-allocate', 'workView-duty'];
+        lockedViews.forEach(vId => {
+            const viewEl = document.getElementById(vId);
+            if (!viewEl) return;
+            viewEl.querySelectorAll('input, select, textarea, button').forEach(el => {
+                // Keep view/print/filter/WhatsApp/CSV buttons enabled even in completed exams!
+                const txt = (el.textContent || '') + ' ' + (el.id || '');
+                const isViewOrPrintSafe =
+                    el.id === 'allocExamSelect' ||
+                    el.id === 'includeQpSummaryPrint' ||
+                    el.id === 'useShortSubjectPrint' ||
+                    el.id === 'useShortTeacherPrint' ||
+                    txt.includes('அச்சிடு') ||
+                    txt.includes('Print') ||
+                    txt.includes('வாட்ஸ்அப்') ||
+                    txt.includes('WhatsApp') ||
+                    txt.includes('CSV') ||
+                    txt.includes('Generate');
+                if (isViewOrPrintSafe) {
+                    el.disabled = false;
+                    el.style.opacity = '';
+                } else {
+                    el.disabled = isLocked;
+                    el.style.opacity = isLocked ? '0.55' : '';
+                }
+            });
+        });
+
+        // Also hide Save/Update Plan buttons in Completed exams
+        const savePlanBtn = document.querySelector('button[onclick="saveCurrentSeatingPlan(false)"]');
+        if (savePlanBtn) savePlanBtn.style.display = isLocked ? 'none' : '';
+    }
+
+    function onExamCycleChange(newId) {
+        selectedExamCycleId = newId;
+        renderExamCycleSelector();
+        const dd = document.getElementById('workTabDropdown');
+        switchWorkTab(dd ? dd.value : 'timetable');
+    }
+
+    function setSelectedExamAsActive() {
+        const cycles = getExamCyclesList();
+        cycles.forEach(c => {
+            c.status = (c.id === selectedExamCycleId) ? 'active' : 'completed';
+        });
+        setData(schoolDataKey('exam_cycles'), cycles);
+        renderExamCycleSelector();
+        logActivity(currentSchool.id, currentSchool.name, `நடப்புத் தேர்வு மாற்றப்பட்டது: ${getCurrentExamCycleObj().title}`);
+        alert(`✅ "${getCurrentExamCycleObj().title}" இப்போது நடப்புத் தேர்வாக (Active) மாற்றப்பட்டுள்ளது!`);
+    }
+
+    function markSelectedExamCompleted() {
+        const curr = getCurrentExamCycleObj();
+        if (!curr) return;
+        if (!confirm(`🔒 "${curr.title}" தேர்வை முடிவுற்ற தேர்வாக (Completed) பூட்ட விரும்புகிறீர்களா?
+
+பூட்டிய பிறகு இதில் மாற்றங்கள் செய்ய இயலாது; பார்வையிடவும் அச்சிடவும் மட்டுமே முடியும்.`)) {
+            return;
+        }
+        const cycles = getExamCyclesList();
+        const target = cycles.find(c => c.id === curr.id);
+        if (target) target.status = 'completed';
+        setData(schoolDataKey('exam_cycles'), cycles);
+        renderExamCycleSelector();
+        logActivity(currentSchool.id, currentSchool.name, `தேர்வு முடிவுற்று பூட்டப்பட்டது: ${curr.title}`);
+    }
+
+    function openNewExamCycleModal() {
+        autoFillNewExamTitle();
+        document.getElementById('newExamCycleModal').classList.remove('hidden');
+    }
+
+    function closeNewExamCycleModal() {
+        document.getElementById('newExamCycleModal').classList.add('hidden');
+    }
+
+    function autoFillNewExamTitle() {
+        const typeVal = document.getElementById('newExamTypeSelect').value;
+        const cleanBase = typeVal.split('(')[0].trim();
+        const yr = new Date().getFullYear();
+        document.getElementById('newExamTitleInput').value = `${cleanBase} - ${yr}`;
+    }
+
+    function createNewExamCycle() {
+        const title = document.getElementById('newExamTitleInput').value.trim();
+        const copyStrength = document.getElementById('copyRollNumbersFromCurrent').checked;
+        if (!title) {
+            alert("தேர்வின் பெயரை உள்ளிடவும்.");
+            return;
+        }
+
+        const prevStrength = copyStrength ? JSON.parse(JSON.stringify(getData(schoolDataKey('strength'), []))) : [];
+        const cycles = getExamCyclesList();
+        // Mark all existing exams as completed
+        cycles.forEach(c => c.status = 'completed');
+
+        const newId = 'exam_' + Date.now();
+        cycles.unshift({
+            id: newId,
+            title: title,
+            status: 'active',
+            createdAt: nowStr()
+        });
+        setData(schoolDataKey('exam_cycles'), cycles);
+
+        selectedExamCycleId = newId;
+        if (copyStrength && prevStrength.length > 0) {
+            setData(schoolDataKey('strength'), prevStrength);
+        }
+
+        closeNewExamCycleModal();
+        renderExamCycleSelector();
+        logActivity(currentSchool.id, currentSchool.name, `புதிய தேர்வு உருவாக்கப்பட்டது (Active): ${title}`);
+        alert(`🎉 "${title}" உருவாக்கப்பட்டு நடப்புத் தேர்வாக (Active) அமைக்கப்பட்டுள்ளது!`);
+        switchWorkTab('timetable');
+    }
+
+    // ---------------------------------------------------------
+    // PAGE 9: DEDICATED REPORTS & EXAM MASTER FILE
+    // ---------------------------------------------------------
+    function renderReportsPage() {
+        const container = document.getElementById('printableReportsArea');
+        if (!container) return;
+
+        const currExam = getCurrentExamCycleObj();
+        const examTitle = currExam ? currExam.title : 'தேர்வு அறிக்கை';
+        const showTt = document.getElementById('repChkTimetable') ? document.getElementById('repChkTimetable').checked : true;
+        const showStr = document.getElementById('repChkStrength') ? document.getElementById('repChkStrength').checked : true;
+        const showRooms = document.getElementById('repChkRooms') ? document.getElementById('repChkRooms').checked : false;
+
+        const tt = getData(schoolDataKey('timetable'), []);
+        const strengths = getData(schoolDataKey('strength'), []);
+        const rooms = getData(schoolDataKey('rooms'), []);
+
+        // Sort timetable chronologically
+        const sortedTt = [...tt].sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            if (a.session !== b.session) return a.session === 'FN' ? -1 : 1;
+            return String(a.className || '').localeCompare(String(b.className || ''));
+        });
+
+        let htmlOut = `
+            <div class="border-b-2 border-black pb-2 mb-4 text-center">
+                <h2 class="text-lg md:text-xl font-extrabold uppercase">${currentSchool.name}</h2>
+                <p class="text-base font-black text-blue-950 mt-0.5">${examTitle}</p>
+                <p class="text-xs font-bold text-slate-700">ஒருங்கிணைந்த தேர்வு அட்டவணை & மாணவர் விவரக் கோப்பு (CONSOLIDATED EXAM REPORT)</p>
+            </div>
+        `;
+
+        // 1. EXAM TIMETABLE REPORT
+        if (showTt) {
+            const ttRows = sortedTt.length > 0 ? sortedTt.map((t, idx) => {
+                const matchingStr = strengths.filter(s => s.className === t.className);
+                const stuCnt = matchingStr.reduce((sum, s) => sum + (parseInt(s.gCount) || 0) + (parseInt(s.bCount) || 0), 0);
+                return `
+                    <tr>
+                        <td class="font-bold">${idx + 1}</td>
+                        <td class="font-black">${formatDisplayDate(t.date)}</td>
+                        <td class="font-extrabold">${t.session === 'FN' ? 'காலை (FN)' : 'மாலை (AN)'}</td>
+                        <td class="font-extrabold">${t.className}</td>
+                        <td class="font-black">${t.subjectCode}</td>
+                        <td class="text-left px-2 font-semibold">${t.subjectFull || t.subjectCode}</td>
+                        <td class="font-extrabold">${stuCnt > 0 ? stuCnt : '-'}</td>
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="7" class="p-3 text-slate-500">இந்தத் தேர்விற்கு இன்னும் தேர்வு அட்டவணை உள்ளிடப்படவில்லை.</td></tr>`;
+
+            htmlOut += `
+                <div class="space-y-2">
+                    <h3 class="font-extrabold text-sm md:text-base text-slate-900 border-l-4 border-blue-800 pl-2">1️⃣ தேர்வு அட்டவணை விவரம் (EXAMINATION TIMETABLE)</h3>
+                    <table class="official-tbl">
+                        <thead>
+                            <tr>
+                                <th>வ.எண்</th>
+                                <th>தேதி (Date)</th>
+                                <th>வேளை (Session)</th>
+                                <th>வகுப்பு (Class)</th>
+                                <th>பாடக் குறியீடு</th>
+                                <th>பாடத்தின் முழுப் பெயர் (Subject)</th>
+                                <th>மாணவர் எண்ணிக்கை</th>
+                            </tr>
+                        </thead>
+                        <tbody>${ttRows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 2. CLASS-WISE STUDENT GENDER & ROLL NUMBER START-END REPORT
+        if (showStr) {
+            let totGirls = 0, totBoys = 0;
+            const strRows = strengths.length > 0 ? strengths.map((s, idx) => {
+                const gc = parseInt(s.gCount) || 0;
+                const bc = parseInt(s.bCount) || 0;
+                totGirls += gc;
+                totBoys += bc;
+                return `
+                    <tr>
+                        <td class="font-bold">${idx + 1}</td>
+                        <td class="font-black">${s.className}</td>
+                        <td class="font-bold">${s.medium}</td>
+                        <td class="font-extrabold">${gc > 0 ? s.gStart : '-'}</td>
+                        <td class="font-extrabold">${gc > 0 ? s.gEnd : '-'}</td>
+                        <td class="font-black text-pink-900">${gc}</td>
+                        <td class="font-extrabold">${bc > 0 ? s.bStart : '-'}</td>
+                        <td class="font-extrabold">${bc > 0 ? s.bEnd : '-'}</td>
+                        <td class="font-black text-blue-900">${bc}</td>
+                        <td class="font-black bg-slate-100 text-base">${gc + bc}</td>
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="10" class="p-3 text-slate-500">மாணவர் எண்ணிக்கை விவரங்கள் உள்ளிடப்படவில்லை.</td></tr>`;
+
+            htmlOut += `
+                <div class="space-y-2 ${showTt ? 'pt-3' : ''}">
+                    <h3 class="font-extrabold text-sm md:text-base text-slate-900 border-l-4 border-emerald-700 pl-2">2️⃣ வகுப்பு வாரியான மாணவ, மாணவியர் எண்ணிக்கை & தேர்வு எண் பட்டியல் (CLASS-WISE ROLL NUMBER & STRENGTH)</h3>
+                    <table class="official-tbl">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">வ.எண்</th>
+                                <th rowspan="2">வகுப்பு<br>(Class)</th>
+                                <th rowspan="2">வழி<br>(Med)</th>
+                                <th colspan="3" style="background-color:#fce7f3;">👧 மாணவியர் (Girls)</th>
+                                <th colspan="3" style="background-color:#dbeafe;">👦 மாணவர்கள் (Boys)</th>
+                                <th rowspan="2">வகுப்பு<br>மொத்தம்</th>
+                            </tr>
+                            <tr>
+                                <th style="background-color:#fce7f3;">தொடக்க எண்</th>
+                                <th style="background-color:#fce7f3;">இறுதி எண்</th>
+                                <th style="background-color:#fce7f3;">எண்ணிக்கை</th>
+                                <th style="background-color:#dbeafe;">தொடக்க எண்</th>
+                                <th style="background-color:#dbeafe;">இறுதி எண்</th>
+                                <th style="background-color:#dbeafe;">எண்ணிக்கை</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${strRows}
+                            <tr class="bg-slate-200 font-black">
+                                <td colspan="5" style="text-align:right;">மொத்த எண்ணிக்கை (Grand Total):</td>
+                                <td class="text-base">${totGirls}</td>
+                                <td colspan="2"></td>
+                                <td class="text-base">${totBoys}</td>
+                                <td class="text-lg">${totGirls + totBoys}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // 3. EXAM ROOMS CAPACITY REPORT
+        if (showRooms) {
+            let totCap = 0;
+            const rmRows = rooms.length > 0 ? rooms.map((r, idx) => {
+                totCap += (parseInt(r.capacity) || 0);
+                return `
+                    <tr>
+                        <td class="font-bold">${idx + 1}</td>
+                        <td class="font-black text-base">Room ${r.roomNo}</td>
+                        <td>${r.cols}</td>
+                        <td>${(r.colRows || []).join(' + ')}</td>
+                        <td>${r.perBench || 2}</td>
+                        <td class="font-black">${r.capacity}</td>
+                    </tr>
+                `;
+            }).join('') : `<tr><td colspan="6" class="p-3 text-slate-500">அறை விவரங்கள் இல்லை.</td></tr>`;
+
+            htmlOut += `
+                <div class="space-y-2 pt-3">
+                    <h3 class="font-extrabold text-sm md:text-base text-slate-900 border-l-4 border-amber-600 pl-2">3️⃣ தேர்வு அறைகள் & இருக்கை கொள்ளளவு விவரம் (EXAM ROOMS CAPACITY)</h3>
+                    <table class="official-tbl">
+                        <thead>
+                            <tr>
+                                <th>வ.எண்</th><th>அறை எண் (Room No)</th><th>நெடுவரிசைகள்</th><th>பெஞ்ச் அமைப்பு</th><th>பெஞ்சிற்கு மாணவர்கள்</th><th>மொத்த இருக்கைகள்</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rmRows}
+                            <tr class="bg-slate-200 font-black">
+                                <td colspan="5" style="text-align:right;">மொத்த இருக்கை கொள்ளளவு (Total Capacity):</td>
+                                <td class="text-base">${totCap}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        if (!showTt && !showStr && !showRooms) {
+            htmlOut += `<div class="p-6 text-center text-slate-500 text-sm">மேலே உள்ள தேர்வுப் பெட்டிகளில் (Checkboxes) அச்சிட வேண்டிய அறிக்கையைத் தேர்ந்தெடுக்கவும்.</div>`;
+        }
+
+        container.innerHTML = htmlOut;
+    }
+
+    function printSelectedReports() {
+        window.print();
+    }
+
+    function downloadExamMasterCSV() {
+        const currExam = getCurrentExamCycleObj();
+        const examTitle = currExam ? currExam.title : 'Exam_Master';
+        const tt = getData(schoolDataKey('timetable'), []);
+        const strengths = getData(schoolDataKey('strength'), []);
+
+        let csv = `﻿"${currentSchool.name} - ${examTitle}"
+
+`;
+        csv += `"1. தேர்வு அட்டவணை (EXAM TIMETABLE)"
+`;
+        csv += `"Date","Session","Class","Subject Code","Subject Full Name"
+`;
+        tt.forEach(t => {
+            csv += `"${formatDisplayDate(t.date)}","${t.session}","${t.className}","${t.subjectCode}","${t.subjectFull || t.subjectCode}"
+`;
+        });
+
+        csv += `
+"2. வகுப்பு வாரியான மாணவ, மாணவியர் எண்ணிக்கை & தேர்வு எண் (CLASS STRENGTH & ROLL NUMBERS)"
+`;
+        csv += `"Class","Medium","Girls Start","Girls End","Girls Count","Boys Start","Boys End","Boys Count","Total"
+`;
+        strengths.forEach(s => {
+            const gc = parseInt(s.gCount) || 0;
+            const bc = parseInt(s.bCount) || 0;
+            csv += `"${s.className}","${s.medium}","${gc > 0 ? s.gStart : '-'}","${gc > 0 ? s.gEnd : '-'}","${gc}","${bc > 0 ? s.bStart : '-'}","${bc > 0 ? s.bEnd : '-'}","${bc}","${gc + bc}"
+`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${examTitle.replace(/\s+/g, '_')}_Master_File.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function shareReportsToWhatsApp() {
+        const currExam = getCurrentExamCycleObj();
+        const examTitle = currExam ? currExam.title : 'தேர்வு அறிக்கை';
+        const tt = getData(schoolDataKey('timetable'), []);
+        const strengths = getData(schoolDataKey('strength'), []);
+
+        let lines = [];
+        lines.push(`🏫 *${currentSchool.name}*`);
+        lines.push(`📑 *${examTitle} - ஒருங்கிணைந்த அறிக்கை*`);
+        lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+
+        if (tt.length > 0) {
+            lines.push(`📅 *தேர்வு அட்டவணை:*`);
+            tt.forEach(t => {
+                lines.push(`• ${formatDisplayDate(t.date)} (${t.session}) - *${t.className}*: ${t.subjectCode}`);
+            });
+            lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+        }
+
+        if (strengths.length > 0) {
+            lines.push(`👥 *வகுப்பு வாரியான மாணவர் & தேர்வு எண்கள்:*`);
+            let gSum = 0, bSum = 0;
+            strengths.forEach(s => {
+                const gc = parseInt(s.gCount) || 0;
+                const bc = parseInt(s.bCount) || 0;
+                gSum += gc; bSum += bc;
+                lines.push(`• *${s.className} (${s.medium})*: Girls ${gc > 0 ? `${s.gStart}-${s.gEnd} (${gc})` : '0'} | Boys ${bc > 0 ? `${s.bStart}-${s.bEnd} (${bc})` : '0'} | மொத்தம்: *${gc + bc}*`);
+            });
+            lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+            lines.push(`📊 *மொத்த மாணவியர்: ${gSum} | மொத்த மாணவர்கள்: ${bSum} | மொத்தம்: ${gSum + bSum}*`);
+        }
+
+        openWhatsAppWithText(lines.join('
+'));
+    }
+
     function enterSchoolWorkspace() {
         document.getElementById('authSection').classList.add('hidden');
         document.getElementById('adminSection').classList.add('hidden');
@@ -1428,10 +2084,11 @@
         }
 
         document.getElementById('setSchoolName').value = currentSchool.name;
+        initExamCycles();
         switchWorkTab('teachers');
     }
 
-    const WORK_TAB_ORDER = ['teachers', 'subjects', 'strength', 'rooms', 'timetable', 'allocate', 'saved', 'duty', 'settings'];
+    const WORK_TAB_ORDER = ['teachers', 'subjects', 'strength', 'rooms', 'timetable', 'allocate', 'saved', 'duty', 'reports', 'settings'];
 
     function stepWorkTab(delta) {
         const dd = document.getElementById('workTabDropdown');
@@ -1457,6 +2114,9 @@
         if (tabName === 'allocate') setupAllocationView();
         if (tabName === 'saved') refreshSavedPlansView();
         if (tabName === 'duty') setupDutyView();
+        if (tabName === 'reports') renderReportsPage();
+
+        applyExamReadOnlyLock();
     }
 
     // ---------------------------------------------------------
