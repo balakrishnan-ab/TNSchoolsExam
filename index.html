@@ -76,15 +76,15 @@
                 border-width: 1.5px !important;
                 border-radius: 4px !important;
             }
-            table.official-tbl th { font-size: 10.5px !important; padding: 2px 3px !important; line-height: 1.1 !important; }
-            table.official-tbl td { padding: 1.5px 4px !important; line-height: 1.12 !important; }
-            .print-data-cell { font-size: 14px !important; font-weight: 800 !important; }
-            .print-room-no { font-size: 48px !important; font-weight: 900 !important; line-height: 0.95 !important; }
-            .print-roll-num { font-size: 16.5px !important; font-weight: 900 !important; }
-            .print-room-total { font-size: 18px !important; font-weight: 900 !important; }
-            .print-qp-box { font-size: 13.5px !important; line-height: 1.25 !important; padding: 2px 5px !important; }
-            table.room-mini-tbl th { font-size: 9.5px !important; padding: 1.5px 3px !important; }
-            table.room-mini-tbl td { font-size: 11.5px !important; font-weight: 800 !important; padding: 1.5px 3px !important; line-height: 1.1 !important; }
+            table.official-tbl th { font-size: 10px !important; padding: 1.5px 3px !important; line-height: 1.05 !important; }
+            table.official-tbl td { padding: 1px 3px !important; line-height: 1.06 !important; }
+            .print-data-cell { font-size: 13px !important; font-weight: 800 !important; }
+            .print-room-no { font-size: 44px !important; font-weight: 900 !important; line-height: 0.9 !important; }
+            .print-roll-num { font-size: 15.5px !important; font-weight: 900 !important; }
+            .print-room-total { font-size: 17px !important; font-weight: 900 !important; }
+            .print-qp-box { font-size: 12.5px !important; line-height: 1.12 !important; padding: 1.5px 5px !important; }
+            table.room-mini-tbl th { font-size: 9px !important; padding: 1px 2px !important; line-height: 1.05 !important; }
+            table.room-mini-tbl td { font-size: 11px !important; font-weight: 800 !important; padding: 1px 2px !important; line-height: 1.05 !important; }
 
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -2319,7 +2319,7 @@
             return;
         }
 
-        const defaultName = `அமைப்பு #${sameSessionPlans.length + 1} (${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })})`;
+        const defaultName = `${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3`;
         const customName = prompt(`இந்த இருக்கை அமைப்பிற்கு ஒரு பெயர் தரவும் (${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3):`, defaultName);
         if (customName === null) return;
 
@@ -2616,20 +2616,22 @@
             `).join('');
         }).join('');
 
-        // 2. EXAM COMMITTEE COPY TABLE (2x Larger Room No + Right-Edge QP Breakdown + Room Total QP Count)
+        // 2. EXAM COMMITTEE COPY TABLE (2x Larger Room No + Side-by-Side QP List & Boxed Total inside Right Cell)
         let committeeRowsHtml = summaryGroups.map(grp => {
             const qpLines = Object.entries(grp.qpBreakdown)
-                .map(([k, v]) => `<div class="whitespace-nowrap"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.08em;">${v}</span></div>`)
+                .map(([k, v]) => `<div class="whitespace-nowrap"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.06em;">${v}</span></div>`)
                 .join('');
             const qpWithRoomTotalHtml = `
-                ${qpLines}
-                <div class="mt-1 pt-1 border-t border-black font-black text-slate-950 whitespace-nowrap" style="font-size:1.05em;">
-                    மொத்த வினாத்தாள்கள் = <span class="underline">${grp.roomTotal}</span>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                    <div style="text-align:left;">${qpLines}</div>
+                    <div style="border:2.5px solid #000; padding:3px 8px; font-weight:900; font-size:18px; line-height:1.1; background:#fff; color:#000; text-align:center; min-width:44px; shrink-0;" title="மொத்த வினாத்தாள்கள்">
+                        ${grp.roomTotal}
+                    </div>
                 </div>
             `;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:76px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:74px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
@@ -2637,7 +2639,7 @@
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
                     ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15px; line-height:1.25; padding:3px 7px;">${qpWithRoomTotalHtml}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:14.5px; line-height:1.18; padding:2px 6px;">${qpWithRoomTotalHtml}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -3000,7 +3002,7 @@
                              onclick="handleSeatClick('${rNo}', ${currentIdx})"
                              style="${inlineSeatStyle}"
                              title="இருக்கை ${s + 1}${stu ? ' - ' + stu.classLabel + ' (' + stu.roll + ')' : ''} - மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்"
-                             class="${activeRing} ${bwAccentCls} seat-cell-print border-2 rounded py-0.5 px-1 cursor-pointer transition select-none flex items-center gap-1 overflow-hidden">
+                             class="${activeRing} ${bwAccentCls} seat-cell-print border rounded py-0 px-0.5 cursor-pointer transition select-none flex items-center gap-0.5 overflow-hidden">
                             <span style="${badgeStyle}" class="seat-num-badge inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[9px] font-bold shrink-0">${s + 1}</span>
                             <div class="flex-1 text-center leading-tight truncate">
                                 ${stu ? `<div class="text-xs font-extrabold">${stu.roll}</div><div class="text-[9px] font-bold truncate">${stu.classLabel} [${stu.subject}]</div>` : '<span class="text-[10px]">---</span>'}
@@ -3008,13 +3010,13 @@
                         </div>
                     `;
                 }
-                // Compact single-row bench: Left-margin row number (1, 2, 3...) + side-by-side seats (NO extra top header row!)
+                // Compact single-row bench: Left-margin row number (1, 2, 3...) + side-by-side seats (auto-scaled height for single-page print)
                 benchesHtml += `
-                    <div class="bench-card-print border border-slate-800 rounded p-1 mb-1 bg-slate-50 flex items-stretch gap-1">
-                        <div class="bench-row-badge w-5 shrink-0 bg-slate-800 text-white rounded flex items-center justify-center text-[10px] font-extrabold select-none" title="வரிசை / பெஞ்ச் எண் ${r + 1}">
+                    <div class="bench-card-print border border-slate-800 rounded p-0.5 mb-0.5 bg-slate-50 flex items-stretch gap-1">
+                        <div class="bench-row-badge w-4 shrink-0 bg-slate-800 text-white rounded flex items-center justify-center text-[9.5px] font-extrabold select-none" title="வரிசை / பெஞ்ச் எண் ${r + 1}">
                             ${r + 1}
                         </div>
-                        <div class="flex-1" style="display:grid; grid-template-columns: repeat(${perBench}, minmax(0, 1fr)); gap: 3px;">
+                        <div class="flex-1" style="display:grid; grid-template-columns: repeat(${perBench}, minmax(0, 1fr)); gap: 2px;">
                             ${seatsInnerHtml}
                         </div>
                     </div>
