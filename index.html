@@ -18,11 +18,50 @@
             .avoid-break { page-break-inside: avoid; break-inside: avoid; }
             html, body {
                 background: white !important;
+                color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            }
+            /* Pure Black & White crisp styling for printing */
+            .seat-cell-print {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                padding: 2px 2px !important;
+                line-height: 1.15 !important;
+            }
+            .seat-bw-accent {
+                border-left: 3.5px solid #000000 !important;
+            }
+            .seat-num-badge {
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
+            .bench-card-print {
+                background-color: #ffffff !important;
+                border: 1.2px solid #000000 !important;
+                padding: 2px 3px !important;
+                margin-bottom: 3px !important;
+            }
+            .bench-row-badge {
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
+            .bw-print-box {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1.5px solid #000000 !important;
+            }
+            table.official-tbl th {
+                background-color: #f1f5f9 !important;
+                color: #000000 !important;
+                border: 1.2px solid #000000 !important;
+            }
+            table.official-tbl td {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
             }
             #schoolSection, #workView-allocate, #generatedOutputArea, #printableVisualCharts {
                 max-width: 100% !important;
@@ -37,16 +76,13 @@
                 border-width: 1.5px !important;
                 border-radius: 4px !important;
             }
-            table.official-tbl { font-size: 11px !important; }
-            table.official-tbl th, table.official-tbl td { padding: 3px 5px !important; }
-            .bench-card-print {
-                padding: 2px 3px !important;
-                margin-bottom: 3px !important;
-            }
-            .seat-cell-print {
-                padding: 2px 2px !important;
-                line-height: 1.15 !important;
-            }
+            table.official-tbl { font-size: 11.5px !important; }
+            table.official-tbl th, table.official-tbl td { padding: 3px 4px !important; }
+            .print-room-no { font-size: 22px !important; font-weight: 900 !important; line-height: 1.05 !important; }
+            .print-roll-num { font-size: 14.5px !important; font-weight: 900 !important; }
+            .print-room-total { font-size: 15px !important; font-weight: 900 !important; }
+            .print-qp-box { font-size: 13px !important; line-height: 1.35 !important; }
+
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         table.official-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
@@ -2216,39 +2252,39 @@
         });
         const allQpKeys = Array.from(allQpKeysSet);
 
-        // 1. STUDENT NOTICE BOARD TABLE (Clean, without QP packing column)
+        // 1. STUDENT NOTICE BOARD TABLE (Huge Room No + Extra Large Bold Roll Numbers)
         let studentRowsHtml = summaryGroups.map(grp => {
             grandTotal += grp.roomTotal;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomNo}</td>` : ''}
-                    <td>${it.classLabel}</td>
-                    <td class="font-semibold">${it.subject}</td>
-                    <td>${it.gender}</td>
-                    <td>${it.start}</td>
-                    <td>${it.end}</td>
-                    <td>${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:28px; line-height:1.1; min-width:58px;">${grp.roomNo}</td>` : ''}
+                    <td class="font-bold text-sm">${it.classLabel}</td>
+                    <td class="font-extrabold text-sm">${it.subject}</td>
+                    <td class="font-semibold">${it.gender}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.start}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.end}</td>
+                    <td class="font-extrabold text-base">${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:19px;">${grp.roomTotal}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
 
-        // 2. EXAM COMMITTEE COPY TABLE (With Extra Column for Question Paper Count per Subject & Medium)
+        // 2. EXAM COMMITTEE COPY TABLE (Huge Room No + Large Bold Roll Numbers + Large Clear QP Count Box)
         let committeeRowsHtml = summaryGroups.map(grp => {
             const qpLines = Object.entries(grp.qpBreakdown)
-                .map(([k, v]) => `<div class="whitespace-nowrap"><b>${k}</b> = <span class="font-bold text-blue-900">${v}</span></div>`)
+                .map(([k, v]) => `<div class="whitespace-nowrap py-0.5"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.1em;">${v}</span></div>`)
                 .join('');
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomNo}</td>` : ''}
-                    <td>${it.classLabel}</td>
-                    <td class="font-semibold">${it.subject}</td>
-                    <td>${it.gender}</td>
-                    <td>${it.start}</td>
-                    <td>${it.end}</td>
-                    <td>${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="font-bold">${grp.roomTotal}</td>` : ''}
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" style="text-align:left; background-color:#f8fafc; font-size:12px;">${qpLines}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:28px; line-height:1.1; min-width:58px;">${grp.roomNo}</td>` : ''}
+                    <td class="font-bold text-sm">${it.classLabel}</td>
+                    <td class="font-extrabold text-sm">${it.subject}</td>
+                    <td class="font-semibold">${it.gender}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.start}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.end}</td>
+                    <td class="font-extrabold text-base">${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:19px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15.5px; line-height:1.4; padding:6px 10px;">${qpLines}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -2539,18 +2575,52 @@
         document.getElementById('printableVisualCharts').innerHTML = htmlOut;
     }
 
+    // Distinct color palette per Class (e.g. 12-A1(EM), 11-B(TM), etc.) for clear visual view on screen
+    const CLASS_COLOR_PALETTE = [
+        { bg: "#dbeafe", border: "#2563eb", text: "#1e3a8a", badge: "#1d4ed8" }, // Blue
+        { bg: "#fef3c7", border: "#d97706", text: "#78350f", badge: "#b45309" }, // Amber
+        { bg: "#d1fae5", border: "#059669", text: "#064e3b", badge: "#047857" }, // Emerald
+        { bg: "#f3e8ff", border: "#9333ea", text: "#581c87", badge: "#7e22ce" }, // Purple
+        { bg: "#ffe4e6", border: "#e11d48", text: "#881337", badge: "#be123c" }, // Rose
+        { bg: "#cffafe", border: "#0891b2", text: "#164e63", badge: "#0e7490" }, // Cyan
+        { bg: "#ffedd5", border: "#ea580c", text: "#7c2d12", badge: "#c2410c" }, // Orange
+        { bg: "#ccfbf1", border: "#0d9488", text: "#134e4a", badge: "#0f766e" }, // Teal
+        { bg: "#e0e7ff", border: "#4f46e5", text: "#312e81", badge: "#4338ca" }, // Indigo
+        { bg: "#ecfccb", border: "#65a30d", text: "#365314", badge: "#4d7c0f" }, // Lime
+        { bg: "#fae8ff", border: "#c026d3", text: "#701a75", badge: "#a21caf" }, // Fuchsia
+        { bg: "#e0f2fe", border: "#0284c7", text: "#0c4a6e", badge: "#0369a1" }  // Sky
+    ];
+
     function buildSingleRoomHtml(rNo) {
         const data = window.roomVisualData[rNo];
         if (!data) return '';
         const { rm, studentCount, selTitle, selDate, selSess, perBench, effectiveColRows, totalRenderedBenches, overflowWarningHtml, slots } = data;
 
+        // Build deterministic per-class color map for all classes present in this room
+        const uniqueClasses = [];
+        slots.forEach(stu => {
+            if (stu && !uniqueClasses.includes(stu.classLabel)) {
+                uniqueClasses.push(stu.classLabel);
+            }
+        });
+        const classColorMap = {};
+        uniqueClasses.forEach((cls, idx) => {
+            classColorMap[cls] = {
+                palette: CLASS_COLOR_PALETTE[idx % CLASS_COLOR_PALETTE.length],
+                bwAccent: (idx % 2 === 1) // Alternate classes get thick left B&W border in print
+            };
+        });
+
+        // Screen-only Class Color Legend
+        const legendItemsHtml = uniqueClasses.map(cls => {
+            const p = classColorMap[cls].palette;
+            return `<span style="background-color:${p.bg}; border:1.5px solid ${p.border}; color:${p.text};" class="px-2 py-0.5 rounded text-[11px] font-bold inline-flex items-center gap-1">
+                <span style="background-color:${p.badge};" class="w-2.5 h-2.5 rounded-full inline-block"></span>${cls}
+            </span>`;
+        }).join('');
+
         let seatIdx = 0;
         let colsHtml = '';
-        const seatColors = [
-            "bg-blue-50 text-blue-950 border-blue-400",
-            "bg-amber-50 text-amber-950 border-amber-400",
-            "bg-emerald-50 text-emerald-950 border-emerald-400"
-        ];
 
         for (let c = 0; c < rm.cols; c++) {
             const rowsInThisCol = effectiveColRows[c] || 0;
@@ -2561,8 +2631,13 @@
                     const currentIdx = seatIdx++;
                     const stu = slots[currentIdx];
                     const isSelected = window.selectedSeatSwap && window.selectedSeatSwap.roomNo === rNo && window.selectedSeatSwap.idx === currentIdx;
-                    const colorCls = stu ? seatColors[s % seatColors.length] : "bg-white text-slate-400 border-dashed border-slate-300";
-                    const activeRing = isSelected ? "ring-4 ring-rose-500 scale-105 bg-rose-100 border-rose-600" : "hover:ring-2 hover:ring-blue-500";
+                    const clsInfo = stu ? classColorMap[stu.classLabel] : null;
+                    const inlineSeatStyle = stu
+                        ? `background-color:${clsInfo.palette.bg}; border-color:${clsInfo.palette.border}; color:${clsInfo.palette.text};`
+                        : `background-color:#ffffff; border-style:dashed; border-color:#cbd5e1; color:#94a3b8;`;
+                    const badgeStyle = stu ? `background-color:${clsInfo.palette.badge};` : `background-color:#64748b;`;
+                    const bwAccentCls = (stu && clsInfo.bwAccent) ? 'seat-bw-accent' : '';
+                    const activeRing = isSelected ? "ring-4 ring-rose-600 scale-105" : "hover:ring-2 hover:ring-blue-600";
 
                     seatsInnerHtml += `
                         <div draggable="true"
@@ -2570,11 +2645,12 @@
                              ondragover="onSeatDragOver(event)"
                              ondrop="onSeatDrop(event, '${rNo}', ${currentIdx})"
                              onclick="handleSeatClick('${rNo}', ${currentIdx})"
-                             title="இருக்கை ${s + 1} - மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்"
-                             class="${colorCls} ${activeRing} seat-cell-print border rounded py-0.5 px-1 cursor-pointer transition select-none flex items-center gap-1 overflow-hidden">
-                            <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-slate-700 text-white text-[9px] font-bold shrink-0">${s + 1}</span>
+                             style="${inlineSeatStyle}"
+                             title="இருக்கை ${s + 1}${stu ? ' - ' + stu.classLabel + ' (' + stu.roll + ')' : ''} - மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்"
+                             class="${activeRing} ${bwAccentCls} seat-cell-print border-2 rounded py-0.5 px-1 cursor-pointer transition select-none flex items-center gap-1 overflow-hidden">
+                            <span style="${badgeStyle}" class="seat-num-badge inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[9px] font-bold shrink-0">${s + 1}</span>
                             <div class="flex-1 text-center leading-tight truncate">
-                                ${stu ? `<div class="text-xs font-extrabold">${stu.roll}</div><div class="text-[9px] font-semibold truncate">${stu.classLabel} [${stu.subject}]</div>` : '<span class="text-[10px]">---</span>'}
+                                ${stu ? `<div class="text-xs font-extrabold">${stu.roll}</div><div class="text-[9px] font-bold truncate">${stu.classLabel} [${stu.subject}]</div>` : '<span class="text-[10px]">---</span>'}
                             </div>
                         </div>
                     `;
@@ -2582,7 +2658,7 @@
                 // Compact single-row bench: Left-margin row number (1, 2, 3...) + side-by-side seats (NO extra top header row!)
                 benchesHtml += `
                     <div class="bench-card-print border border-slate-800 rounded p-1 mb-1 bg-slate-50 flex items-stretch gap-1">
-                        <div class="w-5 shrink-0 bg-slate-800 text-white rounded flex items-center justify-center text-[10px] font-extrabold select-none" title="வரிசை / பெஞ்ச் எண் ${r + 1}">
+                        <div class="bench-row-badge w-5 shrink-0 bg-slate-800 text-white rounded flex items-center justify-center text-[10px] font-extrabold select-none" title="வரிசை / பெஞ்ச் எண் ${r + 1}">
                             ${r + 1}
                         </div>
                         <div class="flex-1" style="display:grid; grid-template-columns: repeat(${perBench}, minmax(0, 1fr)); gap: 3px;">
@@ -2593,7 +2669,7 @@
             }
             colsHtml += `
                 <div>
-                    <div class="text-center font-bold text-[11px] mb-1 bg-slate-200 border border-slate-400 py-0.5 rounded">
+                    <div class="bw-print-box text-center font-bold text-[11px] mb-1 bg-slate-200 border border-slate-500 py-0.5 rounded">
                         வரிசை ${c + 1} (Col ${c + 1}: ${rowsInThisCol}×${perBench}=${rowsInThisCol * perBench})
                     </div>
                     ${benchesHtml}
@@ -2604,35 +2680,36 @@
         return `
             <div class="bg-white p-3 md:p-4 rounded-xl shadow border-2 border-black print-compact-card avoid-break">
                 <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5 no-print">
-                    <span class="text-[11px] font-semibold bg-indigo-50 text-indigo-800 px-2.5 py-0.5 rounded border border-indigo-200">
-                        ✋ இருக்கையை மாற்ற: <b>இழுத்து விடவும் (Drag & Drop)</b> அல்லது <b>இரு இருக்கைகளை கிளிக் செய்து (Click to Swap)</b> மாற்றவும்.
-                    </span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[11px] font-bold text-slate-700">🎨 வகுப்பு வண்ணங்கள்:</span>
+                        ${legendItemsHtml}
+                    </div>
                     <button onclick="resetRoomSeats('${rNo}')" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-0.5 rounded">🔄 மீட்டமை (Reset)</button>
                 </div>
 
                 <!-- PROMINENT HEADER: LARGE ROOM NO & EXAM DATE -->
                 <div class="border-b-2 border-black pb-1.5 mb-2 flex flex-wrap justify-between items-center gap-2">
-                    <div class="bg-slate-900 text-white px-3.5 py-1.5 rounded-lg border-2 border-black text-center shrink-0">
-                        <div class="text-[10px] uppercase tracking-wider text-amber-300 font-bold leading-none">அறை எண் / ROOM NO</div>
+                    <div class="bw-print-box bg-slate-900 text-white px-3.5 py-1.5 rounded-lg border-2 border-black text-center shrink-0">
+                        <div class="text-[10px] uppercase tracking-wider font-bold leading-none">அறை எண் / ROOM NO</div>
                         <div class="text-2xl md:text-3xl font-black leading-tight">${rm.roomNo}</div>
                     </div>
 
                     <div class="flex-1 text-center px-1">
                         <h3 class="font-extrabold text-base md:text-lg leading-tight uppercase">${currentSchool.name}</h3>
-                        <p class="text-xs md:text-sm font-bold text-slate-800 mt-0.5">${selTitle}</p>
-                        <p class="text-[11px] font-semibold text-slate-700">மாணவர்கள்: <b>${studentCount}</b> | மொத்த இருக்கைகள்: ${totalRenderedBenches}×${perBench} = ${totalRenderedBenches * perBench}</p>
+                        <p class="text-xs md:text-sm font-bold text-slate-900 mt-0.5">${selTitle}</p>
+                        <p class="text-[11px] font-semibold text-slate-800">மாணவர்கள்: <b>${studentCount}</b> | மொத்த இருக்கைகள்: ${totalRenderedBenches}×${perBench} = ${totalRenderedBenches * perBench}</p>
                     </div>
 
-                    <div class="bg-slate-100 border-2 border-black px-3 py-1.5 rounded-lg text-center shrink-0">
-                        <div class="text-[10px] uppercase font-bold text-slate-600 leading-none">தேர்வு நாள் / EXAM DATE</div>
-                        <div class="text-base md:text-lg font-black text-slate-950 leading-tight">${selDate}</div>
-                        <div class="text-xs font-extrabold text-blue-900 leading-none">${selSess}</div>
+                    <div class="bw-print-box bg-slate-100 border-2 border-black px-3 py-1.5 rounded-lg text-center shrink-0">
+                        <div class="text-[10px] uppercase font-bold leading-none">தேர்வு நாள் / EXAM DATE</div>
+                        <div class="text-base md:text-lg font-black leading-tight">${selDate}</div>
+                        <div class="text-xs font-extrabold leading-none">${selSess}</div>
                     </div>
                 </div>
 
                 ${overflowWarningHtml}
 
-                <div class="text-center border border-dashed border-slate-700 py-0.5 mb-2 font-bold text-[11px] bg-slate-100">
+                <div class="bw-print-box text-center border border-dashed border-slate-700 py-0.5 mb-2 font-bold text-[11px] bg-slate-100">
                     [ கரும்பலகை / ஆசிரியர் மேசை - BLACKBOARD ]
                 </div>
 
