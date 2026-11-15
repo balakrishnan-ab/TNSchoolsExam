@@ -8,15 +8,49 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <style>
+        @page {
+            size: A4 portrait;
+            margin: 5mm 6mm;
+        }
         @media print {
             .no-print { display: none !important; }
-            .page-break { page-break-before: always; }
-            body { background: white !important; padding: 0 !important; }
+            .page-break { page-break-before: always; break-before: page; }
+            .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+            html, body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #schoolSection, #workView-allocate, #generatedOutputArea, #printableVisualCharts {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             .shadow-lg, .shadow-md, .shadow { box-shadow: none !important; }
+            .print-compact-card {
+                padding: 6px 8px !important;
+                margin: 0 !important;
+                border-width: 1.5px !important;
+                border-radius: 4px !important;
+            }
+            table.official-tbl { font-size: 11px !important; }
+            table.official-tbl th, table.official-tbl td { padding: 3px 5px !important; }
+            .bench-card-print {
+                padding: 2px 3px !important;
+                margin-bottom: 3px !important;
+            }
+            .seat-cell-print {
+                padding: 2px 2px !important;
+                line-height: 1.15 !important;
+            }
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        table.official-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-        table.official-tbl th, table.official-tbl td { border: 1px solid #000; padding: 6px 8px; text-align: center; }
+        table.official-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        table.official-tbl th, table.official-tbl td { border: 1px solid #000; padding: 5px 7px; text-align: center; }
         table.official-tbl th { background-color: #e2e8f0; }
     </style>
 </head>
@@ -581,7 +615,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div class="bg-white p-3 rounded border space-y-1.5">
                         <div class="font-bold text-xs text-slate-600">பெஞ்சில் மாணவர் அமரும் வரிசை (2 அல்லது 3 பேர் அமரும் போது):</div>
-                        <label class="block"><input type="radio" name="benchOrderMode" value="interleave" checked> இரு வேறு வகுப்பு/பாட மாணவர்களை மாற்றி அமர வைக்கவும் (Anti-Malpractice)</label>
+                        <label class="block font-semibold text-blue-950"><input type="radio" name="benchOrderMode" value="interleave" checked> வெவ்வேறு வகுப்பு (12th / 11th) மாணவர்களை முதலில் மாற்றி அமர வைக்கவும் — தவிர்க்க முடியாவிடில் வெவ்வேறு பாடங்கள் (Anti-Malpractice)</label>
                         <label class="block"><input type="radio" name="benchOrderMode" value="continuous"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No) அமர வைக்கவும்</label>
                     </div>
                     <div class="bg-white p-3 rounded border space-y-2">
@@ -2002,6 +2036,52 @@
         renderMatrixTable();
     }
 
+    function extractGradeKey(classLabel) {
+        const m = String(classLabel || '').trim().match(/^(\d+)/);
+        return m ? m[1] : String(classLabel || '').split('-')[0].trim();
+    }
+
+    // Helper: Fill a room's capacity by balancing across different Grades (e.g., 12th & 11th) so each room has mixed grades!
+    function fillRoomGradeBalanced(rm, colsList, rem, roomCapRem) {
+        if (roomCapRem[rm.roomNo] <= 0) return;
+        const activeCols = colsList.filter(c => rem[c.key] > 0);
+        if (activeCols.length === 0) return;
+
+        // Group active columns by Grade (e.g. "12", "11", "10")
+        const gradeGroups = {};
+        activeCols.forEach(c => {
+            const g = extractGradeKey(c.classLabel);
+            if (!gradeGroups[g]) gradeGroups[g] = [];
+            gradeGroups[g].push(c);
+        });
+        const grades = Object.keys(gradeGroups);
+
+        if (grades.length > 1) {
+            // Give each grade an equal target share of this room's remaining capacity first
+            const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
+            grades.forEach(g => {
+                let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
+                gradeGroups[g].forEach(c => {
+                    if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0) return;
+                    const take = Math.min(rem[c.key], gradeQuota, roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] += take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                    gradeQuota -= take;
+                });
+            });
+        }
+
+        // Fill any leftover capacity in this room from remaining columns
+        colsList.forEach(c => {
+            if (roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
+            const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+            matrixState[rm.roomNo][c.key] += take;
+            rem[c.key] -= take;
+            roomCapRem[rm.roomNo] -= take;
+        });
+    }
+
     function autoFillMatrix() {
         const activeRooms = getActiveRooms();
         const rule = document.querySelector('input[name="genderRule"]:checked').value;
@@ -2020,45 +2100,25 @@
         const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
 
         if (rule === 'strict') {
-            // Girls rooms first, Boys rooms second (never mix Boys & Girls in same room)
+            // Girls rooms first, Boys rooms second (never mix Boys & Girls in same room), mixing Grades within each room
             activeRooms.forEach(rm => {
                 const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
                 if (girlsLeft > 0) {
-                    girlsCols.forEach(c => {
-                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-                        matrixState[rm.roomNo][c.key] = take;
-                        rem[c.key] -= take;
-                        roomCapRem[rm.roomNo] -= take;
-                    });
+                    fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
                 } else {
-                    boysCols.forEach(c => {
-                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-                        matrixState[rm.roomNo][c.key] = take;
-                        rem[c.key] -= take;
-                        roomCapRem[rm.roomNo] -= take;
-                    });
+                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
                 }
             });
         } else if (rule === 'hybrid') {
             activeRooms.forEach(rm => {
-                girlsCols.forEach(c => {
-                    const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-                    matrixState[rm.roomNo][c.key] = take;
-                    rem[c.key] -= take;
-                    roomCapRem[rm.roomNo] -= take;
-                });
+                fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
                 const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
                 if (girlsLeft === 0) {
-                    boysCols.forEach(c => {
-                        const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-                        matrixState[rm.roomNo][c.key] = take;
-                        rem[c.key] -= take;
-                        roomCapRem[rm.roomNo] -= take;
-                    });
+                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
                 }
             });
         } else {
-            // Continuous Roll Number order across classes (Girls -> Boys of each class sequentially)
+            // Continuous Roll Number order across classes
             const sortedByRoll = [...matrixColumns].sort((a, b) => a.startRoll - b.startRoll);
             activeRooms.forEach(rm => {
                 sortedByRoll.forEach(c => {
@@ -2127,9 +2187,11 @@
                     items.push(rec);
                     lastGeneratedSummary.push(rec);
 
+                    const gradeKey = extractGradeKey(col.classLabel);
                     for (let rNum = st; rNum <= en; rNum++) {
                         roomSeatMap[rm.roomNo].push({
                             roll: rNum,
+                            grade: gradeKey,
                             classLabel: col.classLabel,
                             subject: subjDisplay,
                             gender: col.gender
@@ -2262,14 +2324,15 @@
 
         document.getElementById('printableNoticeBoard').innerHTML = `
             <!-- COPY 1: STUDENT NOTICE BOARD COPY -->
-            <div class="border-b-2 border-dashed border-slate-400 pb-6 mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold bg-blue-100 text-blue-900 px-2.5 py-0.5 rounded border border-blue-300">நகல் 1: மாணவர்கள் தகவல் பலகை (STUDENT NOTICE BOARD COPY)</span>
+            <div class="print-compact-card pb-3 mb-3">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[11px] font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-400">நகல் 1: மாணவர்கள் தகவல் பலகை (STUDENT NOTICE BOARD COPY)</span>
+                    <span class="text-xs font-extrabold border border-black px-2.5 py-0.5 rounded bg-slate-100">தேர்வு நாள்: ${selDate} (${selSess})</span>
                 </div>
-                <div class="text-center border-b-2 border-black pb-3 mb-4">
-                    <h2 class="text-xl font-bold">${currentSchool.name}</h2>
-                    <p class="text-sm font-semibold">${selTitle} | Date: ${selDate} | Time: ${selSess}</p>
-                    <p class="text-sm font-bold mt-1">தேர்வு அறை ஒதுக்கீடு விவரம் (EXAM HALL SEATING ALLOCATION)</p>
+                <div class="text-center border-b-2 border-black pb-1.5 mb-2">
+                    <h2 class="text-lg md:text-xl font-extrabold uppercase">${currentSchool.name}</h2>
+                    <p class="text-base font-extrabold text-slate-900">${selTitle} &nbsp;|&nbsp; <span class="underline">தேதி (DATE): ${selDate}</span> &nbsp;|&nbsp; வேளை: ${selSess}</p>
+                    <p class="text-xs font-bold">தேர்வு அறை ஒதுக்கீடு விவரம் (EXAM HALL SEATING ALLOCATION)</p>
                 </div>
                 <table class="official-tbl">
                     <thead>
@@ -2290,14 +2353,15 @@
             </div>
 
             <!-- COPY 2: EXAM COMMITTEE COPY (NEW PAGE ON PRINT + QP BREAKDOWN COLUMN) -->
-            <div class="page-break pt-2">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded border border-emerald-300">நகல் 2: தேர்வுக் குழு நகல் (EXAM COMMITTEE & QUESTION PAPER COPY)</span>
+            <div class="page-break print-compact-card pt-1">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[11px] font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-400">நகல் 2: தேர்வுக் குழு நகல் (EXAM COMMITTEE & QUESTION PAPER COPY)</span>
+                    <span class="text-xs font-extrabold border border-black px-2.5 py-0.5 rounded bg-slate-100">தேர்வு நாள்: ${selDate} (${selSess})</span>
                 </div>
-                <div class="text-center border-b-2 border-black pb-3 mb-4">
-                    <h2 class="text-xl font-bold">${currentSchool.name}</h2>
-                    <p class="text-sm font-semibold">${selTitle} | Date: ${selDate} | Time: ${selSess}</p>
-                    <p class="text-sm font-bold mt-1">தேர்வுக் குழு அறை ஒதுக்கீடு & வினாத்தாள் விவரம் (EXAM COMMITTEE MASTER SHEET)</p>
+                <div class="text-center border-b-2 border-black pb-1.5 mb-2">
+                    <h2 class="text-lg md:text-xl font-extrabold uppercase">${currentSchool.name}</h2>
+                    <p class="text-base font-extrabold text-slate-900">${selTitle} &nbsp;|&nbsp; <span class="underline">தேதி (DATE): ${selDate}</span> &nbsp;|&nbsp; வேளை: ${selSess}</p>
+                    <p class="text-xs font-bold">தேர்வுக் குழு அறை ஒதுக்கீடு & வினாத்தாள் விவரம் (EXAM COMMITTEE MASTER SHEET)</p>
                 </div>
                 <table class="official-tbl">
                     <thead>
@@ -2335,21 +2399,93 @@
 
             if (benchOrderMode === 'continuous') {
                 ordered.sort((a, b) => a.roll - b.roll);
-            } else if (benchOrderMode === 'interleave' && ordered.length > perBench) {
-                const groups = [];
-                const chunkSize = Math.ceil(ordered.length / perBench);
-                for (let g = 0; g < perBench; g++) {
-                    groups.push(ordered.slice(g * chunkSize, (g + 1) * chunkSize));
-                }
-                const interleaved = [];
-                for (let i = 0; i < chunkSize; i++) {
-                    for (let g = 0; g < perBench; g++) {
-                        if (groups[g] && i < groups[g].length) {
-                            interleaved.push(groups[g][i]);
+            } else if (benchOrderMode === 'interleave' && ordered.length > 1) {
+                // SMART ANTI-MALPRACTICE ALGORITHM:
+                // Priority 1: Never sit same Grade (e.g. 12th with 12th, 11th with 11th) on the same bench if another Grade is available!
+                // Priority 2: If only one Grade remains (unavoidable), sit different Subjects together!
+                // Priority 3: If same Grade & Subject, sit different Sections together!
+                // Within each (grade + classLabel + subject) bucket, maintain strict ascending Roll Number order.
+                const bucketsMap = new Map();
+                ordered.forEach(stu => {
+                    const bKey = `${stu.grade}|${stu.classLabel}|${stu.subject}`;
+                    if (!bucketsMap.has(bKey)) bucketsMap.set(bKey, []);
+                    bucketsMap.get(bKey).push(stu);
+                });
+                bucketsMap.forEach(arr => arr.sort((a, b) => a.roll - b.roll));
+
+                const buckets = Array.from(bucketsMap.values());
+                const totalStudentsInRoom = ordered.length;
+                const smartPlaced = [];
+                const numBenchesNeeded = Math.ceil(totalStudentsInRoom / perBench);
+
+                for (let b = 0; b < numBenchesNeeded; b++) {
+                    const benchSeats = [];
+                    const seatsOnThisBench = Math.min(perBench, totalStudentsInRoom - smartPlaced.length);
+
+                    for (let s = 0; s < seatsOnThisBench; s++) {
+                        const usedGradesOnBench = new Set(benchSeats.map(x => x.grade));
+                        const usedSubjectsOnBench = new Set(benchSeats.map(x => x.subject));
+                        const usedClassesOnBench = new Set(benchSeats.map(x => x.classLabel));
+
+                        // Also check the student sitting directly in front (same seat position in previous bench)
+                        const prevBenchSameSeat = (b > 0 && smartPlaced.length >= perBench)
+                            ? smartPlaced[smartPlaced.length - perBench]
+                            : null;
+
+                        // Helper to pick from non-empty buckets matching predicate, preferring the grade/bucket with highest remaining count
+                        const pickBestBucket = (predFn) => {
+                            let bestB = null;
+                            let bestScore = -1;
+                            // Compute total remaining per grade so larger grades get paired smoothly without stranding leftovers
+                            const gradeRemTotals = {};
+                            buckets.forEach(bk => {
+                                if (bk.length > 0) {
+                                    const g = bk[0].grade;
+                                    gradeRemTotals[g] = (gradeRemTotals[g] || 0) + bk.length;
+                                }
+                            });
+
+                            buckets.forEach(bk => {
+                                if (bk.length === 0) return;
+                                const cand = bk[0];
+                                if (!predFn(cand)) return;
+                                let score = (gradeRemTotals[cand.grade] || 0) * 100 + bk.length;
+                                if (prevBenchSameSeat && prevBenchSameSeat.grade !== cand.grade) score += 25;
+                                if (prevBenchSameSeat && prevBenchSameSeat.subject !== cand.subject) score += 10;
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                    bestB = bk;
+                                }
+                            });
+                            return bestB;
+                        };
+
+                        // P1: Different Grade from everyone already on this bench (e.g. 12th paired with 11th)
+                        let chosenBucket = pickBestBucket(c => !usedGradesOnBench.has(c.grade));
+
+                        // P2: Unavoidable same Grade -> Must have Different Subject from everyone on this bench
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c => !usedSubjectsOnBench.has(c.subject));
+                        }
+
+                        // P3: Unavoidable same Grade & Subject -> Different Section/Class if available
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c => !usedClassesOnBench.has(c.classLabel));
+                        }
+
+                        // P4: Any remaining student
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(() => true);
+                        }
+
+                        if (chosenBucket && chosenBucket.length > 0) {
+                            const pickedStu = chosenBucket.shift();
+                            benchSeats.push(pickedStu);
+                            smartPlaced.push(pickedStu);
                         }
                     }
                 }
-                ordered = interleaved;
+                ordered = smartPlaced;
             }
 
             const effectiveColRows = [...cRows];
@@ -2411,9 +2547,9 @@
         let seatIdx = 0;
         let colsHtml = '';
         const seatColors = [
-            "bg-blue-100 text-blue-900 border-blue-300",
-            "bg-amber-100 text-amber-900 border-amber-300",
-            "bg-emerald-100 text-emerald-900 border-emerald-300"
+            "bg-blue-50 text-blue-950 border-blue-400",
+            "bg-amber-50 text-amber-950 border-amber-400",
+            "bg-emerald-50 text-emerald-950 border-emerald-400"
         ];
 
         for (let c = 0; c < rm.cols; c++) {
@@ -2434,42 +2570,73 @@
                              ondragover="onSeatDragOver(event)"
                              ondrop="onSeatDrop(event, '${rNo}', ${currentIdx})"
                              onclick="handleSeatClick('${rNo}', ${currentIdx})"
-                             title="இருக்கையை மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும் (Click to Swap or Drag & Drop)"
-                             class="${colorCls} ${activeRing} border rounded py-1 px-0.5 cursor-pointer transition select-none">
-                            ${stu ? `${stu.roll}<br><span class="text-[9px] font-normal">${stu.classLabel} [${stu.subject}]</span>` : '---'}
+                             title="இருக்கை ${s + 1} - மாற்ற கிளிக் செய்யவும் அல்லது இழுத்து விடவும்"
+                             class="${colorCls} ${activeRing} seat-cell-print border rounded py-0.5 px-1 cursor-pointer transition select-none flex items-center gap-1 overflow-hidden">
+                            <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-slate-700 text-white text-[9px] font-bold shrink-0">${s + 1}</span>
+                            <div class="flex-1 text-center leading-tight truncate">
+                                ${stu ? `<div class="text-xs font-extrabold">${stu.roll}</div><div class="text-[9px] font-semibold truncate">${stu.classLabel} [${stu.subject}]</div>` : '<span class="text-[10px]">---</span>'}
+                            </div>
                         </div>
                     `;
                 }
+                // Compact single-row bench: Left-margin row number (1, 2, 3...) + side-by-side seats (NO extra top header row!)
                 benchesHtml += `
-                    <div class="border border-slate-700 rounded p-1.5 mb-1.5 text-center bg-slate-50">
-                        <div class="text-[10px] text-slate-500 mb-1">Bench ${r + 1}</div>
-                        <div class="grid grid-cols-${perBench} gap-1 text-xs font-bold">
+                    <div class="bench-card-print border border-slate-800 rounded p-1 mb-1 bg-slate-50 flex items-stretch gap-1">
+                        <div class="w-5 shrink-0 bg-slate-800 text-white rounded flex items-center justify-center text-[10px] font-extrabold select-none" title="வரிசை / பெஞ்ச் எண் ${r + 1}">
+                            ${r + 1}
+                        </div>
+                        <div class="flex-1" style="display:grid; grid-template-columns: repeat(${perBench}, minmax(0, 1fr)); gap: 3px;">
                             ${seatsInnerHtml}
                         </div>
                     </div>
                 `;
             }
-            colsHtml += `<div><div class="text-center font-bold text-xs mb-2 bg-slate-200 py-1 rounded">வரிசை ${c + 1} (Col ${c + 1} - ${rowsInThisCol} Benches × ${perBench} = ${rowsInThisCol * perBench})</div>${benchesHtml}</div>`;
+            colsHtml += `
+                <div>
+                    <div class="text-center font-bold text-[11px] mb-1 bg-slate-200 border border-slate-400 py-0.5 rounded">
+                        வரிசை ${c + 1} (Col ${c + 1}: ${rowsInThisCol}×${perBench}=${rowsInThisCol * perBench})
+                    </div>
+                    ${benchesHtml}
+                </div>
+            `;
         }
 
         return `
-            <div class="bg-white p-6 rounded-xl shadow border-2 border-slate-800">
-                <div class="flex flex-wrap justify-between items-center gap-2 mb-2 no-print">
-                    <span class="text-[11px] font-semibold bg-indigo-50 text-indigo-800 px-2.5 py-1 rounded border border-indigo-200">
-                        ✋ இருக்கையை மாற்ற: ஒரு மாணவரை <b>இழுத்து மற்றொரு இடத்தில் விடவும் (Drag & Drop)</b> அல்லது <b>இரு இருக்கைகளை அடுத்தடுத்து கிளிக் செய்து (Click to Swap)</b> மாற்றவும்.
+            <div class="bg-white p-3 md:p-4 rounded-xl shadow border-2 border-black print-compact-card avoid-break">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5 no-print">
+                    <span class="text-[11px] font-semibold bg-indigo-50 text-indigo-800 px-2.5 py-0.5 rounded border border-indigo-200">
+                        ✋ இருக்கையை மாற்ற: <b>இழுத்து விடவும் (Drag & Drop)</b> அல்லது <b>இரு இருக்கைகளை கிளிக் செய்து (Click to Swap)</b> மாற்றவும்.
                     </span>
-                    <button onclick="resetRoomSeats('${rNo}')" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-1 rounded">🔄 பழையபடி மீட்டமை (Reset)</button>
+                    <button onclick="resetRoomSeats('${rNo}')" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-0.5 rounded">🔄 மீட்டமை (Reset)</button>
                 </div>
-                <div class="text-center border-b border-black pb-2 mb-3">
-                    <h3 class="font-bold text-lg">${currentSchool.name}</h3>
-                    <p class="text-xs font-semibold">${selTitle} | Date: ${selDate} | Session: ${selSess}</p>
-                    <div class="mt-1 inline-block bg-slate-800 text-white px-4 py-1 rounded font-bold text-sm">ROOM NO: ${rm.roomNo} (மொத்த மாணவர்கள்: ${studentCount} | ${totalRenderedBenches} Benches × ${perBench} = ${totalRenderedBenches * perBench} Seats)</div>
+
+                <!-- PROMINENT HEADER: LARGE ROOM NO & EXAM DATE -->
+                <div class="border-b-2 border-black pb-1.5 mb-2 flex flex-wrap justify-between items-center gap-2">
+                    <div class="bg-slate-900 text-white px-3.5 py-1.5 rounded-lg border-2 border-black text-center shrink-0">
+                        <div class="text-[10px] uppercase tracking-wider text-amber-300 font-bold leading-none">அறை எண் / ROOM NO</div>
+                        <div class="text-2xl md:text-3xl font-black leading-tight">${rm.roomNo}</div>
+                    </div>
+
+                    <div class="flex-1 text-center px-1">
+                        <h3 class="font-extrabold text-base md:text-lg leading-tight uppercase">${currentSchool.name}</h3>
+                        <p class="text-xs md:text-sm font-bold text-slate-800 mt-0.5">${selTitle}</p>
+                        <p class="text-[11px] font-semibold text-slate-700">மாணவர்கள்: <b>${studentCount}</b> | மொத்த இருக்கைகள்: ${totalRenderedBenches}×${perBench} = ${totalRenderedBenches * perBench}</p>
+                    </div>
+
+                    <div class="bg-slate-100 border-2 border-black px-3 py-1.5 rounded-lg text-center shrink-0">
+                        <div class="text-[10px] uppercase font-bold text-slate-600 leading-none">தேர்வு நாள் / EXAM DATE</div>
+                        <div class="text-base md:text-lg font-black text-slate-950 leading-tight">${selDate}</div>
+                        <div class="text-xs font-extrabold text-blue-900 leading-none">${selSess}</div>
+                    </div>
                 </div>
+
                 ${overflowWarningHtml}
-                <div class="text-center border border-dashed border-slate-600 py-1.5 mb-4 font-bold text-xs bg-slate-50">
+
+                <div class="text-center border border-dashed border-slate-700 py-0.5 mb-2 font-bold text-[11px] bg-slate-100">
                     [ கரும்பலகை / ஆசிரியர் மேசை - BLACKBOARD ]
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-${rm.cols} gap-4">
+
+                <div style="display:grid; grid-template-columns: repeat(${rm.cols}, minmax(0, 1fr)); gap: 8px;">
                     ${colsHtml}
                 </div>
             </div>
