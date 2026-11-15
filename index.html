@@ -1747,9 +1747,7 @@
     function markSelectedExamCompleted() {
         const curr = getCurrentExamCycleObj();
         if (!curr) return;
-        if (!confirm(`🔒 "${curr.title}" தேர்வை முடிவுற்ற தேர்வாக (Completed) பூட்ட விரும்புகிறீர்களா?
-
-பூட்டிய பிறகு இதில் மாற்றங்கள் செய்ய இயலாது; பார்வையிடவும் அச்சிடவும் மட்டுமே முடியும்.`)) {
+        if (!confirm(`🔒 "${curr.title}" தேர்வை முடிவுற்ற தேர்வாக (Completed) பூட்ட விரும்புகிறீர்களா?\n\nபூட்டிய பிறகு இதில் மாற்றங்கள் செய்ய இயலாது; பார்வையிடவும் அச்சிடவும் மட்டுமே முடியும்.`)) {
             return;
         }
         const cycles = getExamCyclesList();
@@ -2062,8 +2060,7 @@
             lines.push(`📊 *மொத்த மாணவியர்: ${gSum} | மொத்த மாணவர்கள்: ${bSum} | மொத்தம்: ${gSum + bSum}*`);
         }
 
-        openWhatsAppWithText(lines.join('
-'));
+        openWhatsAppWithText(lines.join('\n'));
     }
 
     function enterSchoolWorkspace() {
@@ -3061,8 +3058,7 @@
         setData(schoolDataKey('saved_seating'), savedPlans);
         updateSavedPlanIndicator(planObj);
         logActivity(currentSchool.id, currentSchool.name, `புதிய இருக்கை அமைப்பு சேமிக்கப்பட்டது: ${planObj.planName} (${selDate} ${selSess})`);
-        alert(`🎉 "${planObj.planName}" Cloud-ல் சேமிக்கப்பட்டது! (${sameSessionPlans.length + 1}/3)
-இனி பள்ளியிலிருந்தோ அல்லது வேறு எந்தக் கணினியிலிருந்தோ '7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்தில் திறந்து பார்க்கலாம் / திருத்தலாம்.`);
+        alert(`🎉 "${planObj.planName}" Cloud-ல் சேமிக்கப்பட்டது! (${sameSessionPlans.length + 1}/3)\nஇனி பள்ளியிலிருந்தோ அல்லது வேறு எந்தக் கணினியிலிருந்தோ '7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்தில் திறந்து பார்க்கலாம் / திருத்தலாம்.`);
     }
 
     async function refreshSavedPlansView() {
@@ -4274,8 +4270,7 @@
         lines.push(`━━━━━━━━━━━━━━━━━━━━`);
         lines.push(`👥 *மொத்த மாணவர்கள்: ${grandTot}*`);
 
-        openWhatsAppWithText(lines.join('
-'));
+        openWhatsAppWithText(lines.join('\n'));
     }
 
     function shareDutyAbstractToWhatsApp() {
@@ -4321,8 +4316,7 @@
             lines.push(`${i + 1}. *${t.shortCode}* (${t.fullName}): *${tot}* (FN:${fn}, AN:${an}) → ${myDates.join(', ') || '-'}`);
         });
 
-        openWhatsAppWithText(lines.join('
-'));
+        openWhatsAppWithText(lines.join('\n'));
     }
 
     function setupDutyView() {
