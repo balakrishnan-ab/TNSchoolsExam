@@ -76,8 +76,8 @@
                 border-width: 1.5px !important;
                 border-radius: 4px !important;
             }
-            table.official-tbl th { font-size: 10px !important; padding: 1.5px 3px !important; line-height: 1.05 !important; }
-            table.official-tbl td { padding: 1px 3px !important; line-height: 1.06 !important; }
+            table.official-tbl th { font-size: 10.5px !important; padding: 2.5px 4px !important; line-height: 1.12 !important; }
+            table.official-tbl td { padding: 3px 4px !important; line-height: 1.2 !important; }
             .print-data-cell { font-size: 13px !important; font-weight: 800 !important; }
             .print-room-no { font-size: 44px !important; font-weight: 900 !important; line-height: 0.9 !important; }
             .print-roll-num { font-size: 15.5px !important; font-weight: 900 !important; }
@@ -89,8 +89,8 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         table.official-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
-        table.official-tbl th { border: 1px solid #000; padding: 3px 5px; text-align: center; background-color: #e2e8f0; font-size: 12px; }
-        table.official-tbl td { border: 1px solid #000; padding: 2.5px 5px; text-align: center; line-height: 1.15; }
+        table.official-tbl th { border: 1px solid #000; padding: 4px 6px; text-align: center; background-color: #e2e8f0; font-size: 12.5px; }
+        table.official-tbl td { border: 1px solid #000; padding: 4.5px 6px; text-align: center; line-height: 1.25; }
         table.room-mini-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
         table.room-mini-tbl th { border: 1px solid #000; padding: 2px 4px; text-align: center; background-color: #e2e8f0; font-size: 10.5px; }
         table.room-mini-tbl td { border: 1px solid #000; padding: 2px 4px; text-align: center; font-weight: 800; line-height: 1.15; }
@@ -701,6 +701,7 @@
                         <button onclick="saveCurrentSeatingPlan(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">💾 புதிய அமைப்பாக Cloud-ல் சேமி (Save)</button>
                         <button id="updateSavedPlanBtn" onclick="saveCurrentSeatingPlan(true)" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🔄 இந்த சேமித்த அமைப்பை புதுப்பி (Update)</button>
                         <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🖨️ அச்சிடுக / PDF சேமி (Print)</button>
+                        <button onclick="shareAllocationToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">📲 வாட்ஸ்அப்பிற்கு அனுப்பு (WhatsApp)</button>
                         <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-sm">📥 Excel / CSV</button>
                     </div>
                 </div>
@@ -741,54 +742,111 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 7: INVIGILATOR DUTY (EDIT & DELETE ENABLED)                  -->
+    <!-- PAGE 8: INVIGILATOR DUTY ABSTRACT, MATRIX & ASSIGNMENT            -->
     <!-- ================================================================= -->
-    <div id="workView-duty" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2">
-            <h2 class="text-lg font-bold">🧑‍🏫 7. அறை கண்காணிப்பாளர் பணி ஒதுக்கீடு (Invigilator Duty)</h2>
-            <p class="text-xs text-slate-500">பதிவு செய்யப்பட்ட ஆசிரியர்கள் மற்றும் அறைகளை கீழ்விரி பட்டியலிலிருந்து தேர்ந்தெடுத்துப் பணி ஒதுக்கீடு செய்யவும். திருத்தவும் நீக்கவும் முடியும்.</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border">
-            <input type="hidden" id="dutyEditId" value="">
-            <div>
-                <label class="block text-xs font-semibold mb-1">தேர்வு தேதி & வேளை (Dropdown)</label>
-                <select id="dutyExamSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold mb-1">அறை எண் (Dropdown)</label>
-                <select id="dutyRoomSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold mb-1">ஆசிரியர் (Dropdown)</label>
-                <select id="dutyTeacherDropdown" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold mb-1">பணி நிலை</label>
-                <div class="flex gap-2">
-                    <select id="dutyRoleSelect" class="w-full border rounded p-2 text-sm bg-white">
-                        <option>அறை கண்காணிப்பாளர் (Invigilator)</option>
-                        <option>பறக்கும் படை (Squad)</option>
-                        <option>மாற்றுப் பணி (Reliever)</option>
-                    </select>
-                    <button onclick="saveDuty()" id="dutySaveBtn" class="bg-blue-700 text-white px-4 rounded font-semibold text-sm">சேர்</button>
-                    <button onclick="cancelDutyEdit()" id="dutyCancelBtn" class="hidden bg-slate-500 text-white px-3 rounded font-semibold text-sm">ரத்து</button>
+    <div id="workView-duty" class="work-view hidden space-y-6">
+        <!-- PART A: OVERALL EXAM DUTY ABSTRACT & INTERACTIVE MATRIX (PRINTABLE) -->
+        <div id="printableDutyAbstractArea" class="bg-white rounded-xl shadow p-5 space-y-4 border border-slate-200">
+            <div class="flex flex-wrap justify-between items-center gap-3 border-b pb-3 no-print">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">📊 8. அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட் & சுழற்சி அட்டவணை (Invigilator Duty Abstract & Roster)</h2>
+                    <p class="text-xs text-slate-600">தேர்வு அட்டவணை மற்றும் மாணவர் எண்ணிக்கையின் அடிப்படையில் ஒவ்வொரு நாளுக்கும் வேளைக்கும் தேவையான அறைகள் & ஆசிரியர் பணிகள் தானாகக் கணக்கிடப்படும். எந்தக் கட்டத்தையும் கிளிக் செய்து <b>(X)</b> பணியை மாற்றிக்கொள்ளலாம்.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="autoGenerateDutyMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">⚡ தானியங்கி பணி ஒதுக்கீடு (Auto-Assign Fair Roster)</button>
+                    <button onclick="syncMatrixToRoomDuties()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">🔄 அறை வாரியாகப் பட்டியலில் இணை</button>
+                    <button onclick="printDutyAbstractOnly()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">🖨️ அப்ஸ்ட்ராக்ட் அச்சிடு (Print)</button>
+                    <button onclick="shareDutyAbstractToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">📲 வாட்ஸ்அப் அனுப்பு (WhatsApp)</button>
                 </div>
             </div>
+
+            <!-- 4 SUMMARY ABSTRACT CARDS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                <div class="bg-blue-50 border border-blue-300 p-2.5 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-blue-800">📅 மொத்த தேர்வு வேளைகள்</div>
+                    <div class="text-2xl font-black text-blue-950" id="absTotalSessions">0</div>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 p-2.5 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-amber-800">🏫 மொத்த தேவைப்படும் பணிகள் (Duties)</div>
+                    <div class="text-2xl font-black text-amber-950" id="absTotalDutiesNeeded">0</div>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-300 p-2.5 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-emerald-800">🧑‍🏫 பணியில் உள்ள மொத்த ஆசிரியர்கள்</div>
+                    <div class="text-2xl font-black text-emerald-950" id="absTotalTeachers">0</div>
+                </div>
+                <div class="bg-purple-50 border border-purple-300 p-2.5 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-purple-800">⚖️ ஒரு ஆசிரியருக்கு சராசரி பணி</div>
+                    <div class="text-2xl font-black text-purple-950" id="absAvgDuties">0</div>
+                </div>
+            </div>
+
+            <!-- PRINT HEADER FOR DUTY ABSTRACT -->
+            <div class="text-center border-b-2 border-black pb-1.5">
+                <h3 class="text-base md:text-lg font-extrabold uppercase" id="dutyAbstractSchoolTitle"></h3>
+                <div class="text-xs md:text-sm font-bold text-slate-800">தேர்வு அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட் & நாள் வாரியான பணி ஒதுக்கீட்டு அட்டவணை (INVIGILATION DUTY ABSTRACT & ROSTER)</div>
+            </div>
+
+            <!-- EXCEL-STYLE DUTY ABSTRACT & INTERACTIVE TEACHER × SESSION MATRIX -->
+            <div class="overflow-x-auto">
+                <table class="official-tbl text-xs" id="dutyAbstractMatrixTable">
+                    <thead id="dutyMatrixHead"></thead>
+                    <tbody id="dutyMatrixBody"></tbody>
+                </table>
+            </div>
+            <div class="text-[11px] text-slate-600 flex flex-wrap justify-between gap-2 no-print">
+                <span>💡 <b>குறிப்பு:</b> மேலே உள்ள அட்டவணையில் <b>"தேவைப்படும் ஆசிரியர்கள்"</b> எண்ணிக்கையை மாற்றலாம்; மேலும் ஒவ்வொரு ஆசிரியர் கட்டத்தையும் கிளிக் செய்து <b>X</b> (பணி ஒதுக்கீடு) சேர்க்கலாம் அல்லது நீக்கலாம்.</span>
+                <span><b>TOT</b> = மொத்த பணி | <b>FN</b> = காலை பணி | <b>AN</b> = மாலை பணி</span>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border text-center">
-                <thead class="bg-slate-100">
-                    <tr>
-                        <th class="p-2 border">தேதி & வேளை</th>
-                        <th class="p-2 border">அறை எண்</th>
-                        <th class="p-2 border">சுருக்கக் குறியீடு</th>
-                        <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
-                        <th class="p-2 border">பணி</th>
-                        <th class="p-2 border">திருத்து / நீக்கு</th>
-                    </tr>
-                </thead>
-                <tbody id="dutyTableBody"></tbody>
-            </table>
+
+        <!-- PART B: ROOM-WISE INVIGILATOR ASSIGNMENT (EDIT & DELETE ENABLED) -->
+        <div class="bg-white rounded-xl shadow p-6 space-y-5 no-print">
+            <div class="border-b pb-2">
+                <h3 class="text-base font-bold">🚪 அறை வாரியான கண்காணிப்பாளர் பணி ஒதுக்கீடு (Room-Wise Invigilator Assignment)</h3>
+                <p class="text-xs text-slate-500">தனிப்பட்ட அறைகளுக்கு ஆசிரியர்களை ஒதுக்கவும், திருத்தவும் அல்லது நீக்கவும் முடியும்.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border">
+                <input type="hidden" id="dutyEditId" value="">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">தேர்வு தேதி & வேளை (Dropdown)</label>
+                    <select id="dutyExamSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">அறை எண் (Dropdown)</label>
+                    <select id="dutyRoomSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">ஆசிரியர் (Dropdown)</label>
+                    <select id="dutyTeacherDropdown" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">பணி நிலை</label>
+                    <div class="flex gap-2">
+                        <select id="dutyRoleSelect" class="w-full border rounded p-2 text-sm bg-white">
+                            <option>அறை கண்காணிப்பாளர் (Invigilator)</option>
+                            <option>பறக்கும் படை (Squad)</option>
+                            <option>மாற்றுப் பணி (Reliever)</option>
+                        </select>
+                        <button onclick="saveDuty()" id="dutySaveBtn" class="bg-blue-700 text-white px-4 rounded font-semibold text-sm">சேர்</button>
+                        <button onclick="cancelDutyEdit()" id="dutyCancelBtn" class="hidden bg-slate-500 text-white px-3 rounded font-semibold text-sm">ரத்து</button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border text-center">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 border">தேதி & வேளை</th>
+                            <th class="p-2 border">அறை எண்</th>
+                            <th class="p-2 border">சுருக்கக் குறியீடு</th>
+                            <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
+                            <th class="p-2 border">பணி</th>
+                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dutyTableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -1329,7 +1387,7 @@
         try { localStorage.setItem(KEY_SCHOOLS, JSON.stringify(updatedSchools)); } catch (e) {}
 
         // Remove local workspace keys for this school
-        const suffixes = ['teachers', 'subjects', 'classes', 'strength', 'rooms', 'timetable', 'duty', 'saved_seating'];
+        const suffixes = ['teachers', 'subjects', 'classes', 'strength', 'rooms', 'timetable', 'duty', 'saved_seating', 'duty_matrix'];
         suffixes.forEach(suf => {
             const k = `esp_sdata_${schoolId}_${suf}`;
             delete _memStore[k];
@@ -3184,6 +3242,429 @@
     // ---------------------------------------------------------
     // PAGE 7: INVIGILATOR DUTY (SAVE / EDIT / DELETE)
     // ---------------------------------------------------------
+    // ---------------------------------------------------------
+    // DUTY ABSTRACT, INTERACTIVE MATRIX & WHATSAPP SHARING
+    // ---------------------------------------------------------
+    function getExamSessionColumnsForDuty() {
+        const tt = getData(schoolDataKey('timetable'), []);
+        const strengths = getData(schoolDataKey('strength'), []);
+        const rooms = getData(schoolDataKey('rooms'), []);
+
+        // Calculate average room capacity (default 30 if no rooms added yet)
+        const totalCap = rooms.reduce((acc, r) => acc + (parseInt(r.capacity) || 30), 0);
+        const avgRoomCap = rooms.length > 0 ? Math.max(1, Math.round(totalCap / rooms.length)) : 30;
+
+        // Group timetable entries by date + session
+        const sessMap = new Map();
+        tt.forEach(t => {
+            const key = `${t.date}|${t.session}`;
+            if (!sessMap.has(key)) {
+                sessMap.set(key, {
+                    key,
+                    date: t.date,
+                    session: t.session,
+                    title: t.title || '',
+                    classes: new Set(),
+                    students: 0
+                });
+            }
+            const entry = sessMap.get(key);
+            if (!entry.classes.has(t.classLabel)) {
+                entry.classes.add(t.classLabel);
+                const stObj = strengths.find(s => s.classLabel === t.classLabel);
+                if (stObj) {
+                    entry.students += (parseInt(stObj.girls) || 0) + (parseInt(stObj.boys) || 0);
+                }
+            }
+        });
+
+        // Sort chronologically by date then FN before AN
+        const cols = Array.from(sessMap.values()).sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            if (a.session === b.session) return 0;
+            return a.session === 'FN' ? -1 : 1;
+        });
+
+        cols.forEach(c => {
+            c.estRooms = c.students > 0 ? Math.ceil(c.students / avgRoomCap) : 0;
+            // Default needed teachers = estRooms (1 per room)
+            c.defaultNeeded = c.estRooms;
+        });
+        return cols;
+    }
+
+    function getDutyMatrixStore() {
+        return getData(schoolDataKey('duty_matrix'), { neededOverride: {}, assignments: {} });
+    }
+
+    function saveDutyMatrixStore(store) {
+        setData(schoolDataKey('duty_matrix'), store);
+    }
+
+    function renderDutyAbstractMatrix() {
+        const titleEl = document.getElementById('dutyAbstractSchoolTitle');
+        if (titleEl && currentSchool) titleEl.textContent = currentSchool.name;
+
+        const cols = getExamSessionColumnsForDuty();
+        const teachers = getData(schoolDataKey('teachers'), []);
+        const store = getDutyMatrixStore();
+        if (!store.neededOverride) store.neededOverride = {};
+        if (!store.assignments) store.assignments = {};
+
+        // Compute needed teachers per column (user override or estimated rooms)
+        let totalDutiesNeeded = 0;
+        cols.forEach(c => {
+            const ov = store.neededOverride[c.key];
+            c.neededTeachers = (ov !== undefined && ov !== null && ov !== '') ? Math.max(0, parseInt(ov) || 0) : c.defaultNeeded;
+            totalDutiesNeeded += c.neededTeachers;
+        });
+
+        document.getElementById('absTotalSessions').textContent = cols.length;
+        document.getElementById('absTotalDutiesNeeded').textContent = totalDutiesNeeded;
+        document.getElementById('absTotalTeachers').textContent = teachers.length;
+        const avgD = teachers.length > 0 ? (totalDutiesNeeded / teachers.length).toFixed(1) : '0';
+        document.getElementById('absAvgDuties').textContent = avgD;
+
+        const thead = document.getElementById('dutyMatrixHead');
+        const tbody = document.getElementById('dutyMatrixBody');
+        if (!thead || !tbody) return;
+
+        if (cols.length === 0) {
+            thead.innerHTML = '';
+            tbody.innerHTML = `<tr><td class="p-4 text-slate-500">முதலில் <b>'5️⃣ தேர்வு அட்டவணை (TimeTable)'</b> பகுதியில் தேர்வு விவரங்களை உள்ளிடவும்.</td></tr>`;
+            return;
+        }
+
+        // Group consecutive columns by Date for merged top DATE header row (like Excel sheet!)
+        const dateGroups = [];
+        cols.forEach(c => {
+            const last = dateGroups[dateGroups.length - 1];
+            if (last && last.date === c.date) {
+                last.span += 1;
+            } else {
+                dateGroups.push({ date: c.date, span: 1 });
+            }
+        });
+
+        const dateHeaderCells = dateGroups.map(dg => `<th colspan="${dg.span}" class="font-black bg-slate-200">${formatDisplayDate(dg.date)}</th>`).join('');
+        const sessHeaderCells = cols.map(c => `<th class="font-bold">${c.session === 'FN' ? 'கா (FN)' : 'மா (AN)'}</th>`).join('');
+        const stuRowCells = cols.map(c => `<td class="font-bold text-slate-700">${c.students}</td>`).join('');
+        const roomRowCells = cols.map(c => `<td class="font-bold text-blue-900">${c.estRooms} அறை</td>`).join('');
+        const neededRowCells = cols.map(c => `
+            <td class="bg-amber-50 font-black">
+                <input type="number" min="0" max="99" value="${c.neededTeachers}"
+                       onchange="updateSessionNeededCount('${c.key}', this.value)"
+                       class="w-11 text-center font-black border border-amber-400 rounded bg-white py-0.5 text-xs no-print">
+                <span class="hidden print:inline font-black text-sm">${c.neededTeachers}</span>
+            </td>
+        `).join('');
+
+        thead.innerHTML = `
+            <tr>
+                <th rowspan="2" style="min-width:34px;">வ.எண்</th>
+                <th rowspan="2" style="min-width:95px;">ஆசிரியர்<br>(Code / Name)</th>
+                ${dateHeaderCells}
+                <th rowspan="2" class="bg-blue-100">மொத்தம்<br>(TOT)</th>
+                <th rowspan="2" class="bg-emerald-50">காலை<br>(FN)</th>
+                <th rowspan="2" class="bg-amber-50">மாலை<br>(AN)</th>
+            </tr>
+            <tr>
+                ${sessHeaderCells}
+            </tr>
+            <tr class="bg-slate-50">
+                <td colspan="2" class="font-bold text-right pr-2">மொத்த மாணவர்கள்:</td>
+                ${stuRowCells}
+                <td colspan="3" class="bg-slate-100"></td>
+            </tr>
+            <tr class="bg-slate-50">
+                <td colspan="2" class="font-bold text-right pr-2">தேவைப்படும் அறைகள்:</td>
+                ${roomRowCells}
+                <td colspan="3" class="bg-slate-100"></td>
+            </tr>
+            <tr class="bg-amber-50">
+                <td colspan="2" class="font-black text-right pr-2">தேவைப்படும் ஆசிரியர்கள்:</td>
+                ${neededRowCells}
+                <td class="font-black bg-blue-100 text-sm">${totalDutiesNeeded}</td>
+                <td colspan="2" class="bg-slate-100 text-[10px]">(மாற்றலாம்)</td>
+            </tr>
+        `;
+
+        if (teachers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length + 5}" class="p-4 text-slate-500">முதலில் <b>'1️⃣ ஆசிரியர்கள் (Teachers)'</b> பகுதியில் ஆசிரியர்களைச் சேர்க்கவும்.</td></tr>`;
+            return;
+        }
+
+        const colAssignedCounts = {};
+        cols.forEach(c => colAssignedCounts[c.key] = 0);
+
+        const teacherRowsHtml = teachers.map((t, idx) => {
+            const tKey = String(t.id);
+            const tAssign = store.assignments[tKey] || {};
+            let tot = 0, fnCnt = 0, anCnt = 0;
+
+            const cellsHtml = cols.map(c => {
+                const isAssigned = !!tAssign[c.key];
+                if (isAssigned) {
+                    tot++;
+                    if (c.session === 'FN') fnCnt++;
+                    else anCnt++;
+                    colAssignedCounts[c.key]++;
+                }
+                return `
+                    <td onclick="toggleTeacherDutyCell('${tKey}', '${c.key}')"
+                        title="${t.shortCode} (${t.fullName}) - ${formatDisplayDate(c.date)} ${c.session} (கிளிக் செய்து மாற்றவும்)"
+                        class="cursor-pointer select-none font-black text-sm transition ${isAssigned ? 'bg-emerald-100 text-emerald-950' : 'hover:bg-slate-100 text-slate-300'}">
+                        ${isAssigned ? 'X' : ''}
+                    </td>
+                `;
+            }).join('');
+
+            return `
+                <tr>
+                    <td class="font-bold">${idx + 1}</td>
+                    <td class="font-extrabold text-left px-1.5 whitespace-nowrap" title="${t.fullName}">${t.shortCode} <span class="text-[10px] font-normal text-slate-600">(${t.fullName.split(' ')[0]})</span></td>
+                    ${cellsHtml}
+                    <td class="font-black bg-blue-50 text-sm">${tot}</td>
+                    <td class="font-bold">${fnCnt}</td>
+                    <td class="font-bold">${anCnt}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // Bottom verification row: Assigned vs Needed per session
+        const verifyCells = cols.map(c => {
+            const got = colAssignedCounts[c.key] || 0;
+            const need = c.neededTeachers;
+            const ok = (got === need);
+            return `<td class="font-black text-xs ${ok ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-700'}">${got}/${need}</td>`;
+        }).join('');
+
+        const totalAssignedAll = Object.values(colAssignedCounts).reduce((a, b) => a + b, 0);
+
+        tbody.innerHTML = teacherRowsHtml + `
+            <tr class="bg-slate-100 font-black">
+                <td colspan="2" class="text-right pr-2">ஒதுக்கப்பட்டவை / தேவை:</td>
+                ${verifyCells}
+                <td class="bg-blue-100 text-sm">${totalAssignedAll}/${totalDutiesNeeded}</td>
+                <td colspan="2"></td>
+            </tr>
+        `;
+    }
+
+    function updateSessionNeededCount(sessKey, val) {
+        const store = getDutyMatrixStore();
+        if (!store.neededOverride) store.neededOverride = {};
+        store.neededOverride[sessKey] = Math.max(0, parseInt(val) || 0);
+        saveDutyMatrixStore(store);
+        renderDutyAbstractMatrix();
+    }
+
+    function toggleTeacherDutyCell(teacherId, sessKey) {
+        const store = getDutyMatrixStore();
+        if (!store.assignments) store.assignments = {};
+        if (!store.assignments[teacherId]) store.assignments[teacherId] = {};
+        store.assignments[teacherId][sessKey] = !store.assignments[teacherId][sessKey];
+        if (!store.assignments[teacherId][sessKey]) {
+            delete store.assignments[teacherId][sessKey];
+        }
+        saveDutyMatrixStore(store);
+        renderDutyAbstractMatrix();
+    }
+
+    function autoGenerateDutyMatrix() {
+        const cols = getExamSessionColumnsForDuty();
+        const teachers = getData(schoolDataKey('teachers'), []);
+        if (cols.length === 0 || teachers.length === 0) {
+            alert("முதலில் ஆசிரியர்கள் மற்றும் தேர்வு அட்டவணை விவரங்களை உள்ளிடவும்.");
+            return;
+        }
+
+        const store = getDutyMatrixStore();
+        if (!store.neededOverride) store.neededOverride = {};
+        const newAssignments = {};
+        const tStats = {};
+        teachers.forEach(t => {
+            const k = String(t.id);
+            newAssignments[k] = {};
+            tStats[k] = { tot: 0, fn: 0, an: 0, lastDate: '' };
+        });
+
+        cols.forEach((c, colIdx) => {
+            const ov = store.neededOverride[c.key];
+            const need = (ov !== undefined && ov !== null && ov !== '') ? Math.max(0, parseInt(ov) || 0) : c.defaultNeeded;
+            if (need <= 0) return;
+
+            // Sort teachers fairly:
+            // 1. Lowest total duties so far
+            // 2. Avoid assigning same teacher twice on the exact same date (FN + AN) unless needed
+            // 3. Balance FN vs AN count
+            // 4. Slight rotation tie-breaker so duties spread evenly across all dates
+            const candidates = [...teachers].sort((a, b) => {
+                const sa = tStats[String(a.id)];
+                const sb = tStats[String(b.id)];
+                if (sa.tot !== sb.tot) return sa.tot - sb.tot;
+                const aSameDay = (sa.lastDate === c.date) ? 1 : 0;
+                const bSameDay = (sb.lastDate === c.date) ? 1 : 0;
+                if (aSameDay !== bSameDay) return aSameDay - bSameDay;
+                const aSessCnt = (c.session === 'FN') ? sa.fn : sa.an;
+                const bSessCnt = (c.session === 'FN') ? sb.fn : sb.an;
+                if (aSessCnt !== bSessCnt) return aSessCnt - bSessCnt;
+                return ((a.id + colIdx) % teachers.length) - ((b.id + colIdx) % teachers.length);
+            });
+
+            const picked = candidates.slice(0, Math.min(need, teachers.length));
+            picked.forEach(t => {
+                const k = String(t.id);
+                newAssignments[k][c.key] = true;
+                tStats[k].tot += 1;
+                if (c.session === 'FN') tStats[k].fn += 1;
+                else tStats[k].an += 1;
+                tStats[k].lastDate = c.date;
+            });
+        });
+
+        store.assignments = newAssignments;
+        saveDutyMatrixStore(store);
+        logActivity(currentSchool.id, currentSchool.name, "கண்காணிப்பாளர் பணி சுழற்சி அட்டவணை தானாக உருவாக்கப்பட்டது");
+        renderDutyAbstractMatrix();
+        alert("✅ அனைத்து ஆசிரியர்களுக்கும் சமவிகிதத்தில் கண்காணிப்புப் பணி ஒதுக்கீடு உருவாக்கப்பட்டது! தேவைப்படின் எந்தக் கட்டத்தையும் கிளிக் செய்து மாற்றிக்கொள்ளலாம்.");
+    }
+
+    function syncMatrixToRoomDuties() {
+        const cols = getExamSessionColumnsForDuty();
+        const teachers = getData(schoolDataKey('teachers'), []);
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const store = getDutyMatrixStore();
+        const assignments = store.assignments || {};
+
+        if (cols.length === 0 || teachers.length === 0) {
+            alert("ஆசிரியர்கள் அல்லது தேர்வு அட்டவணை விவரங்கள் இல்லை.");
+            return;
+        }
+
+        const newDutiesList = [];
+        let idCounter = Date.now();
+
+        cols.forEach(c => {
+            const assignedTeachers = teachers.filter(t => assignments[String(t.id)] && assignments[String(t.id)][c.key]);
+            assignedTeachers.forEach((t, idx) => {
+                const roomObj = rooms[idx];
+                const roomNo = roomObj ? roomObj.roomNo : `Extra-${idx + 1}`;
+                const role = roomObj ? "அறை கண்காணிப்பாளர் (Invigilator)" : "மாற்றுப் பணி (Reliever)";
+                newDutiesList.push({
+                    id: idCounter++,
+                    date: c.date,
+                    session: c.session,
+                    roomNo: roomNo,
+                    shortCode: t.shortCode,
+                    teacherName: t.fullName,
+                    role: role
+                });
+            });
+        });
+
+        setData(schoolDataKey('duty'), newDutiesList);
+        renderDutyTable();
+        logActivity(currentSchool.id, currentSchool.name, `அப்ஸ்ட்ராக்ட் அட்டவணையிலிருந்து ${newDutiesList.length} அறை கண்காணிப்புப் பணிகள் இணைக்கப்பட்டன`);
+        alert(`✅ ${newDutiesList.length} கண்காணிப்புப் பணிகள் அறை வாரியாக கீழே உள்ள பட்டியலில் இணைக்கப்பட்டுவிட்டன! (இனி Notice Board / Exam Committee அச்சுப் பிரதியிலும் தானாக வரும்).`);
+    }
+
+    function printDutyAbstractOnly() {
+        window.print();
+    }
+
+    function openWhatsAppWithText(msgText) {
+        const encoded = encodeURIComponent(msgText);
+        const waUrl = `https://wa.me/?text=${encoded}`;
+        window.open(waUrl, '_blank');
+    }
+
+    function shareAllocationToWhatsApp() {
+        if (!lastGeneratedSummary || lastGeneratedSummary.length === 0) {
+            alert("முதலில் 'Generate Notice Board & Visual Seating Map' பொத்தானை அழுத்தி அறை ஒதுக்கீட்டை உருவாக்கவும்.");
+            return;
+        }
+        const examVal = document.getElementById('allocExamSelect').value || '';
+        const [selDate, selSess, selTitle] = examVal.split('|');
+        const dispDate = formatDisplayDate(selDate);
+
+        let lines = [];
+        lines.push(`🏫 *${currentSchool.name}*`);
+        lines.push(`📋 *${selTitle}*`);
+        lines.push(`📅 தேதி: *${dispDate}* | வேளை: *${selSess}*`);
+        lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+
+        // Group by room
+        const roomGroups = new Map();
+        let grandTot = 0;
+        lastGeneratedSummary.forEach(rec => {
+            if (!roomGroups.has(rec.room)) roomGroups.set(rec.room, []);
+            roomGroups.get(rec.room).push(rec);
+            grandTot += rec.count;
+        });
+
+        roomGroups.forEach((items, rNo) => {
+            const rTot = items.reduce((s, x) => s + x.count, 0);
+            lines.push(`🚪 *ROOM NO: ${rNo}* (மொத்தம்: *${rTot}*)`);
+            items.forEach(it => {
+                lines.push(`   • ${it.classLabel} [${it.subject}] (${it.gender}): *${it.start} - ${it.end}* (${it.count})`);
+            });
+        });
+
+        lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+        lines.push(`👥 *மொத்த மாணவர்கள்: ${grandTot}*`);
+
+        openWhatsAppWithText(lines.join('
+'));
+    }
+
+    function shareDutyAbstractToWhatsApp() {
+        const cols = getExamSessionColumnsForDuty();
+        const teachers = getData(schoolDataKey('teachers'), []);
+        const store = getDutyMatrixStore();
+        const assignments = store.assignments || {};
+
+        if (cols.length === 0 || teachers.length === 0) {
+            alert("பகிர்வதற்கு தேர்வு அட்டவணை மற்றும் ஆசிரியர் விவரங்கள் தேவை.");
+            return;
+        }
+
+        let lines = [];
+        lines.push(`🏫 *${currentSchool.name}*`);
+        lines.push(`🧑‍🏫 *தேர்வு அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட்*`);
+        lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+
+        // Session-wise summary
+        lines.push(`📅 *நாள் & வேளை வாரியான விவரம்:*`);
+        cols.forEach(c => {
+            const ov = store.neededOverride && store.neededOverride[c.key];
+            const need = (ov !== undefined && ov !== null && ov !== '') ? parseInt(ov) : c.defaultNeeded;
+            const assignedCodes = teachers
+                .filter(t => assignments[String(t.id)] && assignments[String(t.id)][c.key])
+                .map(t => t.shortCode);
+            lines.push(`• *${formatDisplayDate(c.date)} (${c.session})*: ${c.estRooms} அறை | தேவை: ${need} | ஆசிரியர்கள்: *${assignedCodes.join(', ') || '-'}*`);
+        });
+
+        lines.push(`━━━━━━━━━━━━━━━━━━━━`);
+        lines.push(`👤 *ஆசிரியர் வாரியான மொத்த பணி (TOT / FN / AN):*`);
+        teachers.forEach((t, i) => {
+            const tAssign = assignments[String(t.id)] || {};
+            let tot = 0, fn = 0, an = 0;
+            const myDates = [];
+            cols.forEach(c => {
+                if (tAssign[c.key]) {
+                    tot++;
+                    if (c.session === 'FN') fn++; else an++;
+                    myDates.push(`${formatDisplayDate(c.date).slice(0, 5)}(${c.session})`);
+                }
+            });
+            lines.push(`${i + 1}. *${t.shortCode}* (${t.fullName}): *${tot}* (FN:${fn}, AN:${an}) → ${myDates.join(', ') || '-'}`);
+        });
+
+        openWhatsAppWithText(lines.join('
+'));
+    }
+
     function setupDutyView() {
         const tt = getData(schoolDataKey('timetable'), []);
         const rooms = getData(schoolDataKey('rooms'), []);
@@ -3205,6 +3686,7 @@
             ? teachers.map(t => `<option value="${t.shortCode}|${t.fullName}">${t.shortCode} - ${t.fullName}</option>`).join('')
             : `<option value="">-- முதலில் '1️⃣ ஆசிரியர்கள்' பகுதியில் சேர்க்கவும் --</option>`;
 
+        renderDutyAbstractMatrix();
         renderDutyTable();
     }
 
