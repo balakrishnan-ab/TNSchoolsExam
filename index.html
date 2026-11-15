@@ -79,7 +79,7 @@
             table.official-tbl th { font-size: 10.5px !important; padding: 2px 3px !important; line-height: 1.1 !important; }
             table.official-tbl td { padding: 1.5px 4px !important; line-height: 1.12 !important; }
             .print-data-cell { font-size: 14px !important; font-weight: 800 !important; }
-            .print-room-no { font-size: 26px !important; font-weight: 900 !important; line-height: 1 !important; }
+            .print-room-no { font-size: 48px !important; font-weight: 900 !important; line-height: 0.95 !important; }
             .print-roll-num { font-size: 16.5px !important; font-weight: 900 !important; }
             .print-room-total { font-size: 18px !important; font-weight: 900 !important; }
             .print-qp-box { font-size: 13.5px !important; line-height: 1.25 !important; padding: 2px 5px !important; }
@@ -284,16 +284,26 @@
         <button onclick="exitAdminSchoolInspect()" class="bg-white text-amber-950 hover:bg-amber-100 font-bold px-4 py-2 rounded-lg text-xs shadow">⬅️ அட்மின் முகப்பிற்குத் திரும்பு (Back to Admin)</button>
     </div>
 
-    <!-- NAVIGATION BAR -->
-    <div class="bg-white rounded-xl shadow p-2 mb-6 flex flex-wrap gap-2 no-print">
-        <button onclick="switchWorkTab('teachers')" id="wTab-teachers" class="work-tab-btn bg-blue-700 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">1️⃣ ஆசிரியர்கள் (Teachers)</button>
-        <button onclick="switchWorkTab('subjects')" id="wTab-subjects" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</button>
-        <button onclick="switchWorkTab('strength')" id="wTab-strength" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை</button>
-        <button onclick="switchWorkTab('rooms')" id="wTab-rooms" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">4️⃣ தேர்வு அறைகள் (Rooms)</button>
-        <button onclick="switchWorkTab('timetable')" id="wTab-timetable" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">5️⃣ தேர்வு அட்டவணை (TimeTable)</button>
-        <button onclick="switchWorkTab('allocate')" id="wTab-allocate" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">6️⃣ அறை ஒதுக்கீடு & வரைபடம்</button>
-        <button onclick="switchWorkTab('duty')" id="wTab-duty" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">7️⃣ கண்காணிப்புப் பணி (Duty)</button>
-        <button onclick="switchWorkTab('settings')" id="wTab-settings" class="work-tab-btn bg-slate-100 text-slate-700 hover:bg-slate-200 px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold">⚙️ அமைப்புகள்</button>
+    <!-- COMPACT DROPDOWN NAVIGATION BAR -->
+    <div class="bg-white rounded-xl shadow p-3 mb-5 flex flex-wrap items-center justify-between gap-3 border border-slate-200 no-print">
+        <div class="flex items-center gap-2 flex-1 min-w-[260px]">
+            <label for="workTabDropdown" class="text-xs md:text-sm font-extrabold text-blue-950 whitespace-nowrap">📂 பகுதியைத் தேர்ந்தெடுக்கவும்:</label>
+            <select id="workTabDropdown" onchange="switchWorkTab(this.value)" class="w-full max-w-md border-2 border-blue-600 bg-blue-50 text-blue-950 font-bold text-sm rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="teachers">1️⃣ ஆசிரியர்கள் (Teachers)</option>
+                <option value="subjects">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</option>
+                <option value="strength">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை (Strength)</option>
+                <option value="rooms">4️⃣ தேர்வு அறைகள் (Rooms)</option>
+                <option value="timetable">5️⃣ தேர்வு அட்டவணை (TimeTable)</option>
+                <option value="allocate">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Allocation)</option>
+                <option value="saved">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள் (Saved Plans - Cloud)</option>
+                <option value="duty">8️⃣ கண்காணிப்புப் பணி (Invigilator Duty)</option>
+                <option value="settings">⚙️ 9️⃣ பள்ளி அமைப்புகள் (Settings)</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="stepWorkTab(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold">⬅️ முந்தையது</button>
+            <button onclick="stepWorkTab(1)" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold">அடுத்தது ➡️</button>
+        </div>
     </div>
 
     <!-- ================================================================= -->
@@ -681,17 +691,53 @@
 
         <!-- GENERATED OUTPUTS (PRINTABLE AREA) -->
         <div id="generatedOutputArea" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow flex flex-wrap justify-between items-center gap-3 no-print">
-                <span class="font-bold text-emerald-700">✅ அறை ஒதுக்கீடு பட்டியல் மற்றும் இருக்கை வரைபடம் தயாராகிவிட்டது!</span>
-                <div class="flex gap-2">
-                    <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm">🖨️ அச்சிடுக / PDF சேமி (Print / Save PDF)</button>
-                    <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-sm">📥 Excel / CSV பதிவிறக்கம்</button>
+            <div class="bg-white p-4 rounded-xl shadow border border-slate-200 space-y-3 no-print">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <span class="font-bold text-emerald-700">✅ அறை ஒதுக்கீடு பட்டியல் மற்றும் இருக்கை வரைபடம் தயாராகிவிட்டது!</span>
+                        <div id="activeSavedPlanBadge" class="hidden text-xs font-bold text-indigo-800 bg-indigo-50 border border-indigo-300 px-2.5 py-0.5 rounded mt-1 inline-block"></div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="saveCurrentSeatingPlan(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">💾 புதிய அமைப்பாக Cloud-ல் சேமி (Save)</button>
+                        <button id="updateSavedPlanBtn" onclick="saveCurrentSeatingPlan(true)" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🔄 இந்த சேமித்த அமைப்பை புதுப்பி (Update)</button>
+                        <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🖨️ அச்சிடுக / PDF சேமி (Print)</button>
+                        <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-sm">📥 Excel / CSV</button>
+                    </div>
+                </div>
+                <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-lg">
+                        <input type="checkbox" id="includeQpSummaryPrint" onchange="toggleQpSummaryVisibility()" class="w-4 h-4">
+                        📦 அறை வாரியான & மொத்த வினாத்தாள் தொகுப்பு (QP Packing Summary Table) அட்டவணையை அச்சில் இணைக்கவும்
+                    </label>
+                    <button onclick="switchWorkTab('saved')" class="text-blue-800 hover:underline font-bold">📂 சேமிக்கப்பட்ட அனைத்து அமைப்புகளையும் பார்க்க (Saved Plans) →</button>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow" id="printableNoticeBoard"></div>
             <div id="printableVisualCharts" class="space-y-6"></div>
         </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- DEDICATED PAGE: SAVED SEATING PLANS (CLOUD SYNCED, MAX 3/SESSION) -->
+    <!-- ================================================================= -->
+    <div id="workView-saved" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
+        <div class="border-b pb-3 flex flex-wrap justify-between items-center gap-3">
+            <div>
+                <h2 class="text-lg font-bold text-slate-900">💾 சேமிக்கப்பட்ட தேர்வு அறை இருக்கை அமைப்புகள் (Saved Seating Arrangements)</h2>
+                <p class="text-xs text-slate-600">வீட்டில் உருவாக்கிய அமைப்புகளையும் பள்ளியில் அல்லது எந்தக் கணினியிலிருந்தும் திறந்து பார்க்கலாம், திருத்தலாம், அச்சிடலாம். (ஒரு தேர்வு நாள் & வேளைக்கு அதிகபட்சம் <b>3 அமைப்புகள்</b> வரை சேமிக்கலாம்; அதற்கு மேல் தேவைப்பட்டால் பழையதை நீக்கிவிட்டுப் புதிதாகச் சேமிக்கலாம்).</p>
+            </div>
+            <button onclick="refreshSavedPlansView()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">🔄 Cloud-லிருந்து புதுப்பி (Sync)</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-lg border">
+            <label class="text-xs font-bold text-slate-700">தேர்வு நாள் & வேளை வாரியாக வடிகட்டு (Filter):</label>
+            <select id="savedFilterSession" onchange="renderSavedPlansList()" class="border rounded-lg px-3 py-1.5 text-sm font-semibold bg-white">
+                <option value="ALL">அனைத்துத் தேர்வுகளும் (Show All Saved Plans)</option>
+            </select>
+        </div>
+
+        <div id="savedPlansContainer" class="space-y-4"></div>
     </div>
 
     <!-- ================================================================= -->
@@ -1283,7 +1329,7 @@
         try { localStorage.setItem(KEY_SCHOOLS, JSON.stringify(updatedSchools)); } catch (e) {}
 
         // Remove local workspace keys for this school
-        const suffixes = ['teachers', 'subjects', 'classes', 'strength', 'rooms', 'timetable', 'duty'];
+        const suffixes = ['teachers', 'subjects', 'classes', 'strength', 'rooms', 'timetable', 'duty', 'saved_seating'];
         suffixes.forEach(suf => {
             const k = `esp_sdata_${schoolId}_${suf}`;
             delete _memStore[k];
@@ -1327,16 +1373,23 @@
         switchWorkTab('teachers');
     }
 
+    const WORK_TAB_ORDER = ['teachers', 'subjects', 'strength', 'rooms', 'timetable', 'allocate', 'saved', 'duty', 'settings'];
+
+    function stepWorkTab(delta) {
+        const dd = document.getElementById('workTabDropdown');
+        const curr = dd ? dd.value : 'teachers';
+        const idx = WORK_TAB_ORDER.indexOf(curr);
+        const nextIdx = (idx + delta + WORK_TAB_ORDER.length) % WORK_TAB_ORDER.length;
+        switchWorkTab(WORK_TAB_ORDER[nextIdx]);
+    }
+
     function switchWorkTab(tabName) {
         document.querySelectorAll('.work-view').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.work-tab-btn').forEach(el => {
-            el.classList.remove('bg-blue-700', 'text-white');
-            el.classList.add('bg-slate-100', 'text-slate-700');
-        });
-        document.getElementById(`workView-${tabName}`).classList.remove('hidden');
-        const activeBtn = document.getElementById(`wTab-${tabName}`);
-        activeBtn.classList.add('bg-blue-700', 'text-white');
-        activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+        const targetView = document.getElementById(`workView-${tabName}`);
+        if (targetView) targetView.classList.remove('hidden');
+
+        const dd = document.getElementById('workTabDropdown');
+        if (dd) dd.value = tabName;
 
         if (tabName === 'teachers') renderTeachersTable();
         if (tabName === 'subjects') renderClassesAndSubjectsMaster();
@@ -1344,6 +1397,7 @@
         if (tabName === 'rooms') { renderRoomColRowInputs(); renderRoomsTable(); }
         if (tabName === 'timetable') setupTimetableView();
         if (tabName === 'allocate') setupAllocationView();
+        if (tabName === 'saved') refreshSavedPlansView();
         if (tabName === 'duty') setupDutyView();
     }
 
@@ -2184,7 +2238,283 @@
         return dStr;
     }
 
+
+    // ---------------------------------------------------------
+    // SAVED SEATING PLANS (CLOUD SYNCED, MAX 3 PER DATE+SESSION)
+    // ---------------------------------------------------------
+    let currentLoadedPlanId = null;
+
+    function toggleQpSummaryVisibility() {
+        const cb = document.getElementById('includeQpSummaryPrint');
+        const wrap = document.getElementById('qpSummaryPrintWrapper');
+        if (cb && wrap) {
+            if (cb.checked) wrap.classList.remove('hidden');
+            else wrap.classList.add('hidden');
+        }
+    }
+
+    function updateSavedPlanIndicator(planObj) {
+        const badge = document.getElementById('activeSavedPlanBadge');
+        const updBtn = document.getElementById('updateSavedPlanBtn');
+        if (planObj) {
+            currentLoadedPlanId = planObj.id;
+            if (badge) {
+                badge.classList.remove('hidden');
+                badge.textContent = `📌 தற்போது திறக்கப்பட்டுள்ள சேமித்த அமைப்பு: ${planObj.planName} (${formatDisplayDate(planObj.date)} ${planObj.session})`;
+            }
+            if (updBtn) updBtn.classList.remove('hidden');
+        } else {
+            currentLoadedPlanId = null;
+            if (badge) badge.classList.add('hidden');
+            if (updBtn) updBtn.classList.add('hidden');
+        }
+    }
+
+    async function saveCurrentSeatingPlan(isUpdateExisting = false) {
+        const examVal = document.getElementById('allocExamSelect').value;
+        if (!examVal || !window.roomVisualData || Object.keys(window.roomVisualData).length === 0) {
+            alert("முதலில் 'Generate Notice Board & Visual Seating Map' பொத்தானை அழுத்தி இருக்கை அமைப்பை உருவாக்கவும்.");
+            return;
+        }
+        const [selDate, selSess, selTitle] = examVal.split('|');
+
+        // Pull latest saved plans from Cloud first so multi-device counts are accurate
+        await pullSchoolWorkspaceFromCloud(currentSchool.id);
+        let savedPlans = getData(schoolDataKey('saved_seating'), []);
+
+        if (isUpdateExisting && currentLoadedPlanId) {
+            const idx = savedPlans.findIndex(p => p.id === currentLoadedPlanId);
+            if (idx !== -1) {
+                const newName = prompt("இந்த அமைப்பின் பெயரை உறுதிப்படுத்தவும் / மாற்றவும்:", savedPlans[idx].planName);
+                if (newName === null) return;
+                savedPlans[idx] = {
+                    ...savedPlans[idx],
+                    planName: newName.trim() || savedPlans[idx].planName,
+                    updatedAt: nowStr(),
+                    activeRoomNos: getActiveRooms().map(r => r.roomNo),
+                    matrixState: JSON.parse(JSON.stringify(matrixState)),
+                    benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
+                    useShortSub: document.getElementById('useShortSubjectPrint').checked,
+                    useShortTch: document.getElementById('useShortTeacherPrint').checked,
+                    roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
+                };
+                setData(schoolDataKey('saved_seating'), savedPlans);
+                updateSavedPlanIndicator(savedPlans[idx]);
+                logActivity(currentSchool.id, currentSchool.name, `சேமித்த இருக்கை அமைப்பு புதுப்பிக்கப்பட்டது: ${savedPlans[idx].planName} (${selDate} ${selSess})`);
+                alert("✅ சேமித்த இருக்கை அமைப்பு Cloud-ல் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது!");
+                return;
+            }
+        }
+
+        // Check max 3 saved versions limit for this exact Date + Session
+        const sameSessionPlans = savedPlans.filter(p => p.date === selDate && p.session === selSess);
+        if (sameSessionPlans.length >= 3) {
+            const goSaved = confirm(
+                `⚠️ வரம்பு எட்டப்பட்டது (Maximum 3 Saved Versions)!\n\n` +
+                `${formatDisplayDate(selDate)} (${selSess}) தேர்வுக்கு ஏற்கனவே 3 இருக்கை அமைப்புகள் சேமிக்கப்பட்டுள்ளன.\n\n` +
+                `புதிய அமைப்பைச் சேமிக்க வேண்டுமெனில், 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் சென்று பழையவற்றில் ஒன்றை நீக்கிவிட்டு (Delete) எத்தனை முறை வேண்டுமானாலும் சேமித்துக்கொள்ளலாம்.\n\n` +
+                `இப்போது 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் செல்லலாமா?`
+            );
+            if (goSaved) switchWorkTab('saved');
+            return;
+        }
+
+        const defaultName = `அமைப்பு #${sameSessionPlans.length + 1} (${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })})`;
+        const customName = prompt(`இந்த இருக்கை அமைப்பிற்கு ஒரு பெயர் தரவும் (${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3):`, defaultName);
+        if (customName === null) return;
+
+        const planObj = {
+            id: "plan_" + Date.now(),
+            planName: customName.trim() || defaultName,
+            date: selDate,
+            session: selSess,
+            title: selTitle,
+            savedAt: nowStr(),
+            updatedAt: nowStr(),
+            activeRoomNos: getActiveRooms().map(r => r.roomNo),
+            matrixState: JSON.parse(JSON.stringify(matrixState)),
+            benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
+            useShortSub: document.getElementById('useShortSubjectPrint').checked,
+            useShortTch: document.getElementById('useShortTeacherPrint').checked,
+            roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
+        };
+
+        savedPlans.unshift(planObj);
+        setData(schoolDataKey('saved_seating'), savedPlans);
+        updateSavedPlanIndicator(planObj);
+        logActivity(currentSchool.id, currentSchool.name, `புதிய இருக்கை அமைப்பு சேமிக்கப்பட்டது: ${planObj.planName} (${selDate} ${selSess})`);
+        alert(`🎉 "${planObj.planName}" Cloud-ல் சேமிக்கப்பட்டது! (${sameSessionPlans.length + 1}/3)
+இனி பள்ளியிலிருந்தோ அல்லது வேறு எந்தக் கணினியிலிருந்தோ '7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்தில் திறந்து பார்க்கலாம் / திருத்தலாம்.`);
+    }
+
+    async function refreshSavedPlansView() {
+        const container = document.getElementById('savedPlansContainer');
+        if (container) container.innerHTML = `<div class="text-center text-sm text-slate-500 py-6">⏳ Cloud-லிருந்து சேமிக்கப்பட்ட அமைப்புகள் பெறப்படுகின்றன...</div>`;
+        await pullSchoolWorkspaceFromCloud(currentSchool.id);
+
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const filterSel = document.getElementById('savedFilterSession');
+        if (filterSel) {
+            const prevVal = filterSel.value;
+            const sessionMap = new Map();
+            savedPlans.forEach(p => {
+                const k = `${p.date}|${p.session}`;
+                sessionMap.set(k, `${formatDisplayDate(p.date)} (${p.session}) - ${p.title}`);
+            });
+            filterSel.innerHTML = `<option value="ALL">அனைத்துத் தேர்வுகளும் (${savedPlans.length})</option>` +
+                Array.from(sessionMap.entries()).map(([k, lbl]) => `<option value="${k}">${lbl}</option>`).join('');
+            if (prevVal && (prevVal === 'ALL' || sessionMap.has(prevVal))) filterSel.value = prevVal;
+        }
+        renderSavedPlansList();
+    }
+
+    function renderSavedPlansList() {
+        const container = document.getElementById('savedPlansContainer');
+        if (!container) return;
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const filterVal = document.getElementById('savedFilterSession') ? document.getElementById('savedFilterSession').value : 'ALL';
+
+        const filtered = filterVal === 'ALL'
+            ? savedPlans
+            : savedPlans.filter(p => `${p.date}|${p.session}` === filterVal);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center space-y-2 bg-slate-50">
+                    <div class="text-3xl">📭</div>
+                    <div class="font-bold text-slate-700">இதுவரை எந்த இருக்கை அமைப்பும் சேமிக்கப்படவில்லை</div>
+                    <p class="text-xs text-slate-500">'6️⃣ அறை ஒதுக்கீடு & வரைபடம்' பக்கத்தில் இருக்கை ஒதுக்கீட்டை உருவாக்கிய பிறகு <b>"💾 புதிய அமைப்பாக Cloud-ல் சேமி"</b> பொத்தானை அழுத்தவும்.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Count how many saved plans exist per (date + session)
+        const sessionCounts = {};
+        savedPlans.forEach(p => {
+            const k = `${p.date}|${p.session}`;
+            sessionCounts[k] = (sessionCounts[k] || 0) + 1;
+        });
+
+        container.innerHTML = filtered.map(p => {
+            const sKey = `${p.date}|${p.session}`;
+            const cntForSession = sessionCounts[sKey] || 1;
+            const totalStudents = Object.values(p.roomVisualData || {}).reduce((acc, r) => acc + (r.studentCount || 0), 0);
+            const roomsList = (p.activeRoomNos || []).join(', ');
+
+            return `
+                <div class="border-2 border-slate-200 hover:border-blue-400 rounded-xl p-4 bg-white shadow-sm flex flex-wrap justify-between items-center gap-4">
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-base font-extrabold text-blue-950">📋 ${p.planName}</span>
+                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${cntForSession >= 3 ? 'bg-amber-100 text-amber-900 border border-amber-400' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}">
+                                ${formatDisplayDate(p.date)} (${p.session}) : ${cntForSession} / 3 அமைப்புகள்
+                            </span>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-700">${p.title}</div>
+                        <div class="text-xs text-slate-600">
+                            🏫 அறைகள்: <b>${roomsList}</b> &nbsp;|&nbsp; 👥 மொத்த மாணவர்கள்: <b>${totalStudents}</b> &nbsp;|&nbsp; 🕒 சேமித்த நேரம்: ${p.updatedAt || p.savedAt}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadSavedSeatingPlan('${p.id}', false)" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            👁️ திறந்து பார் / திருத்து
+                        </button>
+                        <button onclick="loadSavedSeatingPlan('${p.id}', true)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            🖨️ நேரடியாக அச்சிடு
+                        </button>
+                        <button onclick="deleteSavedSeatingPlan('${p.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            🗑️ நீக்கு
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function loadSavedSeatingPlan(planId, autoPrint = false) {
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const plan = savedPlans.find(p => p.id === planId);
+        if (!plan) {
+            alert("இந்த அமைப்பு காணப்படவில்லை.");
+            return;
+        }
+
+        // Switch to Allocation workspace
+        switchWorkTab('allocate');
+
+        // Select matching exam date + session in dropdown
+        const sel = document.getElementById('allocExamSelect');
+        const targetKey = `${plan.date}|${plan.session}|${plan.title}`;
+        if (sel) {
+            const optExists = Array.from(sel.options).some(o => o.value === targetKey);
+            if (!optExists) {
+                const opt = document.createElement('option');
+                opt.value = targetKey;
+                opt.textContent = `${plan.date} (${plan.session}) - ${plan.title}`;
+                sel.appendChild(opt);
+            }
+            sel.value = targetKey;
+        }
+
+        // Restore checked rooms
+        const cbs = document.querySelectorAll('.alloc-rm-cb');
+        cbs.forEach(cb => {
+            cb.checked = (plan.activeRoomNos || []).includes(cb.value);
+        });
+        document.getElementById('allocRoomCount').value = (plan.activeRoomNos || []).length || 1;
+
+        // Re-initialize matrix columns & restore saved matrixState
+        initAllocationMatrix();
+        matrixState = JSON.parse(JSON.stringify(plan.matrixState || {}));
+        renderMatrixTable();
+
+        // Restore radio & checkbox options
+        if (plan.benchOrderMode) {
+            const rad = document.querySelector(`input[name="benchOrderMode"][value="${plan.benchOrderMode}"]`);
+            if (rad) rad.checked = true;
+        }
+        if (typeof plan.useShortSub === 'boolean') document.getElementById('useShortSubjectPrint').checked = plan.useShortSub;
+        if (typeof plan.useShortTch === 'boolean') document.getElementById('useShortTeacherPrint').checked = plan.useShortTch;
+
+        // Generate Notice Board & Committee tables from restored matrix
+        generateFinalOutputs();
+
+        // Restore exact saved visual seating slots (including any manual drag-and-drop seat swaps!)
+        if (plan.roomVisualData && Object.keys(plan.roomVisualData).length > 0) {
+            window.roomVisualData = JSON.parse(JSON.stringify(plan.roomVisualData));
+            renderAllVisualRooms();
+        }
+
+        updateSavedPlanIndicator(plan);
+        logActivity(currentSchool.id, currentSchool.name, `சேமித்த அமைப்பு திறக்கப்பட்டது: ${plan.planName} (${plan.date} ${plan.session})`);
+
+        if (autoPrint) {
+            setTimeout(() => window.print(), 250);
+        }
+    }
+
+    function deleteSavedSeatingPlan(planId) {
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const target = savedPlans.find(p => p.id === planId);
+        if (!target) return;
+
+        if (!confirm(`🗑️ "${target.planName}" (${formatDisplayDate(target.date)} ${target.session}) என்ற சேமித்த அமைப்பை நீக்க விரும்புகிறீர்களா?`)) {
+            return;
+        }
+
+        const updated = savedPlans.filter(p => p.id !== planId);
+        setData(schoolDataKey('saved_seating'), updated);
+        if (currentLoadedPlanId === planId) {
+            updateSavedPlanIndicator(null);
+        }
+        logActivity(currentSchool.id, currentSchool.name, `சேமித்த அமைப்பு நீக்கப்பட்டது: ${target.planName}`);
+        renderSavedPlansList();
+    }
+
     function generateFinalOutputs() {
+        updateSavedPlanIndicator(null);
         const examVal = document.getElementById('allocExamSelect').value;
         if (!examVal) return;
         const [selDate, selSess, selTitle] = examVal.split('|');
@@ -2269,39 +2599,45 @@
 
         const dispDate = formatDisplayDate(selDate);
 
-        // 1. STUDENT NOTICE BOARD TABLE (Max Data Font Size + Ultra-Tight Cell Padding for Single-Page Print)
+        // 1. STUDENT NOTICE BOARD TABLE (2x Larger Room No + Max Data Font Size)
         let studentRowsHtml = summaryGroups.map(grp => {
             grandTotal += grp.roomTotal;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:30px; line-height:1; min-width:56px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:76px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:21px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
 
-        // 2. EXAM COMMITTEE COPY TABLE (Max Data Font Size + Tight Padding + Large QP Breakdown)
+        // 2. EXAM COMMITTEE COPY TABLE (2x Larger Room No + Right-Edge QP Breakdown + Room Total QP Count)
         let committeeRowsHtml = summaryGroups.map(grp => {
             const qpLines = Object.entries(grp.qpBreakdown)
-                .map(([k, v]) => `<div class="whitespace-nowrap"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.1em;">${v}</span></div>`)
+                .map(([k, v]) => `<div class="whitespace-nowrap"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.08em;">${v}</span></div>`)
                 .join('');
+            const qpWithRoomTotalHtml = `
+                ${qpLines}
+                <div class="mt-1 pt-1 border-t border-black font-black text-slate-950 whitespace-nowrap" style="font-size:1.05em;">
+                    மொத்த வினாத்தாள்கள் = <span class="underline">${grp.roomTotal}</span>
+                </div>
+            `;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:30px; line-height:1; min-width:56px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:76px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:21px;">${grp.roomTotal}</td>` : ''}
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15px; line-height:1.25; padding:3px 7px;">${qpLines}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15px; line-height:1.25; padding:3px 7px;">${qpWithRoomTotalHtml}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -2318,25 +2654,28 @@
             return `<tr><td class="font-bold">Room ${grp.roomNo}</td>${cells}<td class="font-bold bg-slate-100">${grp.roomTotal}</td></tr>`;
         }).join('');
 
+        const includeQpSummary = document.getElementById('includeQpSummaryPrint') ? document.getElementById('includeQpSummaryPrint').checked : false;
         const qpSummaryTableHtml = allQpKeys.length > 0 ? `
-            <h3 class="font-bold text-sm mt-5 mb-2">📦 அறை வாரியான & மொத்த வினாத்தாள் தொகுப்பு (Question Paper Packing Summary - Subject & Medium Wise)</h3>
-            <table class="official-tbl">
-                <thead>
-                    <tr>
-                        <th>Room No</th>
-                        ${allQpKeys.map(k => `<th>${k}</th>`).join('')}
-                        <th>அறை மொத்தம்</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${qpMatrixRowsHtml}
-                    <tr class="bg-slate-200 font-bold">
-                        <td>மொத்த வினாத்தாள்கள் (Total QP)</td>
-                        ${allQpKeys.map(k => `<td>${overallQpTotals[k]}</td>`).join('')}
-                        <td>${grandTotal}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div id="qpSummaryPrintWrapper" class="${includeQpSummary ? '' : 'hidden'}">
+                <h3 class="font-bold text-sm mt-3 mb-1">📦 அறை வாரியான & மொத்த வினாத்தாள் தொகுப்பு (Question Paper Packing Summary - Subject & Medium Wise)</h3>
+                <table class="official-tbl">
+                    <thead>
+                        <tr>
+                            <th>Room No</th>
+                            ${allQpKeys.map(k => `<th>${k}</th>`).join('')}
+                            <th>அறை மொத்தம்</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${qpMatrixRowsHtml}
+                        <tr class="bg-slate-200 font-bold">
+                            <td>மொத்த வினாத்தாள்கள் (Total QP)</td>
+                            ${allQpKeys.map(k => `<td>${overallQpTotals[k]}</td>`).join('')}
+                            <td>${grandTotal}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         ` : '';
 
         let subLegendHtml = '';
@@ -2704,9 +3043,9 @@
                 <!-- PROMINENT HEADER: SCHOOL NAME + LEFT DATE / CENTER EXAM / RIGHT SESSION + LARGE ROOM NO -->
                 <div class="border-b-2 border-black pb-1 mb-1.5">
                     <div class="flex items-center justify-between gap-2">
-                        <div class="bw-print-box bg-slate-900 text-white px-3 py-1 rounded border-2 border-black text-center shrink-0">
+                        <div class="bw-print-box bg-slate-900 text-white px-4 py-1 rounded border-2 border-black text-center shrink-0">
                             <div class="text-[9px] uppercase font-bold leading-none">ROOM NO</div>
-                            <div class="text-2xl md:text-3xl font-black leading-none">${rm.roomNo}</div>
+                            <div style="font-size:48px; line-height:0.95;" class="font-black">${rm.roomNo}</div>
                         </div>
                         <div class="flex-1 text-center">
                             <h3 class="font-extrabold text-base md:text-lg leading-tight uppercase">${currentSchool.name}</h3>
