@@ -76,18 +76,24 @@
                 border-width: 1.5px !important;
                 border-radius: 4px !important;
             }
-            table.official-tbl { font-size: 11.5px !important; }
-            table.official-tbl th, table.official-tbl td { padding: 3px 4px !important; }
-            .print-room-no { font-size: 22px !important; font-weight: 900 !important; line-height: 1.05 !important; }
-            .print-roll-num { font-size: 14.5px !important; font-weight: 900 !important; }
-            .print-room-total { font-size: 15px !important; font-weight: 900 !important; }
-            .print-qp-box { font-size: 13px !important; line-height: 1.35 !important; }
+            table.official-tbl th { font-size: 10.5px !important; padding: 2px 3px !important; line-height: 1.1 !important; }
+            table.official-tbl td { padding: 1.5px 4px !important; line-height: 1.12 !important; }
+            .print-data-cell { font-size: 14px !important; font-weight: 800 !important; }
+            .print-room-no { font-size: 26px !important; font-weight: 900 !important; line-height: 1 !important; }
+            .print-roll-num { font-size: 16.5px !important; font-weight: 900 !important; }
+            .print-room-total { font-size: 18px !important; font-weight: 900 !important; }
+            .print-qp-box { font-size: 13.5px !important; line-height: 1.25 !important; padding: 2px 5px !important; }
+            table.room-mini-tbl th { font-size: 9.5px !important; padding: 1.5px 3px !important; }
+            table.room-mini-tbl td { font-size: 11.5px !important; font-weight: 800 !important; padding: 1.5px 3px !important; line-height: 1.1 !important; }
 
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        table.official-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-        table.official-tbl th, table.official-tbl td { border: 1px solid #000; padding: 5px 7px; text-align: center; }
-        table.official-tbl th { background-color: #e2e8f0; }
+        table.official-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.official-tbl th { border: 1px solid #000; padding: 3px 5px; text-align: center; background-color: #e2e8f0; font-size: 12px; }
+        table.official-tbl td { border: 1px solid #000; padding: 2.5px 5px; text-align: center; line-height: 1.15; }
+        table.room-mini-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table.room-mini-tbl th { border: 1px solid #000; padding: 2px 4px; text-align: center; background-color: #e2e8f0; font-size: 10.5px; }
+        table.room-mini-tbl td { border: 1px solid #000; padding: 2px 4px; text-align: center; font-weight: 800; line-height: 1.15; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -2169,6 +2175,15 @@
         renderMatrixTable();
     }
 
+        function formatDisplayDate(dStr) {
+        if (!dStr) return '';
+        const parts = String(dStr).trim().split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return dStr;
+    }
+
     function generateFinalOutputs() {
         const examVal = document.getElementById('allocExamSelect').value;
         if (!examVal) return;
@@ -2252,39 +2267,41 @@
         });
         const allQpKeys = Array.from(allQpKeysSet);
 
-        // 1. STUDENT NOTICE BOARD TABLE (Huge Room No + Extra Large Bold Roll Numbers)
+        const dispDate = formatDisplayDate(selDate);
+
+        // 1. STUDENT NOTICE BOARD TABLE (Max Data Font Size + Ultra-Tight Cell Padding for Single-Page Print)
         let studentRowsHtml = summaryGroups.map(grp => {
             grandTotal += grp.roomTotal;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:28px; line-height:1.1; min-width:58px;">${grp.roomNo}</td>` : ''}
-                    <td class="font-bold text-sm">${it.classLabel}</td>
-                    <td class="font-extrabold text-sm">${it.subject}</td>
-                    <td class="font-semibold">${it.gender}</td>
-                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.start}</td>
-                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.end}</td>
-                    <td class="font-extrabold text-base">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:19px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:30px; line-height:1; min-width:56px;">${grp.roomNo}</td>` : ''}
+                    <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
+                    <td class="print-data-cell font-black text-base">${it.subject}</td>
+                    <td class="print-data-cell font-bold text-base">${it.gender}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
+                    <td class="print-data-cell font-black text-lg">${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:21px;">${grp.roomTotal}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
 
-        // 2. EXAM COMMITTEE COPY TABLE (Huge Room No + Large Bold Roll Numbers + Large Clear QP Count Box)
+        // 2. EXAM COMMITTEE COPY TABLE (Max Data Font Size + Tight Padding + Large QP Breakdown)
         let committeeRowsHtml = summaryGroups.map(grp => {
             const qpLines = Object.entries(grp.qpBreakdown)
-                .map(([k, v]) => `<div class="whitespace-nowrap py-0.5"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.1em;">${v}</span></div>`)
+                .map(([k, v]) => `<div class="whitespace-nowrap"><span class="font-extrabold text-slate-900">${k}</span> = <span class="font-black text-blue-950 underline" style="font-size:1.1em;">${v}</span></div>`)
                 .join('');
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:28px; line-height:1.1; min-width:58px;">${grp.roomNo}</td>` : ''}
-                    <td class="font-bold text-sm">${it.classLabel}</td>
-                    <td class="font-extrabold text-sm">${it.subject}</td>
-                    <td class="font-semibold">${it.gender}</td>
-                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.start}</td>
-                    <td class="print-roll-num font-black text-slate-950" style="font-size:17px; letter-spacing:0.3px;">${it.end}</td>
-                    <td class="font-extrabold text-base">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:19px;">${grp.roomTotal}</td>` : ''}
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15.5px; line-height:1.4; padding:6px 10px;">${qpLines}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:30px; line-height:1; min-width:56px;">${grp.roomNo}</td>` : ''}
+                    <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
+                    <td class="print-data-cell font-black text-base">${it.subject}</td>
+                    <td class="print-data-cell font-bold text-base">${it.gender}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
+                    <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
+                    <td class="print-data-cell font-black text-lg">${it.count}</td>
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:21px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:15px; line-height:1.25; padding:3px 7px;">${qpLines}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -2358,18 +2375,21 @@
             `;
         }
 
+        const examBannerHtml = `
+            <div class="border-b-2 border-black pb-1 mb-1.5">
+                <h2 class="text-center text-lg md:text-xl font-extrabold uppercase leading-tight">${currentSchool.name}</h2>
+                <div style="display:grid; grid-template-columns: 1fr auto 1fr; align-items:center;" class="mt-0.5 text-sm md:text-base font-extrabold text-slate-950">
+                    <div class="text-left">தேதி : <span class="font-black">${dispDate}</span></div>
+                    <div class="text-center px-2 font-black text-base md:text-lg">${selTitle}</div>
+                    <div class="text-right">வேளை : <span class="font-black">${selSess}</span></div>
+                </div>
+            </div>
+        `;
+
         document.getElementById('printableNoticeBoard').innerHTML = `
             <!-- COPY 1: STUDENT NOTICE BOARD COPY -->
-            <div class="print-compact-card pb-3 mb-3">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[11px] font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-400">நகல் 1: மாணவர்கள் தகவல் பலகை (STUDENT NOTICE BOARD COPY)</span>
-                    <span class="text-xs font-extrabold border border-black px-2.5 py-0.5 rounded bg-slate-100">தேர்வு நாள்: ${selDate} (${selSess})</span>
-                </div>
-                <div class="text-center border-b-2 border-black pb-1.5 mb-2">
-                    <h2 class="text-lg md:text-xl font-extrabold uppercase">${currentSchool.name}</h2>
-                    <p class="text-base font-extrabold text-slate-900">${selTitle} &nbsp;|&nbsp; <span class="underline">தேதி (DATE): ${selDate}</span> &nbsp;|&nbsp; வேளை: ${selSess}</p>
-                    <p class="text-xs font-bold">தேர்வு அறை ஒதுக்கீடு விவரம் (EXAM HALL SEATING ALLOCATION)</p>
-                </div>
+            <div class="print-compact-card pb-2 mb-2">
+                ${examBannerHtml}
                 <table class="official-tbl">
                     <thead>
                         <tr>
@@ -2378,10 +2398,10 @@
                     </thead>
                     <tbody>
                         ${studentRowsHtml}
-                        <tr class="bg-slate-100 font-bold">
-                            <td colspan="6" style="text-align:right;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
-                            <td>${grandTotal}</td>
-                            <td>${grandTotal}</td>
+                        <tr class="bg-slate-100 font-black">
+                            <td colspan="6" style="text-align:right; font-size:14px;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
+                            <td class="print-data-cell text-lg">${grandTotal}</td>
+                            <td class="print-room-total text-xl">${grandTotal}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2389,29 +2409,21 @@
             </div>
 
             <!-- COPY 2: EXAM COMMITTEE COPY (NEW PAGE ON PRINT + QP BREAKDOWN COLUMN) -->
-            <div class="page-break print-compact-card pt-1">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[11px] font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-400">நகல் 2: தேர்வுக் குழு நகல் (EXAM COMMITTEE & QUESTION PAPER COPY)</span>
-                    <span class="text-xs font-extrabold border border-black px-2.5 py-0.5 rounded bg-slate-100">தேர்வு நாள்: ${selDate} (${selSess})</span>
-                </div>
-                <div class="text-center border-b-2 border-black pb-1.5 mb-2">
-                    <h2 class="text-lg md:text-xl font-extrabold uppercase">${currentSchool.name}</h2>
-                    <p class="text-base font-extrabold text-slate-900">${selTitle} &nbsp;|&nbsp; <span class="underline">தேதி (DATE): ${selDate}</span> &nbsp;|&nbsp; வேளை: ${selSess}</p>
-                    <p class="text-xs font-bold">தேர்வுக் குழு அறை ஒதுக்கீடு & வினாத்தாள் விவரம் (EXAM COMMITTEE MASTER SHEET)</p>
-                </div>
+            <div class="page-break print-compact-card pt-0.5">
+                ${examBannerHtml}
                 <table class="official-tbl">
                     <thead>
                         <tr>
-                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th><th style="background-color:#dbeafe;">வினாத்தாள் விவரம்<br>(QP Count: Class / Sub / Medium)</th>
+                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th><th style="background-color:#dbeafe;">வினாத்தாள் விவரம் (QP Count)</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${committeeRowsHtml}
-                        <tr class="bg-slate-100 font-bold">
-                            <td colspan="6" style="text-align:right;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
-                            <td>${grandTotal}</td>
-                            <td>${grandTotal}</td>
-                            <td class="bg-blue-50">மொத்தம்: ${grandTotal}</td>
+                        <tr class="bg-slate-100 font-black">
+                            <td colspan="6" style="text-align:right; font-size:14px;">மொத்த மாணவ, மாணவிகள் எண்ணிக்கை (Grand Total):</td>
+                            <td class="print-data-cell text-lg">${grandTotal}</td>
+                            <td class="print-room-total text-xl">${grandTotal}</td>
+                            <td class="bg-blue-50 font-black text-base">மொத்தம்: ${grandTotal}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2545,11 +2557,13 @@
                 slots.push(ordered[i] || null);
             }
 
+            const roomGrp = summaryGroups.find(g => String(g.roomNo) === String(rm.roomNo));
             window.roomVisualData[rm.roomNo] = {
                 rm: rm,
+                roomItems: roomGrp ? roomGrp.items : [],
                 studentCount: students.length,
                 selTitle: selTitle,
-                selDate: selDate,
+                selDate: dispDate,
                 selSess: selSess,
                 perBench: perBench,
                 effectiveColRows: effectiveColRows,
@@ -2594,7 +2608,7 @@
     function buildSingleRoomHtml(rNo) {
         const data = window.roomVisualData[rNo];
         if (!data) return '';
-        const { rm, studentCount, selTitle, selDate, selSess, perBench, effectiveColRows, totalRenderedBenches, overflowWarningHtml, slots } = data;
+        const { rm, roomItems, studentCount, selTitle, selDate, selSess, perBench, effectiveColRows, totalRenderedBenches, overflowWarningHtml, slots } = data;
 
         // Build deterministic per-class color map for all classes present in this room
         const uniqueClasses = [];
@@ -2687,25 +2701,49 @@
                     <button onclick="resetRoomSeats('${rNo}')" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold px-2.5 py-0.5 rounded">🔄 மீட்டமை (Reset)</button>
                 </div>
 
-                <!-- PROMINENT HEADER: LARGE ROOM NO & EXAM DATE -->
-                <div class="border-b-2 border-black pb-1.5 mb-2 flex flex-wrap justify-between items-center gap-2">
-                    <div class="bw-print-box bg-slate-900 text-white px-3.5 py-1.5 rounded-lg border-2 border-black text-center shrink-0">
-                        <div class="text-[10px] uppercase tracking-wider font-bold leading-none">அறை எண் / ROOM NO</div>
-                        <div class="text-2xl md:text-3xl font-black leading-tight">${rm.roomNo}</div>
-                    </div>
-
-                    <div class="flex-1 text-center px-1">
-                        <h3 class="font-extrabold text-base md:text-lg leading-tight uppercase">${currentSchool.name}</h3>
-                        <p class="text-xs md:text-sm font-bold text-slate-900 mt-0.5">${selTitle}</p>
-                        <p class="text-[11px] font-semibold text-slate-800">மாணவர்கள்: <b>${studentCount}</b> | மொத்த இருக்கைகள்: ${totalRenderedBenches}×${perBench} = ${totalRenderedBenches * perBench}</p>
-                    </div>
-
-                    <div class="bw-print-box bg-slate-100 border-2 border-black px-3 py-1.5 rounded-lg text-center shrink-0">
-                        <div class="text-[10px] uppercase font-bold leading-none">தேர்வு நாள் / EXAM DATE</div>
-                        <div class="text-base md:text-lg font-black leading-tight">${selDate}</div>
-                        <div class="text-xs font-extrabold leading-none">${selSess}</div>
+                <!-- PROMINENT HEADER: SCHOOL NAME + LEFT DATE / CENTER EXAM / RIGHT SESSION + LARGE ROOM NO -->
+                <div class="border-b-2 border-black pb-1 mb-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="bw-print-box bg-slate-900 text-white px-3 py-1 rounded border-2 border-black text-center shrink-0">
+                            <div class="text-[9px] uppercase font-bold leading-none">ROOM NO</div>
+                            <div class="text-2xl md:text-3xl font-black leading-none">${rm.roomNo}</div>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <h3 class="font-extrabold text-base md:text-lg leading-tight uppercase">${currentSchool.name}</h3>
+                            <div style="display:grid; grid-template-columns: 1fr auto 1fr; align-items:center;" class="mt-0.5 text-xs md:text-sm font-extrabold text-slate-950">
+                                <div class="text-left">தேதி : <span class="font-black">${selDate}</span></div>
+                                <div class="text-center px-2 font-black">${selTitle}</div>
+                                <div class="text-right">வேளை : <span class="font-black">${selSess}</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- ROOM-SPECIFIC STUDENT ALLOCATION SUMMARY TABLE -->
+                ${roomItems && roomItems.length > 0 ? `
+                <div class="mb-1.5">
+                    <table class="room-mini-tbl">
+                        <thead>
+                            <tr>
+                                <th>Class</th><th>Subject</th><th>Gender</th><th>Start Roll</th><th>End Roll</th><th>Count</th><th>Room Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${roomItems.map((it, i) => `
+                                <tr>
+                                    <td>${it.classLabel}</td>
+                                    <td>${it.subject}</td>
+                                    <td>${it.gender}</td>
+                                    <td style="font-size:13.5px; font-weight:900;">${it.start}</td>
+                                    <td style="font-size:13.5px; font-weight:900;">${it.end}</td>
+                                    <td>${it.count}</td>
+                                    ${i === 0 ? `<td rowspan="${roomItems.length}" style="font-size:16px; font-weight:900; background-color:#f8fafc;">${studentCount}</td>` : ''}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ` : ''}
 
                 ${overflowWarningHtml}
 
