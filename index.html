@@ -929,15 +929,15 @@
                 <span data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுத்து '⚡ தானாக நிரப்பு' அழுத்தி, பின்னர் '🚀 Generate' அழுத்தவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
             </div>
             
-            <!-- COCKPIT ROW 1: COMPACT EXAM SESSION + ROOM COUNT + 2-LINE EXCEL CALCULATOR + LIVE COUNTERS -->
+            <!-- COCKPIT ROW 1: DATE/SESSION + ROOMS | LIVE COUNTERS | WHITE EXCEL CALCULATOR ON RIGHT -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 items-stretch">
-                <!-- Narrow Date & Session -->
+                <!-- 1. Date & Session -->
                 <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
                     <label class="block text-[10px] font-extrabold text-slate-600 mb-1">1️⃣ தேதி & வேளை</label>
                     <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded px-1.5 py-1 bg-blue-50 text-blue-950 font-extrabold text-xs cursor-pointer"></select>
                 </div>
 
-                <!-- Narrow Room Count + All/None -->
+                <!-- 2. Room Count + All/None -->
                 <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-1">
                         <label class="text-[10px] font-extrabold text-slate-600">2️⃣ அறைகள்</label>
@@ -949,23 +949,7 @@
                     <input type="text" inputmode="numeric" id="allocRoomCount" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கை" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded px-1.5 py-1 bg-white font-black text-xs text-center">
                 </div>
 
-                <!-- 2-LINE EXCEL-STYLE FORMULA CALCULATOR (Formula on Left, Instant Answer on Right) -->
-                <div class="lg:col-span-4 bg-slate-900 text-white border border-slate-700 rounded-lg p-2 flex flex-col justify-center space-y-1" data-tip="எக்செல் கால்குலேட்டர்: எ.கா: 48-11-19 அல்லது 212/5 எனத் தட்டச்சு செய்தால் வலதுபுறம் விடை உடனே காட்டும்">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-extrabold text-amber-300 shrink-0 w-10">fx 1:</span>
-                        <input type="text" id="excelCalcExpr1" oninput="evalMiniExcelCalc(1)" placeholder="48 - 11 - 19" class="flex-1 min-w-0 bg-slate-800 border border-slate-600 focus:border-amber-400 rounded px-2 py-0.5 text-xs font-mono text-white focus:outline-none">
-                        <span class="text-slate-400 text-xs font-bold">=</span>
-                        <span id="excelCalcRes1" class="min-w-[52px] text-right bg-emerald-950 border border-emerald-500/60 text-emerald-300 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-extrabold text-sky-300 shrink-0 w-10">fx 2:</span>
-                        <input type="text" id="excelCalcExpr2" oninput="evalMiniExcelCalc(2)" placeholder="93 + 119" class="flex-1 min-w-0 bg-slate-800 border border-slate-600 focus:border-sky-400 rounded px-2 py-0.5 text-xs font-mono text-white focus:outline-none">
-                        <span class="text-slate-400 text-xs font-bold">=</span>
-                        <span id="excelCalcRes2" class="min-w-[52px] text-right bg-blue-950 border border-blue-500/60 text-sky-300 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
-                    </div>
-                </div>
-
-                <!-- Live Counters -->
+                <!-- 3. Middle: Live Counters (Girls | Boys | Total/Seats) -->
                 <div class="lg:col-span-4 grid grid-cols-3 gap-1.5 text-center">
                     <div class="bg-pink-50 border border-pink-200 rounded-lg p-1.5 flex flex-col justify-center">
                         <div class="text-[10px] text-pink-800 font-extrabold">👧 மாணவிகள்</div>
@@ -978,6 +962,22 @@
                     <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex flex-col justify-center">
                         <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர்/இருக்கை</div>
                         <div class="text-base font-black text-slate-950 leading-tight"><span id="statTotal">0</span>/<span id="statCap" class="text-emerald-700">0</span></div>
+                    </div>
+                </div>
+
+                <!-- 4. Right: WHITE 2-LINE EXCEL FORMULA CALCULATOR -->
+                <div class="lg:col-span-4 bg-white text-slate-900 border-2 border-slate-300 rounded-lg p-2 flex flex-col justify-center space-y-1 shadow-2xs" data-tip="எக்செல் கால்குலேட்டர்: எ.கா: 48-11-19 அல்லது 212/5 எனத் தட்டச்சு செய்தால் வலதுபுறம் விடை உடனே காட்டும்">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold text-blue-800 shrink-0 w-9">fx 1:</span>
+                        <input type="text" id="excelCalcExpr1" oninput="evalMiniExcelCalc(1)" placeholder="48 - 11 - 19" class="flex-1 min-w-0 bg-slate-50 border border-slate-300 focus:border-blue-600 focus:bg-white rounded px-2 py-0.5 text-xs font-mono font-bold text-slate-900 focus:outline-none">
+                        <span class="text-slate-500 text-xs font-extrabold">=</span>
+                        <span id="excelCalcRes1" class="min-w-[54px] text-right bg-emerald-50 border border-emerald-400 text-emerald-900 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold text-indigo-800 shrink-0 w-9">fx 2:</span>
+                        <input type="text" id="excelCalcExpr2" oninput="evalMiniExcelCalc(2)" placeholder="38 + 42" class="flex-1 min-w-0 bg-slate-50 border border-slate-300 focus:border-indigo-600 focus:bg-white rounded px-2 py-0.5 text-xs font-mono font-bold text-slate-900 focus:outline-none">
+                        <span class="text-slate-500 text-xs font-extrabold">=</span>
+                        <span id="excelCalcRes2" class="min-w-[54px] text-right bg-blue-50 border border-blue-400 text-blue-900 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
                     </div>
                 </div>
             </div>
@@ -3030,11 +3030,13 @@
         const uniqueSessions = [];
         const seen = new Set();
         tt.forEach(t => {
-            const key = `${t.date}|${t.session}|${t.title}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                // Show ONLY Date and Session (no exam title repetition)
-                uniqueSessions.push({ key, label: `${formatDisplayDate(t.date)} (${t.session})` });
+            const dNorm = String(t.date || '').trim();
+            const sNorm = String(t.session || '').trim();
+            const dsKey = `${dNorm}|${sNorm}`;
+            if (dNorm && sNorm && !seen.has(dsKey)) {
+                seen.add(dsKey);
+                const fullKey = `${dNorm}|${sNorm}|${t.title || ''}`;
+                uniqueSessions.push({ key: fullKey, label: `${formatDisplayDate(dNorm)} (${sNorm})` });
             }
         });
 
@@ -3107,12 +3109,29 @@
         return rooms.filter(r => checkedNos.includes(r.roomNo));
     }
 
+    function normClsName(str) {
+        return String(str || '').trim().toUpperCase().replace(/\s+/g, '');
+    }
+
     function initAllocationMatrix() {
         const examVal = document.getElementById('allocExamSelect').value;
         if (!examVal) return;
-        const [selDate, selSess] = examVal.split('|');
+        const [rawDate, rawSess] = examVal.split('|');
+        const selDate = String(rawDate || '').trim();
+        const selSess = String(rawSess || '').trim();
 
-        const tt = getData(schoolDataKey('timetable'), []).filter(t => t.date === selDate && t.session === selSess);
+        const rawTt = getData(schoolDataKey('timetable'), []).filter(t =>
+            String(t.date || '').trim() === selDate && String(t.session || '').trim() === selSess
+        );
+
+        // Sort timetable entries cleanly: Grade descending (12th -> 11th -> 10th...) then className ascending
+        const tt = [...rawTt].sort((a, b) => {
+            const ga = parseInt(extractGradeKey(a.className)) || 0;
+            const gb = parseInt(extractGradeKey(b.className)) || 0;
+            if (ga !== gb) return gb - ga;
+            return String(a.className || '').localeCompare(String(b.className || ''), undefined, { numeric: true });
+        });
+
         const strengths = getData(schoolDataKey('strength'), []);
         const activeRooms = getActiveRooms();
         const ruleEl = document.querySelector('input[name="genderRule"]:checked');
@@ -3121,12 +3140,16 @@
         matrixColumns = [];
         let totGirls = 0, totBoys = 0;
 
+        const findMatchingStrengths = (clsName) => {
+            const target = normClsName(clsName);
+            return strengths.filter(s => normClsName(s.className) === target);
+        };
+
         if (rule === 'continuous') {
-            // Continuous Roll No mode: show combined Class Total columns (Girls + Boys together)
             tt.forEach(t => {
                 const sCode = t.subjectCode || t.subject;
                 const sFull = t.subjectFull || sCode;
-                const stList = strengths.filter(s => s.className === t.className);
+                const stList = findMatchingStrengths(t.className);
                 stList.forEach(st => {
                     const gc = parseInt(st.gCount) || 0;
                     const bc = parseInt(st.bCount) || 0;
@@ -3138,7 +3161,7 @@
                         matrixColumns.push({
                             key: `C_${st.id}_${sCode}`,
                             gender: 'All',
-                            classLabel: `${st.className}(${st.medium})`,
+                            classLabel: `${st.className.trim()}(${st.medium})`,
                             subjectCode: sCode,
                             subjectFull: sFull,
                             startRoll: firstRoll,
@@ -3148,22 +3171,23 @@
                 });
             });
         } else {
-            // Strict / Hybrid Separate Gender mode: Girls columns first, Boys columns second
+            // Strict / Hybrid Separate Gender mode: Girls columns first (12th -> 11th...), Boys columns second (12th -> 11th...)
             tt.forEach(t => {
                 const sCode = t.subjectCode || t.subject;
                 const sFull = t.subjectFull || sCode;
-                const stList = strengths.filter(s => s.className === t.className);
+                const stList = findMatchingStrengths(t.className);
                 stList.forEach(st => {
-                    if (st.gCount > 0) {
-                        totGirls += st.gCount;
+                    const gc = parseInt(st.gCount) || 0;
+                    if (gc > 0) {
+                        totGirls += gc;
                         matrixColumns.push({
                             key: `G_${st.id}_${sCode}`,
                             gender: 'Girls',
-                            classLabel: `${st.className}(${st.medium})`,
+                            classLabel: `${st.className.trim()}(${st.medium})`,
                             subjectCode: sCode,
                             subjectFull: sFull,
                             startRoll: st.gStart,
-                            maxCount: st.gCount
+                            maxCount: gc
                         });
                     }
                 });
@@ -3172,18 +3196,19 @@
             tt.forEach(t => {
                 const sCode = t.subjectCode || t.subject;
                 const sFull = t.subjectFull || sCode;
-                const stList = strengths.filter(s => s.className === t.className);
+                const stList = findMatchingStrengths(t.className);
                 stList.forEach(st => {
-                    if (st.bCount > 0) {
-                        totBoys += st.bCount;
+                    const bc = parseInt(st.bCount) || 0;
+                    if (bc > 0) {
+                        totBoys += bc;
                         matrixColumns.push({
                             key: `B_${st.id}_${sCode}`,
                             gender: 'Boys',
-                            classLabel: `${st.className}(${st.medium})`,
+                            classLabel: `${st.className.trim()}(${st.medium})`,
                             subjectCode: sCode,
                             subjectFull: sFull,
                             startRoll: st.bStart,
-                            maxCount: st.bCount
+                            maxCount: bc
                         });
                     }
                 });
@@ -3200,10 +3225,10 @@
         capEl.textContent = totCap;
         if (capBox) {
             if (totCap < grandStu) {
-                capBox.className = "bg-red-50 border-2 border-red-400 rounded-lg p-2 flex flex-col justify-center";
+                capBox.className = "bg-red-50 border-2 border-red-400 rounded-lg p-1.5 flex flex-col justify-center";
                 capEl.className = "text-red-700";
             } else {
-                capBox.className = "bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center";
+                capBox.className = "bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex flex-col justify-center";
                 capEl.className = "text-emerald-700";
             }
         }
