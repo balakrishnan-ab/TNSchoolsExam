@@ -12,6 +12,10 @@
             size: A4 portrait;
             margin: 5mm 6mm;
         }
+        @page dutyLandscape {
+            size: A4 landscape;
+            margin: 5mm 6mm;
+        }
         @media print {
             .no-print { display: none !important; }
             .page-break { page-break-before: always; break-before: page; }
@@ -63,11 +67,27 @@
                 color: #000000 !important;
                 border: 1px solid #000000 !important;
             }
-            #schoolSection, #workView-allocate, #generatedOutputArea, #printableVisualCharts {
+            #schoolSection, #workView-allocate, #workView-duty, #workView-reports, #generatedOutputArea, #printableVisualCharts, #printableDutyAbstractArea, #printableReportsArea {
                 max-width: 100% !important;
                 width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                border: none !important;
+            }
+            #printableDutyAbstractArea {
+                page: dutyLandscape;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            #dutyAbstractMatrixTable th {
+                font-size: 9.5px !important;
+                padding: 2px 2px !important;
+                line-height: 1.05 !important;
+            }
+            #dutyAbstractMatrixTable td {
+                font-size: 10.5px !important;
+                padding: 1.5px 2px !important;
+                line-height: 1.05 !important;
             }
             .shadow-lg, .shadow-md, .shadow { box-shadow: none !important; }
             .print-compact-card {
@@ -2015,36 +2035,92 @@
             </div>
         `;
 
-        // 1. EXAM TIMETABLE REPORT
+        // 1. HIERARCHICAL EXAM TIMETABLE REPORT (Date -> காலை (FN) / மாலை (AN) -> வகுப்புகள் -> பாடம்)
         if (showTt) {
-            const ttRows = sortedTt.length > 0 ? sortedTt.map((t, idx) => {
-                const matchingStr = strengths.filter(s => s.className === t.className);
-                const stuCnt = matchingStr.reduce((sum, s) => sum + (parseInt(s.gCount) || 0) + (parseInt(s.bCount) || 0), 0);
-                return `
-                    <tr>
-                        <td class="font-bold">${idx + 1}</td>
-                        <td class="font-black">${formatDisplayDate(t.date)}</td>
-                        <td class="font-extrabold">${t.session === 'FN' ? 'காலை (FN)' : 'மாலை (AN)'}</td>
-                        <td class="font-extrabold">${t.className}</td>
-                        <td class="font-black">${t.subjectCode}</td>
-                        <td class="text-left px-2 font-semibold">${t.subjectFull || t.subjectCode}</td>
-                        <td class="font-extrabold">${stuCnt > 0 ? stuCnt : '-'}</td>
-                    </tr>
-                `;
-            }).join('') : `<tr><td colspan="7" class="p-3 text-slate-500">இந்தத் தேர்விற்கு இன்னும் தேர்வு அட்டவணை உள்ளிடப்படவில்லை.</td></tr>`;
+            let ttRows = '';
+            if (sortedTt.length === 0) {
+                ttRows = `<tr><td colspan="5" class="p-3 text-slate-500">இந்தத் தேர்விற்கு இன்னும் தேர்வு அட்டவணை உள்ளிடப்படவில்லை.</td></tr>`;
+            } else {
+                // Group by Date -> Session (FN first, then AN) -> Subject (combining classes writing the same subject, or listing classes cleanly)
+                const dateMap = new Map();
+                sortedTt.forEach(t => {
+                    if (!dateMap.has(t.date)) {
+                        dateMap.set(t.date, { FN: [], AN: [] });
+                    }
+                    const sessKey = (t.session === 'AN') ? 'AN' : 'FN';
+                    dateMap.get(t.date)[sessKey].push(t);
+                });
+
+                dateMap.forEach((sessionsObj, dateStr) => {
+                    // Build session blocks (FN = காலை, AN = மாலை)
+                    const sessionBlocks = [];
+                    ['FN', 'AN'].forEach(sKey => {
+                        const entries = sessionsObj[sKey];
+                        if (!entries || entries.length === 0) return;
+
+                        // Group classes by Subject within this Date + Session so classes & subject are neatly structured
+                        const subjGroupMap = new Map();
+                        entries.forEach(e => {
+                            const subTitle = e.subjectFull ? `${e.subjectFull} (${e.subjectCode})` : e.subjectCode;
+                            if (!subjGroupMap.has(subTitle)) {
+                                subjGroupMap.set(subTitle, { subjectDisplay: subTitle, classes: [], totalStudents: 0 });
+                            }
+                            const grp = subjGroupMap.get(subTitle);
+                            if (!grp.classes.includes(e.className)) {
+                                grp.classes.push(e.className);
+                                const matchingStr = strengths.filter(s => s.className === e.className);
+                                const stuCnt = matchingStr.reduce((sum, s) => sum + (parseInt(s.gCount) || 0) + (parseInt(s.bCount) || 0), 0);
+                                grp.totalStudents += stuCnt;
+                            }
+                        });
+
+                        const subjRows = Array.from(subjGroupMap.values());
+                        sessionBlocks.push({
+                            sessionKey: sKey,
+                            sessionLabel: sKey === 'FN' ? 'காலை (FN)' : 'மாலை (AN)',
+                            rows: subjRows
+                        });
+                    });
+
+                    // Total rows spanned by this Date across both காலை & மாலை
+                    const totalDateRowSpan = sessionBlocks.reduce((acc, sb) => acc + sb.rows.length, 0);
+                    let isFirstRowOfDate = true;
+
+                    sessionBlocks.forEach(sb => {
+                        sb.rows.forEach((rItem, rIdx) => {
+                            const dateCellHtml = isFirstRowOfDate
+                                ? `<td rowspan="${totalDateRowSpan}" class="font-black text-base bg-slate-100 align-middle" style="min-width:95px;">${formatDisplayDate(dateStr)}</td>`
+                                : '';
+                            isFirstRowOfDate = false;
+
+                            const sessCellHtml = (rIdx === 0)
+                                ? `<td rowspan="${sb.rows.length}" class="font-extrabold text-sm ${sb.sessionKey === 'FN' ? 'bg-amber-50/70' : 'bg-blue-50/70'} align-middle" style="min-width:88px;">${sb.sessionLabel}</td>`
+                                : '';
+
+                            ttRows += `
+                                <tr>
+                                    ${dateCellHtml}
+                                    ${sessCellHtml}
+                                    <td class="font-extrabold text-left px-2.5">${rItem.classes.join(', ')}</td>
+                                    <td class="font-black text-left px-2.5 text-blue-950">${rItem.subjectDisplay}</td>
+                                    <td class="font-extrabold">${rItem.totalStudents > 0 ? rItem.totalStudents : '-'}</td>
+                                </tr>
+                            `;
+                        });
+                    });
+                });
+            }
 
             htmlOut += `
-                <div class="space-y-2">
+                <div class="space-y-2 avoid-break">
                     <h3 class="font-extrabold text-sm md:text-base text-slate-900 border-l-4 border-blue-800 pl-2">1️⃣ தேர்வு அட்டவணை விவரம் (EXAMINATION TIMETABLE)</h3>
                     <table class="official-tbl">
                         <thead>
                             <tr>
-                                <th>வ.எண்</th>
                                 <th>தேதி (Date)</th>
-                                <th>வேளை (Session)</th>
-                                <th>வகுப்பு (Class)</th>
-                                <th>பாடக் குறியீடு</th>
-                                <th>பாடத்தின் முழுப் பெயர் (Subject)</th>
+                                <th>வேளை (காலை / மாலை)</th>
+                                <th>வகுப்புகள் (Classes)</th>
+                                <th>தேதிக்கு ஏற்ற பாடம் (Subject)</th>
                                 <th>மாணவர் எண்ணிக்கை</th>
                             </tr>
                         </thead>
@@ -3122,7 +3198,8 @@
         return m ? m[1] : String(classLabel || '').split('-')[0].trim();
     }
 
-    // Helper: Fill a room's capacity by balancing across different Grades (e.g., 12th & 11th) so each room has mixed grades!
+    // Helper: Fill a room's capacity by balancing across BOTH Grades (12th, 11th...) AND Subjects (MAT, COM, PHY, ECO...)!
+    // That way Room 2 gets MAT + COM + PHY + ECO rather than dumping all MAT into one room.
     function fillRoomGradeBalanced(rm, colsList, rem, roomCapRem) {
         if (roomCapRem[rm.roomNo] <= 0) return;
         const activeCols = colsList.filter(c => rem[c.key] > 0);
@@ -3137,23 +3214,50 @@
         });
         const grades = Object.keys(gradeGroups);
 
-        if (grades.length > 1) {
-            // Give each grade an equal target share of this room's remaining capacity first
-            const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
-            grades.forEach(g => {
-                let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
+        // Give each Grade a balanced share of this room's capacity, AND within each Grade distribute across distinct Subjects!
+        const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
+        grades.forEach(g => {
+            let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
+            if (gradeQuota <= 0) return;
+
+            // Group this grade's columns by Subject Code (e.g. MAT, COM, CS, CA)
+            const subjGroups = {};
+            gradeGroups[g].forEach(c => {
+                const sub = c.subjectCode || 'SUB';
+                if (!subjGroups[sub]) subjGroups[sub] = [];
+                subjGroups[sub].push(c);
+            });
+            const subKeys = Object.keys(subjGroups);
+            const perSubjTarget = Math.max(1, Math.ceil(gradeQuota / subKeys.length));
+
+            // Round 1: Take balanced quota from each distinct Subject in this Grade
+            subKeys.forEach(sub => {
+                let subjQuota = Math.min(perSubjTarget, gradeQuota, roomCapRem[rm.roomNo]);
+                subjGroups[sub].forEach(c => {
+                    if (subjQuota <= 0 || gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0) return;
+                    const take = Math.min(rem[c.key], subjQuota, gradeQuota, roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] += take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                    gradeQuota -= take;
+                    subjQuota -= take;
+                });
+            });
+
+            // Round 2: If this grade still has unused quota in this room, fill from remaining columns of this grade
+            if (gradeQuota > 0 && roomCapRem[rm.roomNo] > 0) {
                 gradeGroups[g].forEach(c => {
-                    if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0) return;
+                    if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
                     const take = Math.min(rem[c.key], gradeQuota, roomCapRem[rm.roomNo]);
                     matrixState[rm.roomNo][c.key] += take;
                     rem[c.key] -= take;
                     roomCapRem[rm.roomNo] -= take;
                     gradeQuota -= take;
                 });
-            });
-        }
+            }
+        });
 
-        // Fill any leftover capacity in this room from remaining columns
+        // Round 3: Fill any leftover room capacity from remaining columns
         colsList.forEach(c => {
             if (roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
             const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
@@ -3779,14 +3883,15 @@
             if (benchOrderMode === 'continuous') {
                 ordered.sort((a, b) => a.roll - b.roll);
             } else if (benchOrderMode === 'interleave' && ordered.length > 1) {
-                // SMART ANTI-MALPRACTICE ALGORITHM:
-                // Priority 1: Never sit same Grade (e.g. 12th with 12th, 11th with 11th) on the same bench if another Grade is available!
-                // Priority 2: If only one Grade remains (unavoidable), sit different Subjects together!
-                // Priority 3: If same Grade & Subject, sit different Sections together!
-                // Within each (grade + classLabel + subject) bucket, maintain strict ascending Roll Number order.
+                // ZERO-ADJACENT SAME-PAPER (GRADE + SUBJECT) ANTI-MALPRACTICE ALGORITHM:
+                // 1) Students of the SAME Grade + SAME Subject (e.g. 12th MAT across 12-A1, 12-A, 12-B1) have the SAME question paper,
+                //    so they MUST NEVER sit side-by-side (left/right neighbor) or directly in front!
+                // 2) On 3-seater benches when 2 subjects/grades exist, uses A - B - A sandwiching (e.g. 11th PHY | 12th MAT | 11th PHY)
+                //    so two 12th MAT students NEVER sit adjacent!
+                // 3) When 3+ subjects/grades are in the room (e.g. 11th PHY, 12th MAT, 12th COM / 11th ECO), places 3 distinct papers on every bench!
                 const bucketsMap = new Map();
                 ordered.forEach(stu => {
-                    const bKey = `${stu.grade}|${stu.classLabel}|${stu.subject}`;
+                    const bKey = `${stu.grade}|${stu.subject}|${stu.classLabel}`;
                     if (!bucketsMap.has(bKey)) bucketsMap.set(bKey, []);
                     bucketsMap.get(bKey).push(stu);
                 });
@@ -3797,30 +3902,32 @@
                 const smartPlaced = [];
                 const numBenchesNeeded = Math.ceil(totalStudentsInRoom / perBench);
 
+                const paperKey = (c) => `${c.grade}|${c.subject}`;
+
                 for (let b = 0; b < numBenchesNeeded; b++) {
                     const benchSeats = [];
                     const seatsOnThisBench = Math.min(perBench, totalStudentsInRoom - smartPlaced.length);
 
                     for (let s = 0; s < seatsOnThisBench; s++) {
-                        const usedGradesOnBench = new Set(benchSeats.map(x => x.grade));
-                        const usedSubjectsOnBench = new Set(benchSeats.map(x => x.subject));
-                        const usedClassesOnBench = new Set(benchSeats.map(x => x.classLabel));
-
-                        // Also check the student sitting directly in front (same seat position in previous bench)
-                        const prevBenchSameSeat = (b > 0 && smartPlaced.length >= perBench)
+                        const leftNeighbor = s > 0 ? benchSeats[s - 1] : null;
+                        const frontNeighbor = (b > 0 && smartPlaced.length >= perBench)
                             ? smartPlaced[smartPlaced.length - perBench]
                             : null;
 
-                        // Helper to pick from non-empty buckets matching predicate, preferring the grade/bucket with highest remaining count
+                        const usedPapersOnBench = new Set(benchSeats.map(x => paperKey(x)));
+                        const usedGradesOnBench = new Set(benchSeats.map(x => x.grade));
+                        const usedSubjectsOnBench = new Set(benchSeats.map(x => x.subject));
+
                         const pickBestBucket = (predFn) => {
                             let bestB = null;
                             let bestScore = -1;
-                            // Compute total remaining per grade so larger grades get paired smoothly without stranding leftovers
-                            const gradeRemTotals = {};
+
+                            // Count remaining students per (grade|subject) paper group so largest groups get paired early
+                            const paperRemTotals = {};
                             buckets.forEach(bk => {
                                 if (bk.length > 0) {
-                                    const g = bk[0].grade;
-                                    gradeRemTotals[g] = (gradeRemTotals[g] || 0) + bk.length;
+                                    const pk = paperKey(bk[0]);
+                                    paperRemTotals[pk] = (paperRemTotals[pk] || 0) + bk.length;
                                 }
                             });
 
@@ -3828,9 +3935,17 @@
                                 if (bk.length === 0) return;
                                 const cand = bk[0];
                                 if (!predFn(cand)) return;
-                                let score = (gradeRemTotals[cand.grade] || 0) * 100 + bk.length;
-                                if (prevBenchSameSeat && prevBenchSameSeat.grade !== cand.grade) score += 25;
-                                if (prevBenchSameSeat && prevBenchSameSeat.subject !== cand.subject) score += 10;
+
+                                let score = (paperRemTotals[paperKey(cand)] || 0) * 100 + bk.length;
+                                // Strong bonus for not matching front neighbor's question paper or grade
+                                if (frontNeighbor) {
+                                    if (paperKey(frontNeighbor) !== paperKey(cand)) score += 60;
+                                    if (frontNeighbor.grade !== cand.grade) score += 25;
+                                }
+                                // Bonus for bringing a subject not yet on this bench
+                                if (!usedSubjectsOnBench.has(cand.subject)) score += 30;
+                                if (!usedGradesOnBench.has(cand.grade)) score += 20;
+
                                 if (score > bestScore) {
                                     bestScore = score;
                                     bestB = bk;
@@ -3839,20 +3954,48 @@
                             return bestB;
                         };
 
-                        // P1: Different Grade from everyone already on this bench (e.g. 12th paired with 11th)
-                        let chosenBucket = pickBestBucket(c => !usedGradesOnBench.has(c.grade));
+                        // P1 (Ideal): Different Grade AND Different Subject from everyone on this bench AND not same paper as front neighbor
+                        let chosenBucket = pickBestBucket(c =>
+                            !usedGradesOnBench.has(c.grade) &&
+                            !usedSubjectsOnBench.has(c.subject) &&
+                            (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                            (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                        );
 
-                        // P2: Unavoidable same Grade -> Must have Different Subject from everyone on this bench
+                        // P2: Different Question Paper (Grade+Subject) from everyone on this bench AND not same as left/front neighbor
                         if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c => !usedSubjectsOnBench.has(c.subject));
+                            chosenBucket = pickBestBucket(c =>
+                                !usedPapersOnBench.has(paperKey(c)) &&
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                            );
                         }
 
-                        // P3: Unavoidable same Grade & Subject -> Different Section/Class if available
+                        // P3: Different Question Paper from everyone on this bench AND not sitting adjacent to leftNeighbor
                         if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c => !usedClassesOnBench.has(c.classLabel));
+                            chosenBucket = pickBestBucket(c =>
+                                !usedPapersOnBench.has(paperKey(c)) &&
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c))
+                            );
                         }
 
-                        // P4: Any remaining student
+                        // P4 (3-Seater Sandwich Rule A - B - A): Different Question Paper from leftNeighbor & frontNeighbor
+                        // (e.g. Seat 1 = 11th PHY, Seat 2 = 12th MAT, Seat 3 = 11th PHY -> NO two same-paper students sit side by side!)
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                            );
+                        }
+
+                        // P5: Strict No-Side-by-Side Same Paper (different from leftNeighbor even if front matches)
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                !leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)
+                            );
+                        }
+
+                        // P6 (Unavoidable last resort): Any remaining student
                         if (!chosenBucket) {
                             chosenBucket = pickBestBucket(() => true);
                         }
