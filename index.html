@@ -98,10 +98,10 @@
             }
             table.official-tbl th { font-size: 10.5px !important; padding: 2.5px 4px !important; line-height: 1.12 !important; }
             table.official-tbl td { padding: 3px 4px !important; line-height: 1.2 !important; }
-            .print-data-cell { font-size: 13px !important; font-weight: 800 !important; }
-            .print-room-no { font-size: 44px !important; font-weight: 900 !important; line-height: 0.9 !important; }
-            .print-roll-num { font-size: 15.5px !important; font-weight: 900 !important; }
-            .print-room-total { font-size: 17px !important; font-weight: 900 !important; }
+            .print-data-cell { font-size: 14.5px !important; font-weight: 800 !important; }
+            .print-room-no { font-size: 42px !important; font-weight: 900 !important; line-height: 0.9 !important; }
+            .print-roll-num { font-size: 17px !important; font-weight: 900 !important; }
+            .print-room-total { font-size: 17.5px !important; font-weight: 900 !important; }
             .print-qp-box { font-size: 12.5px !important; line-height: 1.12 !important; padding: 1.5px 5px !important; }
             table.room-mini-tbl th { font-size: 9px !important; padding: 1px 2px !important; line-height: 1.05 !important; }
             table.room-mini-tbl td { font-size: 11px !important; font-weight: 800 !important; padding: 1px 2px !important; line-height: 1.05 !important; }
@@ -149,6 +149,18 @@
             font-weight: 500;
         }
 
+
+        
+        /* Remove spinner arrows and accidental scroll/arrow mutation on matrix cells */
+        input.no-spin::-webkit-outer-spin-button,
+        input.no-spin::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input.no-spin {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
 
         /* Sticky left Room No and right Room Total in Allocation Matrix */
         #matrixTable { border-collapse: separate; border-spacing: 0; }
@@ -917,36 +929,55 @@
                 <span data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுத்து '⚡ தானாக நிரப்பு' அழுத்தி, பின்னர் '🚀 Generate' அழுத்தவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
             </div>
             
-            <!-- COCKPIT ROW 1: EXAM SESSION + ROOM COUNT + LIVE STRENGTH/CAPACITY METER -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-stretch">
-                <div class="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
-                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">1️⃣ தேர்வு தேதி & வேளை</label>
-                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="ஒதுக்கீடு செய்ய வேண்டிய தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded-md px-2.5 py-1.5 bg-blue-50 text-blue-950 font-extrabold text-sm cursor-pointer"></select>
+            <!-- COCKPIT ROW 1: COMPACT EXAM SESSION + ROOM COUNT + 2-LINE EXCEL CALCULATOR + LIVE COUNTERS -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 items-stretch">
+                <!-- Narrow Date & Session -->
+                <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
+                    <label class="block text-[10px] font-extrabold text-slate-600 mb-1">1️⃣ தேதி & வேளை</label>
+                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded px-1.5 py-1 bg-blue-50 text-blue-950 font-extrabold text-xs cursor-pointer"></select>
                 </div>
 
-                <div class="lg:col-span-3 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
+                <!-- Narrow Room Count + All/None -->
+                <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="text-[11px] font-extrabold text-slate-600">2️⃣ அறை எண்ணிக்கை</label>
-                        <div class="flex gap-1 text-[10px]">
-                            <button type="button" onclick="toggleAllAllocRooms(true)" class="px-1.5 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded font-bold">All</button>
-                            <button type="button" onclick="toggleAllAllocRooms(false)" class="px-1.5 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-bold">None</button>
+                        <label class="text-[10px] font-extrabold text-slate-600">2️⃣ அறைகள்</label>
+                        <div class="flex gap-0.5 text-[9px]">
+                            <button type="button" onclick="toggleAllAllocRooms(true)" class="px-1 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded font-bold">All</button>
+                            <button type="button" onclick="toggleAllAllocRooms(false)" class="px-1 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-bold">None</button>
                         </div>
                     </div>
-                    <input type="number" id="allocRoomCount" min="1" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கையை உள்ளிடவும்" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded-md px-2.5 py-1.5 bg-white font-black text-sm text-center">
+                    <input type="text" inputmode="numeric" id="allocRoomCount" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கை" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded px-1.5 py-1 bg-white font-black text-xs text-center">
                 </div>
 
-                <div class="lg:col-span-5 grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-2 flex flex-col justify-center">
+                <!-- 2-LINE EXCEL-STYLE FORMULA CALCULATOR (Formula on Left, Instant Answer on Right) -->
+                <div class="lg:col-span-4 bg-slate-900 text-white border border-slate-700 rounded-lg p-2 flex flex-col justify-center space-y-1" data-tip="எக்செல் கால்குலேட்டர்: எ.கா: 48-11-19 அல்லது 212/5 எனத் தட்டச்சு செய்தால் வலதுபுறம் விடை உடனே காட்டும்">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold text-amber-300 shrink-0 w-10">fx 1:</span>
+                        <input type="text" id="excelCalcExpr1" oninput="evalMiniExcelCalc(1)" placeholder="48 - 11 - 19" class="flex-1 min-w-0 bg-slate-800 border border-slate-600 focus:border-amber-400 rounded px-2 py-0.5 text-xs font-mono text-white focus:outline-none">
+                        <span class="text-slate-400 text-xs font-bold">=</span>
+                        <span id="excelCalcRes1" class="min-w-[52px] text-right bg-emerald-950 border border-emerald-500/60 text-emerald-300 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-extrabold text-sky-300 shrink-0 w-10">fx 2:</span>
+                        <input type="text" id="excelCalcExpr2" oninput="evalMiniExcelCalc(2)" placeholder="93 + 119" class="flex-1 min-w-0 bg-slate-800 border border-slate-600 focus:border-sky-400 rounded px-2 py-0.5 text-xs font-mono text-white focus:outline-none">
+                        <span class="text-slate-400 text-xs font-bold">=</span>
+                        <span id="excelCalcRes2" class="min-w-[52px] text-right bg-blue-950 border border-blue-500/60 text-sky-300 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
+                    </div>
+                </div>
+
+                <!-- Live Counters -->
+                <div class="lg:col-span-4 grid grid-cols-3 gap-1.5 text-center">
+                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-1.5 flex flex-col justify-center">
                         <div class="text-[10px] text-pink-800 font-extrabold">👧 மாணவிகள்</div>
-                        <div class="text-xl font-black text-pink-950 leading-tight" id="statGirls">0</div>
+                        <div class="text-lg font-black text-pink-950 leading-tight" id="statGirls">0</div>
                     </div>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 flex flex-col justify-center">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-1.5 flex flex-col justify-center">
                         <div class="text-[10px] text-blue-800 font-extrabold">👦 மாணவர்கள்</div>
-                        <div class="text-xl font-black text-blue-950 leading-tight" id="statBoys">0</div>
+                        <div class="text-lg font-black text-blue-950 leading-tight" id="statBoys">0</div>
                     </div>
-                    <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center">
-                        <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர் / இருக்கை</div>
-                        <div class="text-lg md:text-xl font-black text-slate-950 leading-tight"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
+                    <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex flex-col justify-center">
+                        <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர்/இருக்கை</div>
+                        <div class="text-base font-black text-slate-950 leading-tight"><span id="statTotal">0</span>/<span id="statCap" class="text-emerald-700">0</span></div>
                     </div>
                 </div>
             </div>
@@ -971,7 +1002,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-xs border-collapse border border-slate-400 text-center" id="matrixTable">
+                <table class="w-auto text-xs border-collapse border border-slate-400 text-center mx-auto" id="matrixTable">
                     <thead id="matrixHead"></thead>
                     <tbody id="matrixBody"></tbody>
                 </table>
@@ -2873,9 +2904,8 @@
                     <div class="bg-white border-2 border-slate-200 rounded-lg p-2.5 shadow-2xs space-y-2">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
                             <span class="text-xs font-extrabold text-blue-950">🎓 ${groupTitle} <span class="text-[10px] font-semibold text-slate-500">(${sections.length} பிரிவுகள்)</span></span>
-                            <label class="cursor-pointer inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded select-none">
-                                <input type="checkbox" id="ttGradeMaster_${gKey}" class="tt-grade-master-cb accent-emerald-700" onchange="toggleGradeGroupCheckboxes('${gKey}', this.checked)">
-                                <span>அனைத்தும்</span>
+                            <label title="இந்த வகுப்பின் அனைத்துப் பிரிவுகளையும் தேர்வு செய் / நீக்கு" class="cursor-pointer inline-flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 p-1 rounded select-none">
+                                <input type="checkbox" id="ttGradeMaster_${gKey}" class="tt-grade-master-cb w-4 h-4 accent-emerald-700 cursor-pointer" onchange="toggleGradeGroupCheckboxes('${gKey}', this.checked)">
                             </label>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
@@ -3205,30 +3235,30 @@
 
         let groupHeaderHtml = '';
         if (allCols.length > 0) {
-            groupHeaderHtml = `<th colspan="${allCols.length}" class="border border-slate-400 p-1.5 bg-indigo-100 text-indigo-950 font-extrabold">வகுப்பு வாரியான மொத்த மாணவர்கள் (Class Total - Continuous Roll No)</th>`;
+            groupHeaderHtml = `<th colspan="${allCols.length}" class="border border-slate-400 p-1 bg-indigo-100 text-indigo-950 font-extrabold">வகுப்பு மொத்தம் (Continuous Roll No)</th>`;
         } else {
             groupHeaderHtml = `
-                ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1.5 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
-                ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1.5 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
+                ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
+                ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
             `;
         }
 
         let headHtml = `
             <tr class="bg-slate-200 font-bold">
-                <th rowspan="3" class="sticky-room-col bg-slate-200 border border-slate-400 p-2 min-w-[54px]">Room</th>
-                <th rowspan="3" class="border border-slate-400 p-2">Max Cap</th>
-                <th rowspan="3" class="border border-slate-400 p-2">Cols / Rows</th>
+                <th rowspan="3" class="sticky-room-col bg-slate-200 border border-slate-400 px-1.5 py-1" style="width:42px; min-width:42px;">Room</th>
+                <th rowspan="3" class="border border-slate-400 px-1.5 py-1" style="width:46px;">Cap</th>
+                <th rowspan="3" class="border border-slate-400 px-1.5 py-1" style="width:54px;">Rows</th>
                 ${groupHeaderHtml}
-                <th rowspan="3" class="sticky-total-col bg-emerald-100 border border-slate-400 p-2 min-w-[66px]">Room Total</th>
+                <th rowspan="3" class="sticky-total-col bg-emerald-100 border border-slate-400 px-1.5 py-1" style="width:50px; min-width:50px;">Total</th>
             </tr>
             <tr class="bg-amber-100 font-semibold">
-                ${matrixColumns.map(c => `<th class="border border-slate-400 p-1 min-w-[78px]">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
+                ${matrixColumns.map(c => `<th class="border border-slate-400 px-1 py-1" style="min-width:62px; max-width:74px;">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
             </tr>
-            <tr class="bg-slate-50 text-[11px]">
+            <tr class="bg-slate-50 text-[10px]">
                 ${matrixColumns.map(c => {
                     const rem = remMap[c.key];
-                    const badgeCls = rem === 0 ? 'text-emerald-700 font-bold' : (rem < 0 ? 'text-red-600 font-bold' : 'text-amber-800 font-bold');
-                    return `<th class="border border-slate-400 p-1">மொத்தம்: ${c.maxCount}<br><span class="${badgeCls}">மீதம்: ${rem}</span></th>`;
+                    const badgeCls = rem === 0 ? 'text-emerald-700 font-extrabold' : (rem < 0 ? 'text-red-600 font-extrabold' : 'text-amber-800 font-extrabold');
+                    return `<th class="border border-slate-400 px-1 py-0.5">மொ: ${c.maxCount}<br><span class="${badgeCls}">மீ: ${rem}</span></th>`;
                 }).join('')}
             </tr>
         `;
@@ -3239,27 +3269,59 @@
             const cells = matrixColumns.map(col => {
                 const val = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
                 rowSum += val;
-                return `<td class="border border-slate-400 p-1 bg-white">
-                    <input type="number" min="0" value="${val}" onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
-                        class="w-14 text-center border rounded p-1 font-bold ${val > 0 ? 'bg-yellow-50 border-amber-400' : ''}">
+                return `<td class="border border-slate-400 p-0.5 bg-white">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" value="${val}"
+                        onfocus="this.select()"
+                        onkeydown="if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();}"
+                        onwheel="this.blur()"
+                        onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
+                        class="no-spin w-11 text-center border rounded py-0.5 px-0.5 font-extrabold text-xs ${val > 0 ? 'bg-yellow-50 border-amber-400 text-slate-950' : 'text-slate-500'}">
                 </td>`;
             }).join('');
 
-            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
+            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 5);
             const overCap = rowSum > rm.capacity;
             return `
                 <tr>
-                    <td class="sticky-room-col bg-slate-100 border border-slate-400 p-2 font-black text-sm">${rm.roomNo}</td>
-                    <td class="border border-slate-400 p-2 font-semibold bg-white">${rm.capacity}</td>
-                    <td class="border border-slate-400 p-2 text-[11px] bg-white">${cRows.join(' + ')}</td>
+                    <td class="sticky-room-col bg-slate-100 border border-slate-400 px-1 py-1 font-black text-xs">${rm.roomNo}</td>
+                    <td class="border border-slate-400 px-1 py-1 font-semibold bg-white text-[11px]">${rm.capacity}</td>
+                    <td class="border border-slate-400 px-1 py-1 text-[10px] bg-white whitespace-nowrap">${cRows.join('+')}</td>
                     ${cells}
-                    <td class="sticky-total-col border border-slate-400 p-2 font-black text-sm ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
-                        ${rowSum} ${overCap ? '⚠️' : ''}
+                    <td class="sticky-total-col border border-slate-400 px-1 py-1 font-black text-xs ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
+                        ${rowSum}${overCap ? '⚠️' : ''}
                     </td>
                 </tr>
             `;
         }).join('');
         document.getElementById('matrixBody').innerHTML = bodyHtml;
+    }
+
+    function evalMiniExcelCalc(lineNo) {
+        const inp = document.getElementById(`excelCalcExpr${lineNo}`);
+        const resEl = document.getElementById(`excelCalcRes${lineNo}`);
+        if (!inp || !resEl) return;
+        let expr = String(inp.value || '').trim();
+        if (!expr) {
+            resEl.textContent = '0';
+            return;
+        }
+        // Strip leading '=' if user types Excel style '=48-11-19'
+        if (expr.startsWith('=')) expr = expr.slice(1).trim();
+        // Allow only safe arithmetic characters: digits, +, -, *, /, (, ), ., spaces
+        if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+            resEl.textContent = 'Err';
+            return;
+        }
+        try {
+            const val = Function('"use strict"; return (' + expr + ')')();
+            if (typeof val === 'number' && isFinite(val)) {
+                resEl.textContent = Number.isInteger(val) ? String(val) : val.toFixed(2);
+            } else {
+                resEl.textContent = 'Err';
+            }
+        } catch (e) {
+            resEl.textContent = '...';
+        }
     }
 
     function updateMatrixCell(roomNo, colKey, val) {
@@ -3273,8 +3335,75 @@
         return m ? m[1] : String(classLabel || '').split('-')[0].trim();
     }
 
-    // Helper: Fill a room's capacity by balancing across BOTH Grades (12th, 11th...) AND Subjects (MAT, COM, PHY, ECO...)!
-    // That way Room 2 gets MAT + COM + PHY + ECO rather than dumping all MAT into one room.
+    // Helper: Distribute a group of columns (`colsList`) EQUALLY / PROPORTIONALLY across `targetRooms`
+    // while keeping Grades (12th, 11th...) and Subjects (MAT, COM, PHY, ECO...) balanced in EVERY room!
+    function distributeColsEquallyAcrossRooms(targetRooms, colsList, rem, roomCapRem) {
+        if (!targetRooms.length || !colsList.length) return;
+        const totalStudents = colsList.reduce((s, c) => s + rem[c.key], 0);
+        if (totalStudents <= 0) return;
+
+        const totalCap = targetRooms.reduce((s, rm) => s + roomCapRem[rm.roomNo], 0);
+        if (totalCap <= 0) return;
+
+        // Calculate proportional target quota per room so ALL active rooms share students evenly!
+        // Example: 212 students across 5 rooms (cap 48,48,48,48,30) -> ~41, 41, 41, 41, 26 (or equal ~43 each if capacity allows!)
+        const equalShare = Math.ceil(totalStudents / targetRooms.length);
+        const roomTargetQuota = {};
+        let assignedTargetSum = 0;
+
+        targetRooms.forEach((rm, idx) => {
+            const cap = roomCapRem[rm.roomNo];
+            // If equalShare fits within this room's capacity, give equalShare; otherwise give up to its capacity
+            const q = Math.min(cap, equalShare);
+            roomTargetQuota[rm.roomNo] = q;
+            assignedTargetSum += q;
+        });
+
+        // If some rooms had smaller capacity (e.g. Room 6 = 30), distribute the remaining students evenly across rooms with spare capacity
+        let leftoverToAssign = Math.min(totalStudents, totalCap) - assignedTargetSum;
+        while (leftoverToAssign > 0) {
+            let progressed = false;
+            for (const rm of targetRooms) {
+                if (leftoverToAssign <= 0) break;
+                if (roomTargetQuota[rm.roomNo] < roomCapRem[rm.roomNo]) {
+                    roomTargetQuota[rm.roomNo] += 1;
+                    leftoverToAssign -= 1;
+                    progressed = true;
+                }
+            }
+            if (!progressed) break;
+        }
+
+        // Now fill each room up to its `roomTargetQuota[rm.roomNo]`, balancing across Grades & Subjects!
+        targetRooms.forEach(rm => {
+            const targetForThisRoom = roomTargetQuota[rm.roomNo];
+            if (targetForThisRoom <= 0) return;
+
+            // Create a temporary cap map capped at `targetForThisRoom` so `fillRoomGradeBalanced` fills exact equal share
+            const tempCapMap = { [rm.roomNo]: targetForThisRoom };
+            fillRoomGradeBalanced(rm, colsList, rem, tempCapMap);
+            const actuallyTaken = targetForThisRoom - tempCapMap[rm.roomNo];
+            roomCapRem[rm.roomNo] -= actuallyTaken;
+        });
+
+        // Safety pass: if any student remains due to rounding and any target room still has capacity, fill evenly 1-by-1
+        let remAfter = colsList.reduce((s, c) => s + rem[c.key], 0);
+        while (remAfter > 0) {
+            let anyPlaced = false;
+            for (const rm of targetRooms) {
+                if (roomCapRem[rm.roomNo] <= 0) continue;
+                const c = colsList.find(col => rem[col.key] > 0);
+                if (!c) break;
+                matrixState[rm.roomNo][c.key] += 1;
+                rem[c.key] -= 1;
+                roomCapRem[rm.roomNo] -= 1;
+                remAfter -= 1;
+                anyPlaced = true;
+            }
+            if (!anyPlaced) break;
+        }
+    }
+
     function fillRoomGradeBalanced(rm, colsList, rem, roomCapRem) {
         if (roomCapRem[rm.roomNo] <= 0) return;
         const activeCols = colsList.filter(c => rem[c.key] > 0);
@@ -3289,13 +3418,12 @@
         });
         const grades = Object.keys(gradeGroups);
 
-        // Give each Grade a balanced share of this room's capacity, AND within each Grade distribute across distinct Subjects!
+        // Give each Grade a balanced share of this room's target quota, AND within each Grade distribute across distinct Subjects!
         const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
         grades.forEach(g => {
             let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
             if (gradeQuota <= 0) return;
 
-            // Group this grade's columns by Subject Code (e.g. MAT, COM, CS, CA)
             const subjGroups = {};
             gradeGroups[g].forEach(c => {
                 const sub = c.subjectCode || 'SUB';
@@ -3319,7 +3447,7 @@
                 });
             });
 
-            // Round 2: If this grade still has unused quota in this room, fill from remaining columns of this grade
+            // Round 2: Fill remaining grade quota from columns of this grade
             if (gradeQuota > 0 && roomCapRem[rm.roomNo] > 0) {
                 gradeGroups[g].forEach(c => {
                     if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
@@ -3332,7 +3460,7 @@
             }
         });
 
-        // Round 3: Fill any leftover room capacity from remaining columns
+        // Round 3: Fill any leftover target quota from remaining columns
         colsList.forEach(c => {
             if (roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
             const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
@@ -3344,6 +3472,7 @@
 
     function autoFillMatrix() {
         const activeRooms = getActiveRooms();
+        if (activeRooms.length === 0) return;
         const rule = document.querySelector('input[name="genderRule"]:checked').value;
 
         activeRooms.forEach(rm => {
@@ -3360,34 +3489,51 @@
         const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
 
         if (rule === 'strict') {
-            // Girls rooms first, Boys rooms second (never mix Boys & Girls in same room), mixing Grades within each room
-            activeRooms.forEach(rm => {
-                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
-                if (girlsLeft > 0) {
-                    fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
-                } else {
-                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
+            // Split activeRooms proportionally between Girls rooms and Boys rooms, then distribute EQUALLY within each set!
+            const totG = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+            const totB = boysCols.reduce((s, c) => s + rem[c.key], 0);
+            const totAll = totG + totB;
+
+            if (totAll > 0 && activeRooms.length > 1) {
+                let gRoomCount = totG > 0 ? Math.max(1, Math.round((totG / totAll) * activeRooms.length)) : 0;
+                if (totB > 0 && gRoomCount >= activeRooms.length) gRoomCount = activeRooms.length - 1;
+                if (totG === 0) gRoomCount = 0;
+
+                // Ensure chosen Girls rooms have enough capacity for totG if possible
+                while (gRoomCount < activeRooms.length - (totB > 0 ? 1 : 0)) {
+                    const gCap = activeRooms.slice(0, gRoomCount).reduce((s, r) => s + r.capacity, 0);
+                    if (gCap >= totG) break;
+                    gRoomCount++;
                 }
-            });
+
+                const girlsRooms = activeRooms.slice(0, gRoomCount);
+                const boysRooms = activeRooms.slice(gRoomCount);
+
+                distributeColsEquallyAcrossRooms(girlsRooms, girlsCols, rem, roomCapRem);
+                distributeColsEquallyAcrossRooms(boysRooms, boysCols, rem, roomCapRem);
+            } else {
+                distributeColsEquallyAcrossRooms(activeRooms, girlsCols, rem, roomCapRem);
+                distributeColsEquallyAcrossRooms(activeRooms, boysCols, rem, roomCapRem);
+            }
         } else if (rule === 'hybrid') {
-            activeRooms.forEach(rm => {
-                fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
-                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
-                if (girlsLeft === 0) {
-                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
-                }
-            });
+            // Separate first across proportional rooms, then overflow any leftover into remaining room capacity
+            const totG = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+            const totB = boysCols.reduce((s, c) => s + rem[c.key], 0);
+            const totAll = totG + totB;
+            let gRoomCount = (totAll > 0 && totG > 0) ? Math.max(1, Math.round((totG / totAll) * activeRooms.length)) : 0;
+            if (totB > 0 && gRoomCount >= activeRooms.length) gRoomCount = Math.max(1, activeRooms.length - 1);
+
+            const girlsRooms = activeRooms.slice(0, gRoomCount);
+            const boysRooms = activeRooms.slice(gRoomCount);
+            distributeColsEquallyAcrossRooms(girlsRooms, girlsCols, rem, roomCapRem);
+            distributeColsEquallyAcrossRooms(boysRooms, boysCols, rem, roomCapRem);
+            // Overflow any remaining into any room with spare capacity
+            distributeColsEquallyAcrossRooms(activeRooms, girlsCols, rem, roomCapRem);
+            distributeColsEquallyAcrossRooms(activeRooms, boysCols, rem, roomCapRem);
         } else {
-            // Continuous Roll Number order across classes
+            // Continuous Roll Number order: distribute EQUALLY across ALL active rooms!
             const sortedByRoll = [...matrixColumns].sort((a, b) => a.startRoll - b.startRoll);
-            activeRooms.forEach(rm => {
-                sortedByRoll.forEach(c => {
-                    const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-                    matrixState[rm.roomNo][c.key] = take;
-                    rem[c.key] -= take;
-                    roomCapRem[rm.roomNo] -= take;
-                });
-            });
+            distributeColsEquallyAcrossRooms(activeRooms, sortedByRoll, rem, roomCapRem);
         }
 
         renderMatrixTable();
@@ -3767,14 +3913,14 @@
             grandTotal += grp.roomTotal;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:76px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:48px; line-height:0.95; width:46px; min-width:46px; padding:1px 2px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:20px; width:50px; min-width:50px; padding:1px 2px;">${grp.roomTotal}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -3800,14 +3946,14 @@
             `;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:74px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:48px; line-height:0.95; width:44px; min-width:44px; padding:1px 2px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:20px; width:50px; min-width:50px; padding:1px 2px;">${grp.roomTotal}</td>` : ''}
                     ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:14.5px; line-height:1.18; padding:2px 6px;">${qpWithRoomTotalHtml}</td>` : ''}
                 </tr>
             `).join('');
@@ -3903,7 +4049,14 @@
                 <table class="official-tbl">
                     <thead>
                         <tr>
-                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th>
+                            <th style="width:46px; padding:2px;">Room</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Gender</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th style="width:44px;">Count</th>
+                            <th style="width:52px; padding:2px;">Room<br>Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3924,7 +4077,15 @@
                 <table class="official-tbl">
                     <thead>
                         <tr>
-                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th><th style="background-color:#dbeafe;">வினாத்தாள் விவரம் (QP Count)</th>
+                            <th style="width:44px; padding:2px;">Room</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Gender</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th style="width:40px;">Cnt</th>
+                            <th style="width:48px; padding:2px;">Room<br>Total</th>
+                            <th style="background-color:#dbeafe;">வினாத்தாள் விவரம் (QP Count)</th>
                         </tr>
                     </thead>
                     <tbody>
