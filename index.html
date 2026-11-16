@@ -814,7 +814,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-emerald-800 mb-0.5">அதிகபட்ச இருக்கை</label>
-                    <input type="number" id="rmMaxCap" value="60" min="1" placeholder="48" data-tip="இந்த அறையில் அமரக்கூடிய மொத்த மாணவர்கள் எண்ணிக்கை" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                    <input type="number" id="rmMaxCap" value="20" min="1" placeholder="20" data-tip="இந்த அறையில் அமரக்கூடிய மொத்த மாணவர்கள் எண்ணிக்கை" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
                 </div>
                 <div class="flex items-end gap-1.5 col-span-2 md:col-span-1">
                     <button onclick="saveRoom()" id="rmSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-lg text-sm">➕ சேமி</button>
@@ -875,14 +875,18 @@
                 <label class="block text-[11px] font-bold text-slate-700 mb-0.5">பாடம்</label>
                 <select id="ttSubjectDropdown" data-tip="பட்டியலிலிருந்து பாடத்தைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded p-2 text-sm font-bold bg-white"></select>
             </div>
-            <div class="md:col-span-4 flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-xs font-bold text-slate-700">வகுப்புகள்:</span>
-                    <div id="ttClassCheckboxes" class="flex flex-wrap gap-2"></div>
+            <div class="md:col-span-4 space-y-2 pt-1 border-t border-slate-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-slate-800">🏫 வகுப்பு & பிரிவுகளைத் தேர்ந்தெடுக்கவும் (குழு வாரியாக - அனைத்தும் அல்லது தேவையான பிரிவுகள் மட்டும்):</span>
+                    <div class="flex gap-1.5">
+                        <button type="button" onclick="toggleAllTimetableGrades(true)" class="bg-blue-100 hover:bg-blue-200 text-blue-900 font-bold px-2.5 py-0.5 rounded text-[11px]">✅ அனைத்தும்</button>
+                        <button type="button" onclick="toggleAllTimetableGrades(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2.5 py-0.5 rounded text-[11px]">✖ நீக்கு</button>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs">ரத்து</button>
-                    <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs">➕ சேர்</button>
+                <div id="ttClassCheckboxes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+                <div class="flex justify-end gap-2 pt-1">
+                    <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-bold px-4 py-2 rounded-lg text-xs">ரத்து</button>
+                    <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-5 py-2 rounded-lg text-xs shadow">➕ அட்டவணையில் சேர்</button>
                 </div>
             </div>
         </div>
@@ -2392,7 +2396,7 @@
                 alert(`'${shortCode}' என்ற சுருக்கக் குறியீடு ஏற்கனவே உள்ளது!`);
                 return;
             }
-            list.push({ id: Date.now(), fullName, shortCode, dept });
+            list.unshift({ id: Date.now(), fullName, shortCode, dept });
             logActivity(currentSchool.id, currentSchool.name, `ஆசிரியர் சேர்க்கப்பட்டார்: ${shortCode} - ${fullName}`);
         }
         setData(schoolDataKey('teachers'), list);
@@ -2462,7 +2466,7 @@
                 alert("இந்த வகுப்பு ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.");
                 return;
             }
-            list.push({ id: Date.now(), className, medium });
+            list.unshift({ id: Date.now(), className, medium });
         }
         setData(schoolDataKey('classes_master'), list);
         cancelClassEdit();
@@ -2511,7 +2515,7 @@
                 alert(`'${shortCode}' என்ற பாடக் குறியீடு ஏற்கனவே உள்ளது.`);
                 return;
             }
-            list.push({ id: Date.now(), fullName, shortCode });
+            list.unshift({ id: Date.now(), fullName, shortCode });
         }
         setData(schoolDataKey('subjects_master'), list);
         cancelSubjectEdit();
@@ -2647,7 +2651,7 @@
             if (idx > -1) list[idx] = { ...list[idx], className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount };
             logActivity(currentSchool.id, currentSchool.name, `மாணவர் எண்ணிக்கை திருத்தப்பட்டது: ${className} (${medium})`);
         } else {
-            list.push({ id: Date.now(), className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount });
+            list.unshift({ id: Date.now(), className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount });
             logActivity(currentSchool.id, currentSchool.name, `மாணவியர்/மாணவர் எண்ணிக்கை சேர்க்கப்பட்டது: ${className} (${medium})`);
         }
         setData(schoolDataKey('strength'), list);
@@ -2719,7 +2723,7 @@
         const container = document.getElementById('roomColRowsContainer');
         let html = '';
         for (let i = 0; i < cols; i++) {
-            const val = (existingColRows && existingColRows[i] !== undefined) ? existingColRows[i] : 15;
+            const val = (existingColRows && existingColRows[i] !== undefined) ? existingColRows[i] : 5;
             html += `
                 <div class="bg-slate-50 border rounded p-2 text-center">
                     <label class="block text-[11px] font-bold text-blue-900 mb-1">Col ${i + 1} வரிசைகள்</label>
@@ -2758,7 +2762,7 @@
                 alert(`Room ${roomNo} ஏற்கனவே உள்ளது!`);
                 return;
             }
-            rooms.push({ id: Date.now(), roomNo, cols, colRows, perBench, capacity });
+            rooms.unshift({ id: Date.now(), roomNo, cols, colRows, perBench, capacity });
             logActivity(currentSchool.id, currentSchool.name, `அறை சேர்க்கப்பட்டது: Room ${roomNo} (Max Cap: ${capacity})`);
         }
         setData(schoolDataKey('rooms'), rooms);
@@ -2774,7 +2778,7 @@
         document.getElementById('rmNo').value = r.roomNo;
         document.getElementById('rmCols').value = r.cols;
         document.getElementById('rmPerBench').value = r.perBench || 2;
-        const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
+        const cRows = r.colRows || Array(r.cols).fill(r.rows || 5);
         renderRoomColRowInputs(cRows);
         document.getElementById('rmMaxCap').value = r.capacity;
         document.getElementById('rmSaveBtn').textContent = "💾 புதுப்பி";
@@ -2786,7 +2790,7 @@
         document.getElementById('rmNo').value = '';
         document.getElementById('rmCols').value = 2;
         document.getElementById('rmPerBench').value = 2;
-        renderRoomColRowInputs([15, 15]);
+        renderRoomColRowInputs([5, 5]);
         document.getElementById('rmSaveBtn').textContent = "➕ அறையை சேமி";
         document.getElementById('rmCancelBtn').classList.add('hidden');
     }
@@ -2794,7 +2798,7 @@
     function renderRoomsTable() {
         const rooms = getData(schoolDataKey('rooms'), []);
         document.getElementById('roomsTableBody').innerHTML = rooms.map(r => {
-            const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
+            const cRows = r.colRows || Array(r.cols).fill(r.rows || 5);
             const cRowsText = cRows.map((cnt, idx) => `Col ${idx + 1}: <b>${cnt}</b>`).join(' | ');
             return `
                 <tr class="border-b">
@@ -2833,11 +2837,80 @@
 
         const classesMaster = getData(schoolDataKey('classes_master'), []);
         const uniqueClasses = [...new Set(classesMaster.map(c => c.className))];
-        document.getElementById('ttClassCheckboxes').innerHTML = uniqueClasses.length
-            ? uniqueClasses.map(c => `<label class="bg-white border px-3 py-1.5 rounded shadow-sm text-sm font-semibold"><input type="checkbox" class="tt-cls-cb mr-1" value="${c}"> ${c}</label>`).join('')
-            : `<span class="text-red-600 text-sm">முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும்.</span>`;
+        const container = document.getElementById('ttClassCheckboxes');
+
+        if (!uniqueClasses.length) {
+            container.innerHTML = `<span class="text-red-600 text-xs font-bold col-span-full">முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும்.</span>`;
+        } else {
+            // Group sections by Grade prefix (e.g., "12", "11", "10", "9", "8", "7", "6")
+            const gradeGroups = new Map();
+            uniqueClasses.forEach(cls => {
+                const m = String(cls).trim().match(/^(\d+)/);
+                const gKey = m ? m[1] : String(cls).split('-')[0].trim();
+                if (!gradeGroups.has(gKey)) gradeGroups.set(gKey, []);
+                gradeGroups.get(gKey).push(cls);
+            });
+
+            // Sort grades numerically descending (12, 11, 10, 9, 8, 7, 6...)
+            const sortedGrades = Array.from(gradeGroups.keys()).sort((a, b) => {
+                const na = parseInt(a), nb = parseInt(b);
+                if (!isNaN(na) && !isNaN(nb)) return nb - na;
+                return String(a).localeCompare(String(b));
+            });
+
+            container.innerHTML = sortedGrades.map(gKey => {
+                const sections = gradeGroups.get(gKey);
+                const isNum = /^\d+$/.test(gKey);
+                const groupTitle = isNum ? `${gKey}-ஆம் வகுப்பு` : `${gKey} குழு`;
+                const secHtml = sections.map(sec => `
+                    <label class="cursor-pointer inline-flex items-center gap-1 bg-slate-50 hover:bg-blue-50 border border-slate-300 px-2.5 py-1 rounded text-xs font-bold text-slate-800 select-none">
+                        <input type="checkbox" class="tt-cls-cb accent-blue-700" data-grade="${gKey}" value="${sec}" onchange="syncGradeMasterCheckbox('${gKey}')">
+                        <span>${sec}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="bg-white border-2 border-slate-200 rounded-lg p-2.5 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                            <span class="text-xs font-extrabold text-blue-950">🎓 ${groupTitle} <span class="text-[10px] font-semibold text-slate-500">(${sections.length} பிரிவுகள்)</span></span>
+                            <label class="cursor-pointer inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded select-none">
+                                <input type="checkbox" id="ttGradeMaster_${gKey}" class="tt-grade-master-cb accent-emerald-700" onchange="toggleGradeGroupCheckboxes('${gKey}', this.checked)">
+                                <span>அனைத்தும்</span>
+                            </label>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${secHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         renderTimetableTable();
+    }
+
+    function toggleGradeGroupCheckboxes(gKey, isChecked) {
+        document.querySelectorAll(`.tt-cls-cb[data-grade="${gKey}"]`).forEach(cb => {
+            cb.checked = isChecked;
+        });
+    }
+
+    function syncGradeMasterCheckbox(gKey) {
+        const allSecs = Array.from(document.querySelectorAll(`.tt-cls-cb[data-grade="${gKey}"]`));
+        const masterCb = document.getElementById(`ttGradeMaster_${gKey}`);
+        if (masterCb && allSecs.length > 0) {
+            masterCb.checked = allSecs.every(cb => cb.checked);
+        }
+    }
+
+    function syncAllGradeMasterCheckboxes() {
+        const grades = new Set(Array.from(document.querySelectorAll('.tt-cls-cb')).map(cb => cb.getAttribute('data-grade')));
+        grades.forEach(g => syncGradeMasterCheckbox(g));
+    }
+
+    function toggleAllTimetableGrades(flag) {
+        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = flag);
+        document.querySelectorAll('.tt-grade-master-cb').forEach(cb => cb.checked = flag);
     }
 
     function saveTimetable() {
@@ -2861,9 +2934,10 @@
                 tt[idx] = { ...tt[idx], title, date, session, className: selected[0], subjectCode, subjectFull };
             }
         } else {
-            selected.forEach((cls, idx) => {
-                tt.push({ id: Date.now() + idx, title, date, session, className: cls, subjectCode, subjectFull });
-            });
+            const newEntries = selected.map((cls, idx) => ({
+                id: Date.now() + idx, title, date, session, className: cls, subjectCode, subjectFull
+            }));
+            tt.unshift(...newEntries);
             logActivity(currentSchool.id, currentSchool.name, `தேர்வு அட்டவணை சேர்க்கப்பட்டது: ${date} ${session} (${subjectCode})`);
         }
         setData(schoolDataKey('timetable'), tt);
@@ -2881,13 +2955,14 @@
         document.getElementById('ttSession').value = t.session;
         document.getElementById('ttSubjectDropdown').value = `${t.subjectCode}|${t.subjectFull}`;
         document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = (cb.value === t.className));
+        syncAllGradeMasterCheckboxes();
         document.getElementById('ttSaveBtn').textContent = "💾 புதுப்பி";
         document.getElementById('ttCancelBtn').classList.remove('hidden');
     }
 
     function cancelTimetableEdit() {
         document.getElementById('ttEditId').value = '';
-        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.tt-cls-cb, .tt-grade-master-cb').forEach(cb => cb.checked = false);
         document.getElementById('ttSaveBtn').textContent = "➕ அட்டவணையில் சேர்";
         document.getElementById('ttCancelBtn').classList.add('hidden');
     }
@@ -3880,155 +3955,127 @@
             const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
             let ordered = [...students];
 
+            const effectiveColRows = [...cRows];
+            let configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            let neededBenches = Math.ceil(ordered.length / perBench);
+            let overflowWarningHtml = '';
+
+            // Helper: Build vertical Seat Lanes (Lane 0 = Seat 1 down all benches, Lane 1 = Seat 2 down all benches, etc.)
+            // Rule: Keep SAME Grade (12th / 11th / 10th) in the SAME vertical lane; separate lanes by DIFFERENT Grade (or different Subject if 1 Grade);
+            // Leave remaining seats in a shorter lane EMPTY ('---') rather than placing same-grade students side-by-side!
+            let laneLists = Array.from({ length: perBench }, () => []);
+
             if (benchOrderMode === 'continuous') {
                 ordered.sort((a, b) => a.roll - b.roll);
-            } else if (benchOrderMode === 'interleave' && ordered.length > 1) {
-                // ZERO-ADJACENT SAME-PAPER (GRADE + SUBJECT) ANTI-MALPRACTICE ALGORITHM:
-                // 1) Students of the SAME Grade + SAME Subject (e.g. 12th MAT across 12-A1, 12-A, 12-B1) have the SAME question paper,
-                //    so they MUST NEVER sit side-by-side (left/right neighbor) or directly in front!
-                // 2) On 3-seater benches when 2 subjects/grades exist, uses A - B - A sandwiching (e.g. 11th PHY | 12th MAT | 11th PHY)
-                //    so two 12th MAT students NEVER sit adjacent!
-                // 3) When 3+ subjects/grades are in the room (e.g. 11th PHY, 12th MAT, 12th COM / 11th ECO), places 3 distinct papers on every bench!
-                const bucketsMap = new Map();
-                ordered.forEach(stu => {
-                    const bKey = `${stu.grade}|${stu.subject}|${stu.classLabel}`;
-                    if (!bucketsMap.has(bKey)) bucketsMap.set(bKey, []);
-                    bucketsMap.get(bKey).push(stu);
+                const totalRenderedBenchesTmp = Math.max(configuredBenches, neededBenches);
+                const totalSlotsTmp = totalRenderedBenchesTmp * perBench;
+                const flatSlots = [];
+                for (let i = 0; i < totalSlotsTmp; i++) flatSlots.push(ordered[i] || null);
+                // Convert flat bench-by-bench slots into laneLists for unified rendering
+                for (let b = 0; b < totalRenderedBenchesTmp; b++) {
+                    for (let s = 0; s < perBench; s++) {
+                        laneLists[s].push(flatSlots[b * perBench + s] || null);
+                    }
+                }
+            } else {
+                // Sort students cleanly by Grade -> Subject -> Class/Section -> Roll Number
+                ordered.sort((a, b) => {
+                    if (a.grade !== b.grade) return String(b.grade).localeCompare(String(a.grade), undefined, { numeric: true });
+                    if (a.subject !== b.subject) return String(a.subject).localeCompare(String(b.subject));
+                    if (a.classLabel !== b.classLabel) return String(a.classLabel).localeCompare(String(b.classLabel));
+                    return a.roll - b.roll;
                 });
-                bucketsMap.forEach(arr => arr.sort((a, b) => a.roll - b.roll));
 
-                const buckets = Array.from(bucketsMap.values());
-                const totalStudentsInRoom = ordered.length;
-                const smartPlaced = [];
-                const numBenchesNeeded = Math.ceil(totalStudentsInRoom / perBench);
+                // Group students by Grade (12, 11, 10...)
+                const gradeMap = new Map();
+                ordered.forEach(stu => {
+                    if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
+                    gradeMap.get(stu.grade).push(stu);
+                });
+                const gradeGroups = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
 
-                const paperKey = (c) => `${c.grade}|${c.subject}`;
-
-                for (let b = 0; b < numBenchesNeeded; b++) {
-                    const benchSeats = [];
-                    const seatsOnThisBench = Math.min(perBench, totalStudentsInRoom - smartPlaced.length);
-
-                    for (let s = 0; s < seatsOnThisBench; s++) {
-                        const leftNeighbor = s > 0 ? benchSeats[s - 1] : null;
-                        const frontNeighbor = (b > 0 && smartPlaced.length >= perBench)
-                            ? smartPlaced[smartPlaced.length - perBench]
-                            : null;
-
-                        const usedPapersOnBench = new Set(benchSeats.map(x => paperKey(x)));
-                        const usedGradesOnBench = new Set(benchSeats.map(x => x.grade));
-                        const usedSubjectsOnBench = new Set(benchSeats.map(x => x.subject));
-
-                        const pickBestBucket = (predFn) => {
-                            let bestB = null;
-                            let bestScore = -1;
-
-                            // Count remaining students per (grade|subject) paper group so largest groups get paired early
-                            const paperRemTotals = {};
-                            buckets.forEach(bk => {
-                                if (bk.length > 0) {
-                                    const pk = paperKey(bk[0]);
-                                    paperRemTotals[pk] = (paperRemTotals[pk] || 0) + bk.length;
-                                }
-                            });
-
-                            buckets.forEach(bk => {
-                                if (bk.length === 0) return;
-                                const cand = bk[0];
-                                if (!predFn(cand)) return;
-
-                                let score = (paperRemTotals[paperKey(cand)] || 0) * 100 + bk.length;
-                                // Strong bonus for not matching front neighbor's question paper or grade
-                                if (frontNeighbor) {
-                                    if (paperKey(frontNeighbor) !== paperKey(cand)) score += 60;
-                                    if (frontNeighbor.grade !== cand.grade) score += 25;
-                                }
-                                // Bonus for bringing a subject not yet on this bench
-                                if (!usedSubjectsOnBench.has(cand.subject)) score += 30;
-                                if (!usedGradesOnBench.has(cand.grade)) score += 20;
-
-                                if (score > bestScore) {
-                                    bestScore = score;
-                                    bestB = bk;
-                                }
-                            });
-                            return bestB;
-                        };
-
-                        // P1 (Ideal): Different Grade AND Different Subject from everyone on this bench AND not same paper as front neighbor
-                        let chosenBucket = pickBestBucket(c =>
-                            !usedGradesOnBench.has(c.grade) &&
-                            !usedSubjectsOnBench.has(c.subject) &&
-                            (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
-                            (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
-                        );
-
-                        // P2: Different Question Paper (Grade+Subject) from everyone on this bench AND not same as left/front neighbor
-                        if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c =>
-                                !usedPapersOnBench.has(paperKey(c)) &&
-                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
-                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
-                            );
+                if (gradeGroups.length >= perBench) {
+                    // Ideal: 2 Grades for 2-seater, or 3 Grades for 3-seater -> Each Grade gets its own dedicated vertical lane!
+                    // For 3-seater with 3 grades: Lane 0 = Grade 1 (e.g. 12th), Lane 1 = Grade 2 (e.g. 11th), Lane 2 = Grade 3 (e.g. 10th)
+                    for (let s = 0; s < perBench; s++) {
+                        laneLists[s] = [...gradeGroups[s]];
+                    }
+                    // If more than `perBench` grades exist, append remaining grades to the shortest lane
+                    for (let g = perBench; g < gradeGroups.length; g++) {
+                        let shortestIdx = 0;
+                        for (let s = 1; s < perBench; s++) {
+                            if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
                         }
+                        laneLists[shortestIdx].push(...gradeGroups[g]);
+                    }
+                } else if (gradeGroups.length === 2 && perBench === 3) {
+                    // 2 Grades (e.g. 12th and 11th) on a 3-seater bench:
+                    // Middle Lane (Lane 1) = Second Grade (e.g. 11th) -> acts as separator barrier!
+                    // Left Lane (Lane 0) & Right Lane (Lane 2) = Split First Grade (e.g. 12th) into two halves (or by subject)!
+                    const gMajor = gradeGroups[0];
+                    const gMinor = gradeGroups[1];
+                    const halfMajor = Math.ceil(gMajor.length / 2);
+                    laneLists[0] = gMajor.slice(0, halfMajor);
+                    laneLists[1] = [...gMinor];
+                    laneLists[2] = gMajor.slice(halfMajor);
+                } else if (gradeGroups.length === 1) {
+                    // Only 1 Grade in this room -> Group by Subject so different subjects occupy separate vertical lanes!
+                    const subjMap = new Map();
+                    ordered.forEach(stu => {
+                        if (!subjMap.has(stu.subject)) subjMap.set(stu.subject, []);
+                        subjMap.get(stu.subject).push(stu);
+                    });
+                    const subjGroups = Array.from(subjMap.values()).sort((a, b) => b.length - a.length);
 
-                        // P3: Different Question Paper from everyone on this bench AND not sitting adjacent to leftNeighbor
-                        if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c =>
-                                !usedPapersOnBench.has(paperKey(c)) &&
-                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c))
-                            );
+                    if (subjGroups.length >= perBench) {
+                        for (let s = 0; s < perBench; s++) {
+                            laneLists[s] = [...subjGroups[s]];
                         }
-
-                        // P4 (3-Seater Sandwich Rule A - B - A): Different Question Paper from leftNeighbor & frontNeighbor
-                        // (e.g. Seat 1 = 11th PHY, Seat 2 = 12th MAT, Seat 3 = 11th PHY -> NO two same-paper students sit side by side!)
-                        if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c =>
-                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
-                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
-                            );
+                        for (let sg = perBench; sg < subjGroups.length; sg++) {
+                            let shortestIdx = 0;
+                            for (let s = 1; s < perBench; s++) {
+                                if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
+                            }
+                            laneLists[shortestIdx].push(...subjGroups[sg]);
                         }
-
-                        // P5: Strict No-Side-by-Side Same Paper (different from leftNeighbor even if front matches)
-                        if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(c =>
-                                !leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)
-                            );
-                        }
-
-                        // P6 (Unavoidable last resort): Any remaining student
-                        if (!chosenBucket) {
-                            chosenBucket = pickBestBucket(() => true);
-                        }
-
-                        if (chosenBucket && chosenBucket.length > 0) {
-                            const pickedStu = chosenBucket.shift();
-                            benchSeats.push(pickedStu);
-                            smartPlaced.push(pickedStu);
+                    } else if (subjGroups.length === 2 && perBench === 3) {
+                        const sMajor = subjGroups[0];
+                        const sMinor = subjGroups[1];
+                        const halfSub = Math.ceil(sMajor.length / 2);
+                        laneLists[0] = sMajor.slice(0, halfSub);
+                        laneLists[1] = [...sMinor];
+                        laneLists[2] = sMajor.slice(halfSub);
+                    } else {
+                        // Single grade & single subject only -> distribute evenly across lanes
+                        const chunk = Math.ceil(ordered.length / perBench);
+                        for (let s = 0; s < perBench; s++) {
+                            laneLists[s] = ordered.slice(s * chunk, (s + 1) * chunk);
                         }
                     }
                 }
-                ordered = smartPlaced;
-            }
 
-            const effectiveColRows = [...cRows];
-            let configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
-            const neededBenches = Math.ceil(ordered.length / perBench);
-            let overflowWarningHtml = '';
+                // If any single lane has more students than `configuredBenches` while another lane still has empty capacity in the room,
+                // only spill excess beyond `configuredBenches` if room capacity permits; otherwise expand benches so lane purity stays intact!
+                const maxLaneLen = Math.max(...laneLists.map(l => l.length));
+                neededBenches = Math.max(neededBenches, maxLaneLen);
+            }
 
             if (neededBenches > configuredBenches) {
                 const extraBenches = neededBenches - configuredBenches;
-                overflowWarningHtml = `<div class="mb-3 p-2 bg-red-50 border border-red-400 text-red-900 text-xs rounded text-center font-semibold">⚠️ குறிப்பு: இந்த அறையில் ${configuredBenches} பெஞ்சுகள் (${configuredBenches * perBench} இருக்கைகள்) மட்டுமே அமைக்கப்பட்டுள்ளன; ஆனால் ${ordered.length} மாணவர்கள் ஒதுக்கப்பட்டுள்ளதால் மீதமுள்ள மாணவர்களுக்கும் கூடுதல் பெஞ்சுகள் கீழே தானாக இணைக்கப்பட்டுள்ளன. ('4️⃣ தேர்வு அறைகள்' பகுதியில் வரிசைகளை மாற்றிக்கொள்ளலாம்).</div>`;
+                overflowWarningHtml = `<div class="mb-2 p-1.5 bg-amber-50 border border-amber-400 text-amber-950 text-[11px] rounded text-center font-semibold">ℹ️ குறிப்பு: ஒரே வகுப்பு வரிசை ஒழுங்கைப் பராமரிக்க (${neededBenches} வரிசைகள் தேவைப்படுவதால்) கூடுதல் பெஞ்சுகள் கீழே இணைக்கப்பட்டுள்ளன.</div>`;
                 for (let eb = 0; eb < extraBenches; eb++) {
                     effectiveColRows[eb % rm.cols] = (effectiveColRows[eb % rm.cols] || 0) + 1;
                 }
             }
             const totalRenderedBenches = effectiveColRows.reduce((a, b) => a + b, 0);
-            const totalSlots = totalRenderedBenches * perBench;
 
-            // Fill slots array (student object or null for empty bench slot)
+            // Map vertical `laneLists` across columns (Col 1 top-to-bottom, then Col 2 top-to-bottom...)
+            // Any bench position where a lane has no student remains `null` (Empty '---')!
             const slots = [];
-            for (let i = 0; i < totalSlots; i++) {
-                slots.push(ordered[i] || null);
+            for (let b = 0; b < totalRenderedBenches; b++) {
+                for (let s = 0; s < perBench; s++) {
+                    slots.push(laneLists[s][b] || null);
+                }
             }
 
             const roomGrp = summaryGroups.find(g => String(g.roomNo) === String(rm.roomNo));
@@ -4776,7 +4823,7 @@
             const idx = duties.findIndex(x => String(x.id) === String(editId));
             if (idx > -1) duties[idx] = { ...duties[idx], date, session, roomNo, shortCode, teacherName, role };
         } else {
-            duties.push({ id: Date.now(), date, session, roomNo, shortCode, teacherName, role });
+            duties.unshift({ id: Date.now(), date, session, roomNo, shortCode, teacherName, role });
             logActivity(currentSchool.id, currentSchool.name, `கண்காணிப்பாளர் பணி ஒதுக்கீடு: Room ${roomNo} - ${shortCode}`);
         }
         setData(schoolDataKey('duty'), duties);
