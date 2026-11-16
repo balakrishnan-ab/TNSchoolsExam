@@ -368,24 +368,133 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- EXAM CYCLE SELECTOR BAR (ACTIVE EXAM VS COMPLETED READ-ONLY EXAMS) -->
+    <!-- DESKTOP SOFTWARE MENU BAR (File | Edit | View | Report | Option | Help) -->
     <!-- ================================================================= -->
-    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-xl shadow-md p-3.5 mb-4 border border-blue-700 no-print">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[260px]">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-300 whitespace-nowrap">🎯 தேர்வுத் தொகுப்பு (Exam):</span>
-                <select id="activeExamCycleSelect" onchange="onExamCycleChange(this.value)" class="border-2 border-amber-400 bg-white text-slate-950 font-extrabold text-sm rounded-lg px-3 py-1.5 min-w-[240px] cursor-pointer">
-                </select>
-                <span id="examCycleStatusPill" class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white">🟢 நடப்புத் தேர்வு (Active)</span>
+    <div class="bg-slate-900 text-slate-100 rounded-t-xl shadow border-b border-slate-700 px-2 py-1 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm select-none no-print relative z-30" id="desktopMenuBar">
+        <div class="flex flex-wrap items-center gap-0.5">
+            <!-- FILE MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-file')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">📁 File</button>
+                <div id="menu-file" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">தேர்வு மேலாண்மை (Exam Cycle)</div>
+                    <button onclick="closeAllAppMenus(); openNewExamCycleModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">➕ புதிய தேர்வு உருவாக்கு (New Exam)</button>
+                    <button id="menuBtnSetActive" onclick="closeAllAppMenus(); setSelectedExamAsActive();" class="hidden w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-800 font-bold flex items-center gap-2">✅ தேர்ந்தெடுத்த தேர்வை நடப்புத் தேர்வாக்கு (Set Active)</button>
+                    <button id="menuBtnLockExam" onclick="closeAllAppMenus(); markSelectedExamCompleted();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-800 font-bold flex items-center gap-2">🔒 நடப்புத் தேர்வை முடித்து பூட்டு (Lock Exam)</button>
+                    <div class="border-t my-1"></div>
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">சேமிப்பு & அச்சு (Save & Print)</div>
+                    <button onclick="closeAllAppMenus(); saveCurrentSeatingPlan(false);" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">💾 இருக்கை அமைப்பை Cloud-ல் சேமி (Save Plan)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📂 சேமிக்கப்பட்ட அமைப்புகள் (Saved Plans)</button>
+                    <button onclick="closeAllAppMenus(); downloadExamMasterCSV();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📥 முழுத் தேர்வுக் கோப்பு பதிவிறக்கம் (CSV)</button>
+                    <button onclick="closeAllAppMenus(); window.print();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">🖨️ அச்சிடு / PDF சேமி (Print)</button>
+                    <div class="border-t my-1"></div>
+                    <button onclick="closeAllAppMenus(); logout();" class="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-700 font-bold flex items-center gap-2">🚪 வெளியேறு (Exit / Logout)</button>
+                </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <button id="btnActivateSelectedExam" onclick="setSelectedExamAsActive()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">✅ இதை நடப்புத் தேர்வாக மாற்று (Set Active)</button>
-                <button id="btnCompleteSelectedExam" onclick="markSelectedExamCompleted()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🔒 தேர்வை முடித்து பூட்டு (Mark Completed)</button>
-                <button onclick="openNewExamCycleModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs border border-blue-400 shadow">➕ புதிய தேர்வு உருவாக்கு (New Exam)</button>
+
+            <!-- EDIT MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-edit')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">✏️ Edit</button>
+                <div id="menu-edit" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">அடிப்படை & தேர்வுத் தரவுகள்</div>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('teachers');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">1️⃣ ஆசிரியர்கள் விவரம் (Teachers)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('subjects');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை (Strength)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">4️⃣ தேர்வு அறைகள் (Rooms Master)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">5️⃣ தேர்வு அட்டவணை (Exam TimeTable)</button>
+                </div>
+            </div>
+
+            <!-- VIEW MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-view')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">👁️ View</button>
+                <div id="menu-view" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">ஒதுக்கீடு & கண்காணிப்புப் பார்வை</div>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('allocate');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Map)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('duty');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">8️⃣ கண்காணிப்புப் பணி அப்ஸ்ட்ராக்ட் (Duty Roster)</button>
+                </div>
+            </div>
+
+            <!-- REPORT MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-report')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">📑 Report</button>
+                <div id="menu-report" class="app-dropdown-menu hidden absolute left-0 mt-1 w-80 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">அச்சு & தேர்வு அறிக்கைகள்</div>
+                    <button onclick="closeAllAppMenus(); openQuickReport('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">📅 1. தேர்வு அட்டவணை அறிக்கை (TimeTable Report)</button>
+                    <button onclick="closeAllAppMenus(); openQuickReport('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">👥 2. வகுப்பு வாரியான ஆண்/பெண் & தேர்வு எண் (Roll No)</button>
+                    <button onclick="closeAllAppMenus(); openQuickReport('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🚪 3. தேர்வு அறைகள் கொள்ளளவு அறிக்கை (Rooms)</button>
+                    <div class="border-t my-1"></div>
+                    <button onclick="closeAllAppMenus(); openQuickReport('all');" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 font-bold flex items-center gap-2">📑 4. ஒருங்கிணைந்த முழு அறிக்கை (Consolidated Report)</button>
+                </div>
+            </div>
+
+            <!-- OPTION MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-option')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">⚙️ Option</button>
+                <div id="menu-option" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">கணினி & தானியங்கி விருப்பங்கள்</div>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('settings');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🏫 பள்ளி பெயர் & கடவுச்சொல் மாற்றம் (Settings)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('duty'); autoGenerateDutyMatrix();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-900 flex items-center gap-2">⚡ தானியங்கி பணி ஒதுக்கீடு உருவாக்கு (Auto-Duty)</button>
+                    <button onclick="closeAllAppMenus(); pullSchoolWorkspaceFromCloud(currentSchool.id).then(() => alert('✅ Cloud தரவு புதுப்பிக்கப்பட்டது!'));" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 flex items-center gap-2">🔄 Cloud தரவை உடனே ஒத்திசை (Sync Cloud)</button>
+                </div>
+            </div>
+
+            <!-- HELP MENU -->
+            <div class="relative menu-group">
+                <button onclick="toggleAppMenu('menu-help')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">❓ Help</button>
+                <div id="menu-help" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">👨‍💻 எங்களைப் பற்றி (About Us - அ. பாலகிருஷ்ணன்)</button>
+                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">❓ அடிக்கடி கேட்கப்படும் கேள்விகள் (FAQ)</button>
+                    <a href="https://wa.me/919442702449" target="_blank" onclick="closeAllAppMenus();" class="block w-full text-left px-3.5 py-2 hover:bg-green-50 text-green-800 font-bold">📲 WhatsApp உதவி: 9442702449</a>
+                </div>
             </div>
         </div>
-        <div id="completedExamReadOnlyBanner" class="hidden mt-2.5 bg-amber-100 text-amber-950 border border-amber-400 rounded-lg px-3 py-1.5 text-xs font-bold flex items-center justify-between gap-2">
-            <span>🔒 இது <b>முடிவுற்ற தேர்வு (Completed Exam)</b> — இதில் எவ்வித மாற்றமும் செய்ய இயலாது; விவரங்களைப் பார்வையிடவும் <b>Reports / Print</b> எடுக்கவும் மட்டுமே முடியும்.</span>
+
+        <span id="examCycleStatusPill" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500 text-white">🟢 நடப்புத் தேர்வு (Active)</span>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- COMPACT CATEGORIZED SELECTION BAR (EXAM + CATEGORY DROPDOWN)      -->
+    <!-- ================================================================= -->
+    <div class="bg-white rounded-b-xl shadow p-3 mb-5 border border-t-0 border-slate-200 no-print">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+            <!-- LEFT: CLEAN EXAM SELECTOR (NO EXPOSED LOCK/CREATE BUTTONS) -->
+            <div class="lg:col-span-5 flex items-center gap-2">
+                <label for="activeExamCycleSelect" class="text-xs font-extrabold text-slate-700 whitespace-nowrap">🎯 தேர்வு:</label>
+                <select id="activeExamCycleSelect" onchange="onExamCycleChange(this.value)" class="w-full border-2 border-slate-300 focus:border-blue-600 bg-slate-50 text-slate-950 font-extrabold text-xs md:text-sm rounded-lg px-2.5 py-2 cursor-pointer">
+                </select>
+            </div>
+
+            <!-- RIGHT: CATEGORIZED WORKSPACE DROPDOWN + STEP BUTTONS -->
+            <div class="lg:col-span-7 flex items-center gap-2">
+                <label for="workTabDropdown" class="text-xs font-extrabold text-blue-950 whitespace-nowrap">📂 பகுதி:</label>
+                <select id="workTabDropdown" onchange="switchWorkTab(this.value)" class="w-full border-2 border-blue-600 bg-blue-50 text-blue-950 font-bold text-xs md:text-sm rounded-lg px-2.5 py-2 cursor-pointer focus:outline-none">
+                    <optgroup label="📋 1. அடிப்படை விவரங்கள் (Master Setup)">
+                        <option value="teachers">1️⃣ ஆசிரியர்கள் (Teachers Master)</option>
+                        <option value="subjects">2️⃣ வகுப்புகள் & பாடங்கள் (Classes & Subjects)</option>
+                        <option value="rooms">4️⃣ தேர்வு அறைகள் (Rooms Master)</option>
+                    </optgroup>
+                    <optgroup label="📝 2. நடப்புத் தேர்வு உள்ளீடு (Exam Data Entry)">
+                        <option value="strength">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை (Student Strength)</option>
+                        <option value="timetable">5️⃣ தேர்வு அட்டவணை (Exam TimeTable)</option>
+                    </optgroup>
+                    <optgroup label="🪑 3. ஒதுக்கீடு & கண்காணிப்பு (Allocation & Duty)">
+                        <option value="allocate">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Allocation)</option>
+                        <option value="saved">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள் (Saved Plans)</option>
+                        <option value="duty">8️⃣ கண்காணிப்புப் பணி அப்ஸ்ட்ராக்ட் (Invigilator Duty)</option>
+                    </optgroup>
+                    <optgroup label="📑 4. அறிக்கைகள் & அமைப்புகள் (Reports & Options)">
+                        <option value="reports">📑 9️⃣ அறிக்கைகள் & தேர்வுக் கோப்பு (Reports)</option>
+                        <option value="settings">⚙️ 🔟 பள்ளி அமைப்புகள் (Settings)</option>
+                    </optgroup>
+                </select>
+                <button onclick="stepWorkTab(-1)" title="முந்தைய பகுதி" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-2.5 py-2 rounded-lg text-xs font-bold shrink-0">⬅️</button>
+                <button onclick="stepWorkTab(1)" title="அடுத்த பகுதி" class="bg-blue-700 hover:bg-blue-800 text-white px-2.5 py-2 rounded-lg text-xs font-bold shrink-0">➡️</button>
+            </div>
+        </div>
+
+        <div id="completedExamReadOnlyBanner" class="hidden mt-2.5 bg-amber-100 text-amber-950 border border-amber-400 rounded-lg px-3 py-1.5 text-xs font-bold">
+            🔒 இது <b>முடிவுற்ற தேர்வு (Completed Exam)</b> — விவரங்களைப் பார்வையிடவும் <b>Report / Print</b> எடுக்கவும் மட்டுமே முடியும். (புதிய தேர்வு தொடங்க <b>File → புதிய தேர்வு உருவாக்கு</b> பயன்படுத்தவும்).
         </div>
     </div>
 
@@ -422,29 +531,6 @@
                 <button onclick="closeNewExamCycleModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-lg text-xs">ரத்து</button>
                 <button onclick="createNewExamCycle()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs">✅ உருவாக்கி நடப்புத் தேர்வாக்கு</button>
             </div>
-        </div>
-    </div>
-
-    <!-- COMPACT DROPDOWN NAVIGATION BAR -->
-    <div class="bg-white rounded-xl shadow p-3 mb-5 flex flex-wrap items-center justify-between gap-3 border border-slate-200 no-print">
-        <div class="flex items-center gap-2 flex-1 min-w-[260px]">
-            <label for="workTabDropdown" class="text-xs md:text-sm font-extrabold text-blue-950 whitespace-nowrap">📂 பகுதியைத் தேர்ந்தெடுக்கவும்:</label>
-            <select id="workTabDropdown" onchange="switchWorkTab(this.value)" class="w-full max-w-md border-2 border-blue-600 bg-blue-50 text-blue-950 font-bold text-sm rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="teachers">1️⃣ ஆசிரியர்கள் (Teachers)</option>
-                <option value="subjects">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</option>
-                <option value="strength">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை (Strength)</option>
-                <option value="rooms">4️⃣ தேர்வு அறைகள் (Rooms)</option>
-                <option value="timetable">5️⃣ தேர்வு அட்டவணை (TimeTable)</option>
-                <option value="allocate">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Allocation)</option>
-                <option value="saved">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள் (Saved Plans - Cloud)</option>
-                <option value="duty">8️⃣ கண்காணிப்புப் பணி (Invigilator Duty)</option>
-                <option value="reports">📑 9️⃣ அறிக்கைகள் & தேர்வுக் கோப்பு (Reports)</option>
-                <option value="settings">⚙️ 🔟 பள்ளி அமைப்புகள் (Settings)</option>
-            </select>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="stepWorkTab(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold">⬅️ முந்தையது</button>
-            <button onclick="stepWorkTab(1)" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold">அடுத்தது ➡️</button>
         </div>
     </div>
 
@@ -1601,6 +1687,48 @@
     // ---------------------------------------------------------
     // ABOUT US & FAQ MODAL CONTROLS
     // ---------------------------------------------------------
+    
+    // ---------------------------------------------------------
+    // DESKTOP MENU BAR CONTROLS (File | Edit | View | Report | Option | Help)
+    // ---------------------------------------------------------
+    function toggleAppMenu(menuId) {
+        const target = document.getElementById(menuId);
+        const wasHidden = target ? target.classList.contains('hidden') : true;
+        closeAllAppMenus();
+        if (target && wasHidden) {
+            target.classList.remove('hidden');
+        }
+    }
+
+    function closeAllAppMenus() {
+        document.querySelectorAll('.app-dropdown-menu').forEach(el => el.classList.add('hidden'));
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.menu-group')) {
+            closeAllAppMenus();
+        }
+    });
+
+    function openQuickReport(mode) {
+        switchWorkTab('reports');
+        const cTt = document.getElementById('repChkTimetable');
+        const cSt = document.getElementById('repChkStrength');
+        const cRm = document.getElementById('repChkRooms');
+        if (cTt && cSt && cRm) {
+            if (mode === 'timetable') {
+                cTt.checked = true; cSt.checked = false; cRm.checked = false;
+            } else if (mode === 'strength') {
+                cTt.checked = false; cSt.checked = true; cRm.checked = false;
+            } else if (mode === 'rooms') {
+                cTt.checked = false; cSt.checked = false; cRm.checked = true;
+            } else {
+                cTt.checked = true; cSt.checked = true; cRm.checked = true;
+            }
+        }
+        renderReportsPage();
+    }
+
     function openAboutFaqModal() {
         const m = document.getElementById('aboutFaqModal');
         if (m) m.classList.remove('hidden');
@@ -1658,22 +1786,22 @@
 
         const curr = getCurrentExamCycleObj();
         const pill = document.getElementById('examCycleStatusPill');
-        const btnAct = document.getElementById('btnActivateSelectedExam');
-        const btnComp = document.getElementById('btnCompleteSelectedExam');
+        const btnAct = document.getElementById('menuBtnSetActive');
+        const btnComp = document.getElementById('menuBtnLockExam');
         const roBanner = document.getElementById('completedExamReadOnlyBanner');
 
         if (curr && curr.status === 'active') {
             if (pill) {
                 pill.textContent = "🟢 நடப்புத் தேர்வு (Active)";
-                pill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white";
+                pill.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500 text-white";
             }
             if (btnAct) btnAct.classList.add('hidden');
             if (btnComp) btnComp.classList.remove('hidden');
             if (roBanner) roBanner.classList.add('hidden');
         } else {
             if (pill) {
-                pill.textContent = "🔒 முடிவுற்ற தேர்வு (Completed - View Only)";
-                pill.className = "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-400 text-slate-950";
+                pill.textContent = "🔒 முடிவுற்ற தேர்வு (Read-Only)";
+                pill.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-400 text-slate-950";
             }
             if (btnAct) btnAct.classList.remove('hidden');
             if (btnComp) btnComp.classList.add('hidden');
