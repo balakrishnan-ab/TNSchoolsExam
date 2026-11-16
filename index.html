@@ -88,6 +88,28 @@
 
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        /* Sticky left Room No and right Room Total in Allocation Matrix */
+        #matrixTable { border-collapse: separate; border-spacing: 0; }
+        #matrixTable th.sticky-room-col,
+        #matrixTable td.sticky-room-col {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            box-shadow: 2px 0 4px -1px rgba(0,0,0,0.18);
+        }
+        #matrixTable th.sticky-total-col,
+        #matrixTable td.sticky-total-col {
+            position: sticky;
+            right: 0;
+            z-index: 20;
+            box-shadow: -2px 0 4px -1px rgba(0,0,0,0.18);
+        }
+        #matrixTable thead th.sticky-room-col,
+        #matrixTable thead th.sticky-total-col {
+            z-index: 30;
+        }
+
         table.official-tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
         table.official-tbl th { border: 1px solid #000; padding: 4px 6px; text-align: center; background-color: #e2e8f0; font-size: 12.5px; }
         table.official-tbl td { border: 1px solid #000; padding: 4.5px 6px; text-align: center; line-height: 1.25; }
@@ -105,12 +127,9 @@
             <h1 class="text-xl font-bold">🏫 தேர்வு அறை இருக்கை ஒதுக்கீடு & வரைபட மென்பொருள்</h1>
             <p class="text-xs text-blue-200">பல பள்ளிகளுக்கான ஒருங்கிணைந்த தேர்வு மேலாண்மை தளம் &nbsp;|&nbsp; <span id="cloudStatusBadge" class="bg-amber-500/20 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40">⏳ இணைப்பு சரிபார்க்கப்படுகிறது...</span></p>
         </div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="openAboutFaqModal()" class="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold border border-white/30 transition">ℹ️ About Us & FAQ</button>
-            <div id="userBadgeArea" class="hidden flex items-center gap-2.5">
-                <span id="loggedSchoolBadge" class="bg-blue-800 px-3 py-1 rounded-full text-sm font-semibold border border-blue-400"></span>
-                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-semibold">🚪 வெளியேறு</button>
-            </div>
+        <div id="userBadgeArea" class="hidden flex items-center gap-2.5">
+            <span id="loggedSchoolBadge" class="bg-blue-800/90 px-3.5 py-1 rounded-full text-xs md:text-sm font-bold border border-blue-300/60 shadow-inner"></span>
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold shadow">🚪 வெளியேறு</button>
         </div>
     </div>
 </header>
@@ -370,87 +389,83 @@
     <!-- ================================================================= -->
     <!-- DESKTOP SOFTWARE MENU BAR (File | Edit | View | Report | Option | Help) -->
     <!-- ================================================================= -->
-    <div class="bg-slate-900 text-slate-100 rounded-t-xl shadow border-b border-slate-700 px-2 py-1 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm select-none no-print relative z-30" id="desktopMenuBar">
-        <div class="flex flex-wrap items-center gap-0.5">
+    <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-slate-100 rounded-t-xl shadow border-b border-slate-700 px-2.5 py-1 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm select-none no-print relative z-30" id="desktopMenuBar">
+        <div class="flex flex-wrap items-center gap-1">
             <!-- FILE MENU -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-file')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">📁 File</button>
-                <div id="menu-file" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">தேர்வு மேலாண்மை (Exam Cycle)</div>
-                    <button onclick="closeAllAppMenus(); openNewExamCycleModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">➕ புதிய தேர்வு உருவாக்கு (New Exam)</button>
-                    <button id="menuBtnSetActive" onclick="closeAllAppMenus(); setSelectedExamAsActive();" class="hidden w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-800 font-bold flex items-center gap-2">✅ தேர்ந்தெடுத்த தேர்வை நடப்புத் தேர்வாக்கு (Set Active)</button>
-                    <button id="menuBtnLockExam" onclick="closeAllAppMenus(); markSelectedExamCompleted();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-800 font-bold flex items-center gap-2">🔒 நடப்புத் தேர்வை முடித்து பூட்டு (Lock Exam)</button>
+                <button onclick="toggleAppMenu('menu-file')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">📁 File</button>
+                <div id="menu-file" class="app-dropdown-menu hidden absolute left-0 mt-1 w-56 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); openNewExamCycleModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">➕ புதிய தேர்வு (New Exam)</button>
                     <div class="border-t my-1"></div>
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">சேமிப்பு & அச்சு (Save & Print)</div>
-                    <button onclick="closeAllAppMenus(); saveCurrentSeatingPlan(false);" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">💾 இருக்கை அமைப்பை Cloud-ல் சேமி (Save Plan)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📂 சேமிக்கப்பட்ட அமைப்புகள் (Saved Plans)</button>
-                    <button onclick="closeAllAppMenus(); downloadExamMasterCSV();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📥 முழுத் தேர்வுக் கோப்பு பதிவிறக்கம் (CSV)</button>
-                    <button onclick="closeAllAppMenus(); window.print();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">🖨️ அச்சிடு / PDF சேமி (Print)</button>
+                    <button onclick="closeAllAppMenus(); saveCurrentSeatingPlan(false);" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">💾 அமைப்பை சேமி (Save)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📂 சேமித்த அமைப்புகள்</button>
+                    <button onclick="closeAllAppMenus(); downloadExamMasterCSV();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">📥 தேர்வுக் கோப்பு (CSV)</button>
+                    <button onclick="closeAllAppMenus(); window.print();" class="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2">🖨️ அச்சிடு (Print)</button>
                     <div class="border-t my-1"></div>
-                    <button onclick="closeAllAppMenus(); logout();" class="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-700 font-bold flex items-center gap-2">🚪 வெளியேறு (Exit / Logout)</button>
+                    <button onclick="closeAllAppMenus(); logout();" class="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-700 font-bold flex items-center gap-2">🚪 வெளியேறு (Logout)</button>
                 </div>
             </div>
 
             <!-- EDIT MENU -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-edit')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">✏️ Edit</button>
-                <div id="menu-edit" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">அடிப்படை & தேர்வுத் தரவுகள்</div>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('teachers');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">1️⃣ ஆசிரியர்கள் விவரம் (Teachers)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('subjects');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">2️⃣ வகுப்புகள் & பாடங்கள் (Subjects)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">3️⃣ மாணவியர் & மாணவர் எண்ணிக்கை (Strength)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">4️⃣ தேர்வு அறைகள் (Rooms Master)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">5️⃣ தேர்வு அட்டவணை (Exam TimeTable)</button>
+                <button onclick="toggleAppMenu('menu-edit')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">✏️ Edit</button>
+                <div id="menu-edit" class="app-dropdown-menu hidden absolute left-0 mt-1 w-56 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); switchWorkTab('teachers');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">1️⃣ ஆசிரியர்கள் (Teachers)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('subjects');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">2️⃣ வகுப்புகள் & பாடங்கள்</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">3️⃣ மாணவர் எண்ணிக்கை</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">4️⃣ தேர்வு அறைகள் (Rooms)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">5️⃣ தேர்வு அட்டவணை</button>
                 </div>
             </div>
 
             <!-- VIEW MENU -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-view')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">👁️ View</button>
-                <div id="menu-view" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">ஒதுக்கீடு & கண்காணிப்புப் பார்வை</div>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('allocate');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">6️⃣ அறை ஒதுக்கீடு & வரைபடம் (Seating Map)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">💾 7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('duty');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">8️⃣ கண்காணிப்புப் பணி அப்ஸ்ட்ராக்ட் (Duty Roster)</button>
+                <button onclick="toggleAppMenu('menu-view')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">👁️ View</button>
+                <div id="menu-view" class="app-dropdown-menu hidden absolute left-0 mt-1 w-56 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); switchWorkTab('allocate');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">6️⃣ அறை ஒதுக்கீடு & வரைபடம்</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('saved');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">💾 7️⃣ சேமித்த அமைப்புகள்</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('duty');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">8️⃣ கண்காணிப்புப் பணி</button>
                 </div>
             </div>
 
             <!-- REPORT MENU -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-report')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">📑 Report</button>
-                <div id="menu-report" class="app-dropdown-menu hidden absolute left-0 mt-1 w-80 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">அச்சு & தேர்வு அறிக்கைகள்</div>
-                    <button onclick="closeAllAppMenus(); openQuickReport('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">📅 1. தேர்வு அட்டவணை அறிக்கை (TimeTable Report)</button>
-                    <button onclick="closeAllAppMenus(); openQuickReport('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">👥 2. வகுப்பு வாரியான ஆண்/பெண் & தேர்வு எண் (Roll No)</button>
-                    <button onclick="closeAllAppMenus(); openQuickReport('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🚪 3. தேர்வு அறைகள் கொள்ளளவு அறிக்கை (Rooms)</button>
+                <button onclick="toggleAppMenu('menu-report')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">📑 Report</button>
+                <div id="menu-report" class="app-dropdown-menu hidden absolute left-0 mt-1 w-60 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); openQuickReport('timetable');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">📅 தேர்வு அட்டவணை</button>
+                    <button onclick="closeAllAppMenus(); openQuickReport('strength');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">👥 மாணவர் & தேர்வு எண்கள்</button>
+                    <button onclick="closeAllAppMenus(); openQuickReport('rooms');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🚪 அறைகள் கொள்ளளவு</button>
                     <div class="border-t my-1"></div>
-                    <button onclick="closeAllAppMenus(); openQuickReport('all');" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 font-bold flex items-center gap-2">📑 4. ஒருங்கிணைந்த முழு அறிக்கை (Consolidated Report)</button>
+                    <button onclick="closeAllAppMenus(); openQuickReport('all');" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 font-bold flex items-center gap-2">📑 ஒருங்கிணைந்த முழு அறிக்கை</button>
                 </div>
             </div>
 
-            <!-- OPTION MENU -->
+            <!-- OPTION MENU (Exam Lock / Re-Activate + Auto-Duty + Cloud Sync + Settings) -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-option')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">⚙️ Option</button>
-                <div id="menu-option" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">கணினி & தானியங்கி விருப்பங்கள்</div>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('settings');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🏫 பள்ளி பெயர் & கடவுச்சொல் மாற்றம் (Settings)</button>
-                    <button onclick="closeAllAppMenus(); switchWorkTab('duty'); autoGenerateDutyMatrix();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-900 flex items-center gap-2">⚡ தானியங்கி பணி ஒதுக்கீடு உருவாக்கு (Auto-Duty)</button>
-                    <button onclick="closeAllAppMenus(); pullSchoolWorkspaceFromCloud(currentSchool.id).then(() => alert('✅ Cloud தரவு புதுப்பிக்கப்பட்டது!'));" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 flex items-center gap-2">🔄 Cloud தரவை உடனே ஒத்திசை (Sync Cloud)</button>
+                <button onclick="toggleAppMenu('menu-option')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">⚙️ Option</button>
+                <div id="menu-option" class="app-dropdown-menu hidden absolute left-0 mt-1 w-64 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <div class="px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400">தேர்வு நிலை (Exam Status)</div>
+                    <button id="menuBtnLockExam" onclick="closeAllAppMenus(); markSelectedExamCompleted();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-800 font-bold flex items-center gap-2">🔒 நடப்புத் தேர்வை முடித்து பூட்டு</button>
+                    <button id="menuBtnSetActive" onclick="closeAllAppMenus(); setSelectedExamAsActive();" class="hidden w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-800 font-bold flex items-center gap-2">✅ மீண்டும் நடைமுறைக்கு கொண்டு வா</button>
+                    <div class="border-t my-1"></div>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('duty'); autoGenerateDutyMatrix();" class="w-full text-left px-3.5 py-2 hover:bg-amber-50 text-amber-900 flex items-center gap-2">⚡ தானியங்கி பணி ஒதுக்கீடு</button>
+                    <button onclick="closeAllAppMenus(); pullSchoolWorkspaceFromCloud(currentSchool.id).then(() => alert('✅ Cloud தரவு புதுப்பிக்கப்பட்டது!'));" class="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-900 flex items-center gap-2">🔄 Cloud ஒத்திசைவு (Sync)</button>
+                    <button onclick="closeAllAppMenus(); switchWorkTab('settings');" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">🏫 பள்ளி அமைப்புகள் (Settings)</button>
                 </div>
             </div>
 
             <!-- HELP MENU -->
             <div class="relative menu-group">
-                <button onclick="toggleAppMenu('menu-help')" class="menu-trigger px-3 py-1.5 rounded hover:bg-blue-700 font-bold tracking-wide transition">❓ Help</button>
-                <div id="menu-help" class="app-dropdown-menu hidden absolute left-0 mt-1 w-72 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
-                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">👨‍💻 எங்களைப் பற்றி (About Us - அ. பாலகிருஷ்ணன்)</button>
-                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">❓ அடிக்கடி கேட்கப்படும் கேள்விகள் (FAQ)</button>
-                    <a href="https://wa.me/919442702449" target="_blank" onclick="closeAllAppMenus();" class="block w-full text-left px-3.5 py-2 hover:bg-green-50 text-green-800 font-bold">📲 WhatsApp உதவி: 9442702449</a>
+                <button onclick="toggleAppMenu('menu-help')" class="menu-trigger px-3 py-1.5 rounded-md hover:bg-blue-700 font-bold tracking-wide transition">❓ Help</button>
+                <div id="menu-help" class="app-dropdown-menu hidden absolute left-0 mt-1 w-56 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-300 py-1.5 z-50 text-xs font-semibold">
+                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-blue-900 font-bold flex items-center gap-2">👨‍💻 எங்களைப் பற்றி (About Us)</button>
+                    <button onclick="closeAllAppMenus(); openAboutFaqModal();" class="w-full text-left px-3.5 py-2 hover:bg-blue-50 flex items-center gap-2">❓ கேள்வி - பதில் (FAQ)</button>
+                    <a href="https://wa.me/919442702449" target="_blank" onclick="closeAllAppMenus();" class="block w-full text-left px-3.5 py-2 hover:bg-green-50 text-green-800 font-bold">📲 WhatsApp: 9442702449</a>
                 </div>
             </div>
         </div>
 
-        <span id="examCycleStatusPill" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500 text-white">🟢 நடப்புத் தேர்வு (Active)</span>
+        <span id="examCycleStatusPill" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500 text-white shadow-xs">🟢 நடப்புத் தேர்வு (Active)</span>
     </div>
 
     <!-- ================================================================= -->
@@ -873,9 +888,9 @@
                     <div class="space-y-1.5">
                         <div class="text-sm font-bold text-amber-900">⚡ தானியங்கி நிரப்பல் முறை (Auto-Fill Gender & Sequence Rule):</div>
                         <div class="flex flex-wrap gap-4 text-sm">
-                            <label class="font-semibold"><input type="radio" name="genderRule" value="strict" checked> ஆண், பெண் தனித்தனி அறைகள் (Strict Separate Rooms)</label>
-                            <label class="font-semibold"><input type="radio" name="genderRule" value="hybrid"> ஸ்மார்ட் கலப்பு முறை (Separate First, Overflow Mix)</label>
-                            <label class="font-semibold text-blue-900"><input type="radio" name="genderRule" value="continuous"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No Order)</label>
+                            <label class="font-semibold"><input type="radio" name="genderRule" value="strict" checked onchange="initAllocationMatrix()"> ஆண், பெண் தனித்தனி அறைகள் (Strict Separate Rooms)</label>
+                            <label class="font-semibold"><input type="radio" name="genderRule" value="hybrid" onchange="initAllocationMatrix()"> ஸ்மார்ட் கலப்பு முறை (Separate First, Overflow Mix)</label>
+                            <label class="font-semibold text-blue-900"><input type="radio" name="genderRule" value="continuous" onchange="initAllocationMatrix()"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No Order - வகுப்பு மொத்தம்)</label>
                         </div>
                     </div>
                     <button onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
@@ -2805,7 +2820,8 @@
             const key = `${t.date}|${t.session}|${t.title}`;
             if (!seen.has(key)) {
                 seen.add(key);
-                uniqueSessions.push({ key, label: `${t.date} (${t.session}) - ${t.title}` });
+                // Show ONLY Date and Session (no exam title repetition)
+                uniqueSessions.push({ key, label: `${formatDisplayDate(t.date)} (${t.session})` });
             }
         });
 
@@ -2844,50 +2860,80 @@
         const tt = getData(schoolDataKey('timetable'), []).filter(t => t.date === selDate && t.session === selSess);
         const strengths = getData(schoolDataKey('strength'), []);
         const activeRooms = getActiveRooms();
+        const ruleEl = document.querySelector('input[name="genderRule"]:checked');
+        const rule = ruleEl ? ruleEl.value : 'strict';
 
         matrixColumns = [];
         let totGirls = 0, totBoys = 0;
 
-        // Girls columns first, Boys columns second
-        tt.forEach(t => {
-            const sCode = t.subjectCode || t.subject;
-            const sFull = t.subjectFull || sCode;
-            const stList = strengths.filter(s => s.className === t.className);
-            stList.forEach(st => {
-                if (st.gCount > 0) {
-                    totGirls += st.gCount;
-                    matrixColumns.push({
-                        key: `G_${st.id}_${sCode}`,
-                        gender: 'Girls',
-                        classLabel: `${st.className}(${st.medium})`,
-                        subjectCode: sCode,
-                        subjectFull: sFull,
-                        startRoll: st.gStart,
-                        maxCount: st.gCount
-                    });
-                }
+        if (rule === 'continuous') {
+            // Continuous Roll No mode: show combined Class Total columns (Girls + Boys together)
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    const gc = parseInt(st.gCount) || 0;
+                    const bc = parseInt(st.bCount) || 0;
+                    totGirls += gc;
+                    totBoys += bc;
+                    const combinedTot = gc + bc;
+                    if (combinedTot > 0) {
+                        const firstRoll = gc > 0 ? st.gStart : st.bStart;
+                        matrixColumns.push({
+                            key: `C_${st.id}_${sCode}`,
+                            gender: 'All',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: firstRoll,
+                            maxCount: combinedTot
+                        });
+                    }
+                });
             });
-        });
+        } else {
+            // Strict / Hybrid Separate Gender mode: Girls columns first, Boys columns second
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    if (st.gCount > 0) {
+                        totGirls += st.gCount;
+                        matrixColumns.push({
+                            key: `G_${st.id}_${sCode}`,
+                            gender: 'Girls',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: st.gStart,
+                            maxCount: st.gCount
+                        });
+                    }
+                });
+            });
 
-        tt.forEach(t => {
-            const sCode = t.subjectCode || t.subject;
-            const sFull = t.subjectFull || sCode;
-            const stList = strengths.filter(s => s.className === t.className);
-            stList.forEach(st => {
-                if (st.bCount > 0) {
-                    totBoys += st.bCount;
-                    matrixColumns.push({
-                        key: `B_${st.id}_${sCode}`,
-                        gender: 'Boys',
-                        classLabel: `${st.className}(${st.medium})`,
-                        subjectCode: sCode,
-                        subjectFull: sFull,
-                        startRoll: st.bStart,
-                        maxCount: st.bCount
-                    });
-                }
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    if (st.bCount > 0) {
+                        totBoys += st.bCount;
+                        matrixColumns.push({
+                            key: `B_${st.id}_${sCode}`,
+                            gender: 'Boys',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: st.bStart,
+                            maxCount: st.bCount
+                        });
+                    }
+                });
             });
-        });
+        }
 
         const totCap = activeRooms.reduce((acc, r) => acc + r.capacity, 0);
         document.getElementById('statGirls').textContent = totGirls;
@@ -2911,6 +2957,7 @@
         const activeRooms = getActiveRooms();
         const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
         const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+        const allCols = matrixColumns.filter(c => c.gender === 'All');
 
         const remMap = {};
         matrixColumns.forEach(col => {
@@ -2919,17 +2966,26 @@
             remMap[col.key] = col.maxCount - used;
         });
 
-        let headHtml = `
-            <tr class="bg-slate-200 font-bold">
-                <th rowspan="3" class="border border-slate-400 p-2">Room</th>
-                <th rowspan="3" class="border border-slate-400 p-2">Max Cap</th>
-                <th rowspan="3" class="border border-slate-400 p-2">Cols / Rows</th>
+        let groupHeaderHtml = '';
+        if (allCols.length > 0) {
+            groupHeaderHtml = `<th colspan="${allCols.length}" class="border border-slate-400 p-1.5 bg-indigo-100 text-indigo-950 font-extrabold">வகுப்பு வாரியான மொத்த மாணவர்கள் (Class Total - Continuous Roll No)</th>`;
+        } else {
+            groupHeaderHtml = `
                 ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1.5 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
                 ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1.5 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
-                <th rowspan="3" class="border border-slate-400 p-2 bg-emerald-100">Room Total</th>
+            `;
+        }
+
+        let headHtml = `
+            <tr class="bg-slate-200 font-bold">
+                <th rowspan="3" class="sticky-room-col bg-slate-200 border border-slate-400 p-2 min-w-[54px]">Room</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Max Cap</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Cols / Rows</th>
+                ${groupHeaderHtml}
+                <th rowspan="3" class="sticky-total-col bg-emerald-100 border border-slate-400 p-2 min-w-[66px]">Room Total</th>
             </tr>
             <tr class="bg-amber-100 font-semibold">
-                ${matrixColumns.map(c => `<th class="border border-slate-400 p-1">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
+                ${matrixColumns.map(c => `<th class="border border-slate-400 p-1 min-w-[78px]">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
             </tr>
             <tr class="bg-slate-50 text-[11px]">
                 ${matrixColumns.map(c => {
@@ -2946,7 +3002,7 @@
             const cells = matrixColumns.map(col => {
                 const val = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
                 rowSum += val;
-                return `<td class="border border-slate-400 p-1">
+                return `<td class="border border-slate-400 p-1 bg-white">
                     <input type="number" min="0" value="${val}" onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
                         class="w-14 text-center border rounded p-1 font-bold ${val > 0 ? 'bg-yellow-50 border-amber-400' : ''}">
                 </td>`;
@@ -2956,11 +3012,11 @@
             const overCap = rowSum > rm.capacity;
             return `
                 <tr>
-                    <td class="border border-slate-400 p-2 font-bold bg-slate-100">${rm.roomNo}</td>
-                    <td class="border border-slate-400 p-2 font-semibold">${rm.capacity}</td>
-                    <td class="border border-slate-400 p-2 text-[11px]">${cRows.join(' + ')}</td>
+                    <td class="sticky-room-col bg-slate-100 border border-slate-400 p-2 font-black text-sm">${rm.roomNo}</td>
+                    <td class="border border-slate-400 p-2 font-semibold bg-white">${rm.capacity}</td>
+                    <td class="border border-slate-400 p-2 text-[11px] bg-white">${cRows.join(' + ')}</td>
                     ${cells}
-                    <td class="border border-slate-400 p-2 font-bold ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
+                    <td class="sticky-total-col border border-slate-400 p-2 font-black text-sm ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
                         ${rowSum} ${overCap ? '⚠️' : ''}
                     </td>
                 </tr>
