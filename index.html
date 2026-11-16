@@ -89,6 +89,47 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
+        /* Sleek Floating Tip Popup on Hover & Focus */
+        #smartTipPopup {
+            position: fixed;
+            z-index: 9999;
+            max-width: 290px;
+            background: #0f172a;
+            color: #f8fafc;
+            border: 1.5px solid #38bdf8;
+            border-radius: 8px;
+            padding: 7px 11px;
+            font-size: 11.5px;
+            line-height: 1.4;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        #smartTipPopup.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #smartTipPopup .tip-badge {
+            display: inline-block;
+            background: #0284c7;
+            color: #fff;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-right: 5px;
+            text-transform: uppercase;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.85 !important;
+            font-weight: 500;
+        }
+
+
         /* Sticky left Room No and right Room Total in Allocation Matrix */
         #matrixTable { border-collapse: separate; border-spacing: 0; }
         #matrixTable th.sticky-room-col,
@@ -119,6 +160,7 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
+<div id="smartTipPopup" class="no-print"></div>
 
 <!-- TOP HEADER -->
 <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-4 shadow-md no-print">
@@ -550,32 +592,30 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 1: TEACHERS MASTER (EDIT & DELETE ENABLED)                   -->
+    <!-- PAGE 1: TEACHERS MASTER                                           -->
     <!-- ================================================================= -->
-    <div id="workView-teachers" class="work-view bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2 flex justify-between items-center">
-            <div>
-                <h2 class="text-lg font-bold">🧑‍🏫 1. பள்ளியின் ஆசிரியர் விவரங்கள் & சுருக்கக் குறியீடு (Teachers Master)</h2>
-                <p class="text-xs text-slate-500">உதாரணம்: <b>R. VIMAL</b> → <b>RV</b>. சேர்த்த பின் பட்டியலில் திருத்தவும் (✏️ Edit) நீக்கவும் (🗑️ Delete) முடியும்.</p>
-            </div>
+    <div id="workView-teachers" class="work-view bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex items-center justify-between gap-2">
+            <h2 class="text-base md:text-lg font-extrabold text-slate-900">🧑‍🏫 1. ஆசிரியர்கள் (Teachers)</h2>
+            <span data-tip="உதாரணம்: R. VIMAL → குறியீடு: RV. சேர்த்த பின் பட்டியலில் திருத்தவும் நீக்கவும் முடியும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-lg border">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5 bg-slate-50 p-3 rounded-lg border">
             <input type="hidden" id="tchEditId" value="">
             <div class="md:col-span-2">
-                <label class="block text-xs font-semibold mb-1">ஆசிரியர் முழுப் பெயர் (Teacher Full Name)</label>
-                <input type="text" id="tchFullName" placeholder="எ.கா: R. VIMAL" class="w-full border rounded p-2 text-sm">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">ஆசிரியர் பெயர்</label>
+                <input type="text" id="tchFullName" placeholder="R. VIMAL" data-tip="ஆசிரியரின் முழுப் பெயரை உள்ளிடவும் (உதாரணம்: R. VIMAL)" class="w-full border rounded p-2 text-sm bg-white">
             </div>
             <div>
-                <label class="block text-xs font-semibold mb-1">சுருக்கக் குறியீடு (Short Code)</label>
-                <input type="text" id="tchShortCode" placeholder="எ.கா: RV" class="w-full border rounded p-2 text-sm uppercase font-bold">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">சுருக்கக் குறியீடு</label>
+                <input type="text" id="tchShortCode" placeholder="RV" data-tip="அச்சுப் பிரதி & பணி அட்டவணையில் காட்ட 2-4 எழுத்து சுருக்கக் குறியீடு (உதாரணம்: RV)" class="w-full border rounded p-2 text-sm uppercase font-bold bg-white">
             </div>
             <div>
-                <label class="block text-xs font-semibold mb-1">பதவி / பாடம் (Designation / Dept)</label>
-                <input type="text" id="tchDept" placeholder="எ.கா: PG Asst (CS)" class="w-full border rounded p-2 text-sm">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">பதவி / பாடம்</label>
+                <input type="text" id="tchDept" placeholder="PG Asst (CS)" data-tip="பதவி அல்லது பாடம் (உதாரணம்: PG Asst (CS) / BT Asst)" class="w-full border rounded p-2 text-sm bg-white">
             </div>
-            <div class="flex items-end gap-2">
-                <button onclick="saveTeacher()" id="tchSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">➕ சேமி</button>
-                <button onclick="cancelTeacherEdit()" id="tchCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-semibold px-3 py-2 rounded-lg text-sm">ரத்து</button>
+            <div class="flex items-end gap-1.5">
+                <button onclick="saveTeacher()" id="tchSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-lg text-sm">➕ சேமி</button>
+                <button onclick="cancelTeacherEdit()" id="tchCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-lg text-sm">ரத்து</button>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -583,10 +623,10 @@
                 <thead class="bg-slate-100">
                     <tr>
                         <th class="p-2 border">வ.எண்</th>
-                        <th class="p-2 border">சுருக்கக் குறியீடு</th>
-                        <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
+                        <th class="p-2 border">குறியீடு</th>
+                        <th class="p-2 border">ஆசிரியர் பெயர்</th>
                         <th class="p-2 border">பதவி / பாடம்</th>
-                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                        <th class="p-2 border">நடவடிக்கை</th>
                     </tr>
                 </thead>
                 <tbody id="teachersTableBody"></tbody>
@@ -595,34 +635,34 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 2: CLASSES & SUBJECTS MASTER (EDIT & DELETE ENABLED)         -->
+    <!-- PAGE 2: CLASSES & SUBJECTS MASTER                                 -->
     <!-- ================================================================= -->
-    <div id="workView-subjects" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2">
-            <h2 class="text-lg font-bold">📚 2. வகுப்புகள் மற்றும் பாடங்களின் சுருக்கக் குறியீடுகள் (Classes & Subjects Master)</h2>
-            <p class="text-xs text-slate-500">உதாரணம்: <b>ENGLISH</b> → <b>ENG</b> | <b>COMPUTER SCIENCE</b> → <b>CS</b> | <b>COM. APPLICATION</b> → <b>CA</b></p>
+    <div id="workView-subjects" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex items-center justify-between gap-2">
+            <h2 class="text-base md:text-lg font-extrabold text-slate-900">📚 2. வகுப்புகள் & பாடங்கள் (Classes & Subjects)</h2>
+            <span data-tip="வகுப்பு உதாரணம்: 12-A1 (EM), 11-B (TM) | பாடம் உதாரணம்: COMPUTER SCIENCE → CS, ENGLISH → ENG" class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Classes Master -->
-            <div class="bg-slate-50 p-4 rounded-lg border space-y-3">
-                <h3 class="font-bold text-sm text-blue-900">🏫 அ) பள்ளியில் உள்ள வகுப்புகள் (Classes List)</h3>
+            <div class="bg-slate-50 p-3 rounded-lg border space-y-2.5">
+                <h3 class="font-extrabold text-xs md:text-sm text-blue-950">🏫 வகுப்புகள் (Classes)</h3>
                 <div class="flex gap-2">
                     <input type="hidden" id="clsEditId" value="">
-                    <input type="text" id="clsMasterName" placeholder="வகுப்பு (எ.கா: 12-A1)" class="flex-1 border rounded p-2 text-sm">
-                    <select id="clsMasterMedium" class="border rounded p-2 text-sm">
+                    <input type="text" id="clsMasterName" placeholder="12-A1" data-tip="வகுப்பு மற்றும் பிரிவை உள்ளிடவும் (உதாரணம்: 12-A1, 12-B, 11-A1)" class="flex-1 border rounded p-2 text-sm bg-white">
+                    <select id="clsMasterMedium" data-tip="பயிற்று மொழி: EM (English Medium) அல்லது TM (Tamil Medium)" class="border rounded p-2 text-sm font-bold bg-white">
                         <option value="EM">EM</option>
                         <option value="TM">TM</option>
                     </select>
-                    <button onclick="saveClassMaster()" id="clsSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 rounded text-sm">➕ சேர்</button>
-                    <button onclick="cancelClassEdit()" id="clsCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 rounded text-sm">ரத்து</button>
+                    <button onclick="saveClassMaster()" id="clsSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 rounded text-sm">➕ சேர்</button>
+                    <button onclick="cancelClassEdit()" id="clsCancelBtn" class="hidden bg-slate-500 text-white font-bold px-2.5 rounded text-sm">ரத்து</button>
                 </div>
                 <table class="w-full text-xs border text-center bg-white">
                     <thead class="bg-slate-100">
                         <tr>
-                            <th class="p-2 border">வகுப்பு (Class)</th>
-                            <th class="p-2 border">வழி (Medium)</th>
-                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                            <th class="p-1.5 border">வகுப்பு</th>
+                            <th class="p-1.5 border">வழி</th>
+                            <th class="p-1.5 border">நடவடிக்கை</th>
                         </tr>
                     </thead>
                     <tbody id="classMasterBody"></tbody>
@@ -630,21 +670,21 @@
             </div>
 
             <!-- Subjects Master -->
-            <div class="bg-slate-50 p-4 rounded-lg border space-y-3">
-                <h3 class="font-bold text-sm text-emerald-900">📖 ஆ) பாடங்கள் & சுருக்கக் குறியீடுகள் (Subjects & Short Codes)</h3>
+            <div class="bg-slate-50 p-3 rounded-lg border space-y-2.5">
+                <h3 class="font-extrabold text-xs md:text-sm text-emerald-950">📖 பாடங்கள் (Subjects)</h3>
                 <div class="flex gap-2">
                     <input type="hidden" id="subEditId" value="">
-                    <input type="text" id="subFullName" placeholder="பாடம் (எ.கா: COMPUTER SCIENCE)" class="flex-1 border rounded p-2 text-sm">
-                    <input type="text" id="subShortCode" placeholder="குறியீடு (CS)" class="w-24 border rounded p-2 text-sm uppercase font-bold">
-                    <button onclick="saveSubjectMaster()" id="subSaveBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-4 rounded text-sm">➕ சேர்</button>
-                    <button onclick="cancelSubjectEdit()" id="subCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 rounded text-sm">ரத்து</button>
+                    <input type="text" id="subFullName" placeholder="COMPUTER SCIENCE" data-tip="பாடத்தின் முழுப் பெயர் (உதாரணம்: COMPUTER SCIENCE, MATHEMATICS)" class="flex-1 border rounded p-2 text-sm bg-white">
+                    <input type="text" id="subShortCode" placeholder="CS" data-tip="பாடத்தின் சுருக்கக் குறியீடு (உதாரணம்: CS, MAT, PHY, ENG)" class="w-24 border rounded p-2 text-sm uppercase font-bold bg-white">
+                    <button onclick="saveSubjectMaster()" id="subSaveBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3.5 rounded text-sm">➕ சேர்</button>
+                    <button onclick="cancelSubjectEdit()" id="subCancelBtn" class="hidden bg-slate-500 text-white font-bold px-2.5 rounded text-sm">ரத்து</button>
                 </div>
                 <table class="w-full text-xs border text-center bg-white">
                     <thead class="bg-slate-100">
                         <tr>
-                            <th class="p-2 border">சுருக்கக் குறியீடு</th>
-                            <th class="p-2 border">பாடம் முழுப் பெயர்</th>
-                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                            <th class="p-1.5 border">குறியீடு</th>
+                            <th class="p-1.5 border">பாடப் பெயர்</th>
+                            <th class="p-1.5 border">நடவடிக்கை</th>
                         </tr>
                     </thead>
                     <tbody id="subjectMasterBody"></tbody>
@@ -654,56 +694,56 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 3: STRENGTH DETAILS (GIRLS FIRST, AUTO-ROLL, EDIT & DELETE)  -->
+    <!-- PAGE 3: STRENGTH DETAILS                                          -->
     <!-- ================================================================= -->
-    <div id="workView-strength" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2">
-            <h2 class="text-lg font-bold">📋 3. வகுப்பு வாரியான மாணவியர் & மாணவர் எண்ணிக்கை (Strength Details)</h2>
-            <p class="text-xs text-slate-500">மாணவியர் எண்ணிக்கை, மாணவர் எண்ணிக்கை மற்றும் தொடக்கத் தேர்வு எண்ணை உள்ளிட்டால் தேர்வு எண்கள் தானாக அமையும்; தேவைப்படின் நீங்களே நேரடியாகவும் மாற்றலாம்.</p>
+    <div id="workView-strength" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex items-center justify-between gap-2">
+            <h2 class="text-base md:text-lg font-extrabold text-slate-900">📋 3. மாணவர் எண்ணிக்கை & தேர்வு எண்கள் (Strength)</h2>
+            <span data-tip="மாணவியர், மாணவர் எண்ணிக்கை மற்றும் தொடக்கத் தேர்வு எண்ணை (எ.கா: 12101) உள்ளிட்டால் ஆரம்ப/முடிவு எண்கள் தானாக அமையும்; தேவைப்படின் நேரடியாகவும் மாற்றலாம்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
         </div>
-        <div class="bg-slate-50 p-4 rounded-lg border space-y-4">
+        <div class="bg-slate-50 p-3 rounded-lg border space-y-3">
             <input type="hidden" id="strEditId" value="">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                 <div>
-                    <label class="block text-xs font-semibold mb-1">வகுப்பு & வழி (கீழ்விரி பட்டியல்)</label>
-                    <select id="strClassDropdown" class="w-full border rounded p-2 text-sm font-semibold bg-white"></select>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-0.5">வகுப்பு & வழி</label>
+                    <select id="strClassDropdown" data-tip="பட்டியலிலிருந்து வகுப்பைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded p-2 text-sm font-bold bg-white"></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-pink-800">👧 மாணவியர் எண்ணிக்கை (Girls Count)</label>
-                    <input type="number" id="strGCount" min="0" value="0" oninput="autoCalcRollNumbers()" class="w-full border border-pink-300 rounded p-2 text-sm font-bold bg-pink-50">
+                    <label class="block text-[11px] font-bold text-pink-800 mb-0.5">👧 மாணவியர் (Girls)</label>
+                    <input type="number" id="strGCount" min="0" value="0" placeholder="0" data-tip="மாணவியர் எண்ணிக்கையை உள்ளிடவும் (உதாரணம்: 15)" oninput="autoCalcRollNumbers()" class="w-full border border-pink-300 rounded p-2 text-sm font-bold bg-pink-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-blue-800">👦 மாணவர்கள் எண்ணிக்கை (Boys Count)</label>
-                    <input type="number" id="strBCount" min="0" value="0" oninput="autoCalcRollNumbers()" class="w-full border border-blue-300 rounded p-2 text-sm font-bold bg-blue-50">
+                    <label class="block text-[11px] font-bold text-blue-800 mb-0.5">👦 மாணவர்கள் (Boys)</label>
+                    <input type="number" id="strBCount" min="0" value="0" placeholder="0" data-tip="மாணவர்கள் எண்ணிக்கையை உள்ளிடவும் (உதாரணம்: 20)" oninput="autoCalcRollNumbers()" class="w-full border border-blue-300 rounded p-2 text-sm font-bold bg-blue-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-emerald-800">🔢 தொடக்க தேர்வு எண் (Starting Roll No)</label>
-                    <input type="number" id="strBaseStart" min="0" placeholder="எ.கா: 12101" oninput="autoCalcRollNumbers()" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                    <label class="block text-[11px] font-bold text-emerald-800 mb-0.5">🔢 தொடக்க தேர்வு எண்</label>
+                    <input type="number" id="strBaseStart" min="0" placeholder="12101" data-tip="முதல் மாணவியின் தொடக்கத் தேர்வு எண்ணை உள்ளிடவும் (உதாரணம்: 12101) — மீதி எண்கள் தானாகக் கணக்கிடப்படும்" oninput="autoCalcRollNumbers()" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-200">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-2 border-t border-slate-200">
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-pink-700">Girls Start (ஆரம்ப எண்)</label>
-                    <input type="number" id="strGStart" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                    <label class="block text-[11px] font-bold text-pink-700 mb-0.5">Girls Start</label>
+                    <input type="number" id="strGStart" min="0" placeholder="12101" data-tip="மாணவியர் ஆரம்ப தேர்வு எண்" oninput="syncCountFromManualRoll()" class="w-full border rounded p-1.5 text-sm bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-pink-700">Girls End (முடிவு எண்)</label>
-                    <input type="number" id="strGEnd" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                    <label class="block text-[11px] font-bold text-pink-700 mb-0.5">Girls End</label>
+                    <input type="number" id="strGEnd" min="0" placeholder="12115" data-tip="மாணவியர் இறுதி தேர்வு எண்" oninput="syncCountFromManualRoll()" class="w-full border rounded p-1.5 text-sm bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-blue-700">Boys Start (ஆரம்ப எண்)</label>
-                    <input type="number" id="strBStart" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                    <label class="block text-[11px] font-bold text-blue-700 mb-0.5">Boys Start</label>
+                    <input type="number" id="strBStart" min="0" placeholder="12116" data-tip="மாணவர்கள் ஆரம்ப தேர்வு எண்" oninput="syncCountFromManualRoll()" class="w-full border rounded p-1.5 text-sm bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-blue-700">Boys End (முடிவு எண்)</label>
-                    <input type="number" id="strBEnd" min="0" oninput="syncCountFromManualRoll()" class="w-full border rounded p-2 text-sm bg-white">
+                    <label class="block text-[11px] font-bold text-blue-700 mb-0.5">Boys End</label>
+                    <input type="number" id="strBEnd" min="0" placeholder="12135" data-tip="மாணவர்கள் இறுதி தேர்வு எண்" oninput="syncCountFromManualRoll()" class="w-full border rounded p-1.5 text-sm bg-white">
                 </div>
             </div>
 
             <div class="flex justify-end gap-2">
-                <button onclick="cancelStrengthEdit()" id="strCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">ரத்து</button>
-                <button onclick="saveStrength()" id="strSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-5 py-2 rounded-lg text-sm">➕ மாணவியர் & மாணவர் எண்ணிக்கையை சேமி</button>
+                <button onclick="cancelStrengthEdit()" id="strCancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs">ரத்து</button>
+                <button onclick="saveStrength()" id="strSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs">➕ சேமி</button>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -713,11 +753,11 @@
                         <th class="p-2 border">வகுப்பு</th>
                         <th class="p-2 border">வழி</th>
                         <th class="p-2 border bg-pink-50 text-pink-900">Girls (Start - End)</th>
-                        <th class="p-2 border bg-pink-50 text-pink-900">Girls மொத்தம்</th>
+                        <th class="p-2 border bg-pink-50 text-pink-900">Girls</th>
                         <th class="p-2 border bg-blue-50 text-blue-900">Boys (Start - End)</th>
-                        <th class="p-2 border bg-blue-50 text-blue-900">Boys மொத்தம்</th>
+                        <th class="p-2 border bg-blue-50 text-blue-900">Boys</th>
                         <th class="p-2 border">மொத்தம்</th>
-                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                        <th class="p-2 border">நடவடிக்கை</th>
                     </tr>
                 </thead>
                 <tbody id="strengthTableBody"></tbody>
@@ -726,46 +766,46 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 4: ROOMS MASTER (VARIABLE ROWS PER COLUMN + EDIT & DELETE)   -->
+    <!-- PAGE 4: ROOMS MASTER                                              -->
     <!-- ================================================================= -->
-    <div id="workView-rooms" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2">
-            <h2 class="text-lg font-bold">🚪 4. தேர்வு அறைகள் மற்றும் நெடுவரிசை வாரியான வரிசைகள் (Rooms & Column-wise Rows)</h2>
-            <p class="text-xs text-slate-500">அனைத்து நெடுவரிசைகளிலும் ஒரே எண்ணிக்கையிலான வரிசைகள் இல்லையெனில், ஒவ்வொரு நெடுவரிசைக்கும் (Col 1, Col 2, Col 3...) தனித்தனி வரிசை எண்ணிக்கையை உள்ளிடலாம்.</p>
+    <div id="workView-rooms" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex items-center justify-between gap-2">
+            <h2 class="text-base md:text-lg font-extrabold text-slate-900">🚪 4. தேர்வு அறைகள் (Rooms Master)</h2>
+            <span data-tip="அறை எண் (எ.கா: 2, 3, Hall-1), நெடுவரிசைகள் (Columns) மற்றும் ஒவ்வொரு நெடுவரிசையிலும் உள்ள பெஞ்ச் வரிசைகளை உள்ளிடவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
         </div>
-        <div class="bg-slate-50 p-4 rounded-lg border space-y-4">
+        <div class="bg-slate-50 p-3 rounded-lg border space-y-3">
             <input type="hidden" id="rmEditId" value="">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
                 <div>
-                    <label class="block text-xs font-semibold mb-1">அறை எண் (Room No)</label>
-                    <input type="text" id="rmNo" placeholder="எ.கா: 2, 3, Hall-1" class="w-full border rounded p-2 text-sm font-bold">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-0.5">அறை எண்</label>
+                    <input type="text" id="rmNo" placeholder="2, 3, Hall-1" data-tip="அறை எண் அல்லது பெயர் (உதாரணம்: 2, 3, Hall-1)" class="w-full border rounded p-2 text-sm font-bold bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">நெடுவரிசைகள் (Columns)</label>
-                    <input type="number" id="rmCols" value="2" min="1" max="8" oninput="renderRoomColRowInputs()" class="w-full border rounded p-2 text-sm font-bold">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-0.5">நெடுவரிசைகள் (Cols)</label>
+                    <input type="number" id="rmCols" value="2" min="1" max="8" placeholder="2" data-tip="அறையில் உள்ள பெஞ்ச் நெடுவரிசைகளின் எண்ணிக்கை (உதாரணம்: 2 அல்லது 3)" oninput="renderRoomColRowInputs()" class="w-full border rounded p-2 text-sm font-bold bg-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">ஒரு பெஞ்சிற்கு நபர்கள் (2 அல்லது 3)</label>
-                    <select id="rmPerBench" onchange="recalcRoomMaxCapFromCols()" class="w-full border rounded p-2 text-sm font-bold bg-white">
-                        <option value="2">2 நபர்கள் (Left / Right)</option>
-                        <option value="3">3 நபர்கள் (Left / Middle / Right)</option>
-                        <option value="1">1 நபர் (Single)</option>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-0.5">பெஞ்சிற்கு நபர்கள்</label>
+                    <select id="rmPerBench" data-tip="ஒரு பெஞ்சில் அமரும் மாணவர்கள் எண்ணிக்கை (2 அல்லது 3)" onchange="recalcRoomMaxCapFromCols()" class="w-full border rounded p-2 text-sm font-bold bg-white">
+                        <option value="2">2 நபர்கள்</option>
+                        <option value="3">3 நபர்கள்</option>
+                        <option value="1">1 நபர்</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-emerald-800">அதிகபட்ச மாணவர்கள் (Max Cap)</label>
-                    <input type="number" id="rmMaxCap" value="60" min="1" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                    <label class="block text-[11px] font-bold text-emerald-800 mb-0.5">அதிகபட்ச இருக்கை</label>
+                    <input type="number" id="rmMaxCap" value="60" min="1" placeholder="48" data-tip="இந்த அறையில் அமரக்கூடிய மொத்த மாணவர்கள் எண்ணிக்கை" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
                 </div>
-                <div class="flex items-end gap-2">
-                    <button onclick="saveRoom()" id="rmSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg text-sm">➕ அறையை சேமி</button>
-                    <button onclick="cancelRoomEdit()" id="rmCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-3 py-2 rounded-lg text-sm">ரத்து</button>
+                <div class="flex items-end gap-1.5 col-span-2 md:col-span-1">
+                    <button onclick="saveRoom()" id="rmSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-lg text-sm">➕ சேமி</button>
+                    <button onclick="cancelRoomEdit()" id="rmCancelBtn" class="hidden bg-slate-500 text-white font-bold px-2.5 py-2 rounded-lg text-sm">ரத்து</button>
                 </div>
             </div>
 
             <!-- Dynamic Column-wise Rows Inputs -->
-            <div class="bg-white p-3 rounded border">
-                <label class="block text-xs font-bold text-slate-700 mb-2">ஒவ்வொரு நெடுவரிசையிலும் உள்ள பெஞ்ச் வரிசைகள் (Rows per Column):</label>
-                <div id="roomColRowsContainer" class="flex flex-wrap gap-3"></div>
+            <div class="bg-white p-2.5 rounded border flex flex-wrap items-center gap-3">
+                <span data-tip="ஒவ்வொரு நெடுவரிசையிலும் உள்ள பெஞ்ச் எண்ணிக்கையை தனித்தனியாக மாற்றலாம் (உதாரணம்: Col 1 = 8, Col 2 = 8)" class="text-xs font-bold text-slate-700 cursor-help">பெஞ்ச் வரிசைகள் (Rows/Col):</span>
+                <div id="roomColRowsContainer" class="flex flex-wrap gap-2"></div>
             </div>
         </div>
 
@@ -775,10 +815,10 @@
                     <tr>
                         <th class="p-2 border">அறை எண்</th>
                         <th class="p-2 border">Columns</th>
-                        <th class="p-2 border">நெடுவரிசை வாரியான வரிசைகள் (Col-wise Rows)</th>
+                        <th class="p-2 border">பெஞ்ச் அமைப்பு (Col-wise)</th>
                         <th class="p-2 border">பெஞ்ச் நபர்கள்</th>
-                        <th class="p-2 border bg-emerald-50">அதிகபட்ச மாணவர்கள் (Max Cap)</th>
-                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                        <th class="p-2 border bg-emerald-50">மொத்த இருக்கை</th>
+                        <th class="p-2 border">நடவடிக்கை</th>
                     </tr>
                 </thead>
                 <tbody id="roomsTableBody"></tbody>
@@ -787,41 +827,43 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 5: EXAM TIMETABLE (EDIT & DELETE ENABLED)                    -->
+    <!-- PAGE 5: EXAM TIMETABLE                                            -->
     <!-- ================================================================= -->
-    <div id="workView-timetable" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-2">
-            <h2 class="text-lg font-bold">📅 5. தேர்வு கால அட்டவணை (Exam TimeTable)</h2>
-            <p class="text-xs text-slate-500">பாடத்தை கீழ்விரி பட்டியலிலிருந்து தேர்ந்தெடுத்து, வகுப்புகளைத் டிக் செய்து சேமிக்கவும். சேர்த்த பின் திருத்தவும் நீக்கவும் முடியும்.</p>
+    <div id="workView-timetable" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex items-center justify-between gap-2">
+            <h2 class="text-base md:text-lg font-extrabold text-slate-900">📅 5. தேர்வு அட்டவணை (Exam TimeTable)</h2>
+            <span data-tip="தேர்வு தேதி, வேளை, பாடத்தைத் தேர்ந்தெடுத்து அப்பாடத்தை எழுதும் வகுப்புகளை டிக் செய்து சேமிக்கவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-lg border">
             <input type="hidden" id="ttEditId" value="">
             <div>
-                <label class="block text-xs font-semibold mb-1">தேர்வு பெயர்</label>
-                <input type="text" id="ttTitle" value="அரையாண்டுத் தேர்வு - 2026" class="w-full border rounded p-2 text-sm">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">தேர்வு பெயர்</label>
+                <input type="text" id="ttTitle" value="அரையாண்டுத் தேர்வு - 2026" placeholder="அரையாண்டுத் தேர்வு - 2026" data-tip="தேர்வுத் தலைப்பு (அச்சுப் பிரதியின் தலைப்பில் தோன்றும்)" class="w-full border rounded p-2 text-sm bg-white">
             </div>
             <div>
-                <label class="block text-xs font-semibold mb-1">தேர்வு தேதி</label>
-                <input type="date" id="ttDate" value="2026-12-11" class="w-full border rounded p-2 text-sm">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">தேதி</label>
+                <input type="date" id="ttDate" value="2026-12-11" data-tip="தேர்வு நடைபெறும் தேதியைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded p-2 text-sm bg-white">
             </div>
             <div>
-                <label class="block text-xs font-semibold mb-1">வேளை (Session)</label>
-                <select id="ttSession" class="w-full border rounded p-2 text-sm">
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">வேளை</label>
+                <select id="ttSession" data-tip="FN = முற்பகல் (காலை), AN = பிற்பகல் (மாலை)" class="w-full border rounded p-2 text-sm bg-white font-bold">
                     <option value="FN">FN (முற்பகல்)</option>
                     <option value="AN">AN (பிற்பகல்)</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold mb-1">பாடம் (கீழ்விரி பட்டியல்)</label>
-                <select id="ttSubjectDropdown" class="w-full border rounded p-2 text-sm font-semibold bg-white"></select>
+                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">பாடம்</label>
+                <select id="ttSubjectDropdown" data-tip="பட்டியலிலிருந்து பாடத்தைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded p-2 text-sm font-bold bg-white"></select>
             </div>
-            <div class="md:col-span-4">
-                <label class="block text-xs font-semibold mb-2">இந்தப் பாடத்தை எழுதும் வகுப்புகளைத் தேர்ந்தெடுக்கவும்:</label>
-                <div id="ttClassCheckboxes" class="flex flex-wrap gap-3"></div>
-            </div>
-            <div class="md:col-span-4 flex justify-end gap-2">
-                <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">ரத்து</button>
-                <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-5 py-2 rounded-lg text-sm">➕ அட்டவணையில் சேர்</button>
+            <div class="md:col-span-4 flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-700">வகுப்புகள்:</span>
+                    <div id="ttClassCheckboxes" class="flex flex-wrap gap-2"></div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs">ரத்து</button>
+                    <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs">➕ சேர்</button>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -832,8 +874,8 @@
                         <th class="p-2 border">தேதி</th>
                         <th class="p-2 border">வேளை</th>
                         <th class="p-2 border">வகுப்பு</th>
-                        <th class="p-2 border">பாடம் (குறியீடு - முழுப் பெயர்)</th>
-                        <th class="p-2 border">திருத்து / நீக்கு</th>
+                        <th class="p-2 border">பாடம்</th>
+                        <th class="p-2 border">நடவடிக்கை</th>
                     </tr>
                 </thead>
                 <tbody id="timetableBody"></tbody>
@@ -844,57 +886,52 @@
     <!-- ================================================================= -->
     <!-- PAGE 6: ROOM ALLOCATION & VISUAL SEATING CHART                    -->
     <!-- ================================================================= -->
-    <div id="workView-allocate" class="work-view hidden space-y-6">
-        <div class="bg-white rounded-xl shadow p-6 space-y-5 no-print">
-            <h2 class="text-lg font-bold border-b pb-2">🧮 6. தேர்வு அறை ஒதுக்கீடு கட்டம் (Excel-Style Matrix - RoomAlotBG)</h2>
+    <div id="workView-allocate" class="work-view hidden space-y-4">
+        <div class="bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+            <div class="border-b pb-2 flex items-center justify-between gap-2">
+                <h2 class="text-base md:text-lg font-extrabold text-slate-900">🧮 6. அறை ஒதுக்கீடு & வரைபடம் (Room Allocation)</h2>
+                <span data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுத்து '⚡ தானாக நிரப்பு' அழுத்தி, பின்னர் '🚀 Generate' அழுத்தவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">1. தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும் (Dropdown):</label>
-                    <select id="allocExamSelect" onchange="initAllocationMatrix()" class="w-full border rounded-lg p-2.5 bg-blue-50 font-semibold"></select>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">1. தேர்வு தேதி & வேளை</label>
+                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="ஒதுக்கீடு செய்ய வேண்டிய தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded-lg p-2 bg-blue-50 font-bold text-sm"></select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">2. தேவைப்படும் அறைகளின் எண்ணிக்கை (Room Count):</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="allocRoomCount" min="1" value="5" onchange="applyRoomCountSelection()" class="w-32 border rounded-lg p-2.5 font-bold">
-                        <span class="text-xs text-slate-500 self-center">கீழே உள்ள அறைகளை டிக் செய்து மாற்றிக்கொள்ளலாம்</span>
-                    </div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">2. அறைகளின் எண்ணிக்கை</label>
+                    <input type="number" id="allocRoomCount" min="1" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கையை உள்ளிடவும் (கீழே உள்ள அறைகளை டிக் செய்தும் மாற்றலாம்)" onchange="applyRoomCountSelection()" class="w-36 border rounded-lg p-2 font-bold text-sm">
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold mb-2">தேர்வுக்குரிய அறைகள் (Active Rooms & Max Capacity):</label>
-                <div id="allocRoomCheckboxes" class="flex flex-wrap gap-3"></div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold text-slate-700">தேர்வு அறைகள்:</span>
+                <div id="allocRoomCheckboxes" class="flex flex-wrap gap-2"></div>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 text-center">
-                <div class="bg-pink-50 border border-pink-200 p-3 rounded-lg">
-                    <div class="text-xs text-pink-700 font-semibold">👧 மொத்த மாணவிகள் (Girls)</div>
-                    <div class="text-2xl font-bold text-pink-900" id="statGirls">0</div>
+            <div class="grid grid-cols-3 gap-2.5 text-center">
+                <div class="bg-pink-50 border border-pink-200 p-2 rounded-lg">
+                    <div class="text-[11px] text-pink-700 font-bold">👧 மாணவிகள் (Girls)</div>
+                    <div class="text-xl font-black text-pink-900" id="statGirls">0</div>
                 </div>
-                <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                    <div class="text-xs text-blue-700 font-semibold">👦 மொத்த மாணவர்கள் (Boys)</div>
-                    <div class="text-2xl font-bold text-blue-900" id="statBoys">0</div>
+                <div class="bg-blue-50 border border-blue-200 p-2 rounded-lg">
+                    <div class="text-[11px] text-blue-700 font-bold">👦 மாணவர்கள் (Boys)</div>
+                    <div class="text-xl font-black text-blue-900" id="statBoys">0</div>
                 </div>
-                <div class="bg-slate-100 border border-slate-300 p-3 rounded-lg">
-                    <div class="text-xs text-slate-700 font-semibold">👥 மொத்த தேர்வர்கள் / அறை கொள்ளளவு</div>
-                    <div class="text-2xl font-bold text-slate-900"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
+                <div class="bg-slate-100 border border-slate-300 p-2 rounded-lg">
+                    <div class="text-[11px] text-slate-700 font-bold">👥 தேர்வர்கள் / இருக்கை</div>
+                    <div class="text-xl font-black text-slate-900"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
                 </div>
             </div>
 
             <!-- Auto-Fill Gender & Roll Ordering Controls -->
-            <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="space-y-1.5">
-                        <div class="text-sm font-bold text-amber-900">⚡ தானியங்கி நிரப்பல் முறை (Auto-Fill Gender & Sequence Rule):</div>
-                        <div class="flex flex-wrap gap-4 text-sm">
-                            <label class="font-semibold"><input type="radio" name="genderRule" value="strict" checked onchange="initAllocationMatrix()"> ஆண், பெண் தனித்தனி அறைகள் (Strict Separate Rooms)</label>
-                            <label class="font-semibold"><input type="radio" name="genderRule" value="hybrid" onchange="initAllocationMatrix()"> ஸ்மார்ட் கலப்பு முறை (Separate First, Overflow Mix)</label>
-                            <label class="font-semibold text-blue-900"><input type="radio" name="genderRule" value="continuous" onchange="initAllocationMatrix()"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No Order - வகுப்பு மொத்தம்)</label>
-                        </div>
-                    </div>
-                    <button onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
+            <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg flex flex-wrap items-center justify-between gap-2.5">
+                <div class="flex flex-wrap gap-3 text-xs md:text-sm">
+                    <label data-tip="மாணவிகளுக்குத் தனி அறைகளும் மாணவர்களுக்குத் தனி அறைகளும் ஒதுக்கப்படும்" class="font-bold cursor-pointer"><input type="radio" name="genderRule" value="strict" checked onchange="initAllocationMatrix()"> ஆண், பெண் தனித்தனி அறைகள்</label>
+                    <label data-tip="முதலில் தனித்தனி அறைகள் நிரப்பப்பட்டு, மீதமுள்ளவர்கள் மட்டும் ஒன்றாக இணைக்கப்படுவர்" class="font-bold cursor-pointer"><input type="radio" name="genderRule" value="hybrid" onchange="initAllocationMatrix()"> ஸ்மார்ட் கலப்பு முறை</label>
+                    <label data-tip="ஆண், பெண் எனப் பிரிக்காமல் வகுப்பு மொத்த எண்ணிக்கையில் தொடர்ச்சியான தேர்வு எண்கள் படி நிரப்பப்படும்" class="font-bold text-blue-950 cursor-pointer"><input type="radio" name="genderRule" value="continuous" onchange="initAllocationMatrix()"> தொடர்ச்சியான தேர்வு எண்கள் (வகுப்பு மொத்தம்)</label>
                 </div>
+                <button onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
             </div>
 
             <div class="overflow-x-auto">
@@ -905,173 +942,161 @@
             </div>
 
             <!-- SEATING ARRANGEMENT & PRINT FORMAT OPTIONS -->
-            <div class="bg-slate-50 border p-4 rounded-lg space-y-3">
-                <div class="text-sm font-bold text-slate-800">🪑 பெஞ்ச் இருக்கை வரிசை & அச்சு விருப்பங்கள் (Bench Seating & Print Options):</div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div class="bg-white p-3 rounded border space-y-1.5">
-                        <div class="font-bold text-xs text-slate-600">பெஞ்சில் மாணவர் அமரும் வரிசை (2 அல்லது 3 பேர் அமரும் போது):</div>
-                        <label class="block font-semibold text-blue-950"><input type="radio" name="benchOrderMode" value="interleave" checked> வெவ்வேறு வகுப்பு (12th / 11th) மாணவர்களை முதலில் மாற்றி அமர வைக்கவும் — தவிர்க்க முடியாவிடில் வெவ்வேறு பாடங்கள் (Anti-Malpractice)</label>
-                        <label class="block"><input type="radio" name="benchOrderMode" value="continuous"> தேர்வு எண்கள் தொடர்ச்சியாக (Continuous Roll No) அமர வைக்கவும்</label>
-                    </div>
-                    <div class="bg-white p-3 rounded border space-y-2">
-                        <div class="font-bold text-xs text-slate-600">அச்சுப் பிரதி சுருக்கக் குறியீடுகள் (Print Abbreviations):</div>
-                        <label class="block font-semibold text-blue-900">
-                            <input type="checkbox" id="useShortSubjectPrint" checked class="w-4 h-4 mr-1">
-                            பாடங்களை சுருக்கக் குறியீட்டில் அச்சிடுக (CS, CA, ENG + விளக்கம்)
-                        </label>
-                        <label class="block font-semibold text-emerald-900">
-                            <input type="checkbox" id="useShortTeacherPrint" checked class="w-4 h-4 mr-1">
-                            ஆசிரியர்களை சுருக்கக் குறியீட்டில் அச்சிடுக (RV + முழுப் பெயர்)
-                        </label>
-                    </div>
+            <div class="bg-slate-50 border p-3 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="bg-white p-2.5 rounded border space-y-1">
+                    <div class="font-extrabold text-slate-700">🪑 பெஞ்ச் இருக்கை வரிசை:</div>
+                    <label data-tip="முதலில் வெவ்வேறு வகுப்பு (12th / 11th) மாணவர்களையும், தவிர்க்க முடியாவிடில் வெவ்வேறு பாட மாணவர்களையும் அடுத்தடுத்து அமரவைக்கும்" class="block font-bold text-blue-950 cursor-pointer"><input type="radio" name="benchOrderMode" value="interleave" checked> வெவ்வேறு வகுப்பு / பாடம் மாற்றி அமரவை (Anti-Malpractice)</label>
+                    <label data-tip="தேர்வு எண்கள் ஏறுவரிசையில் தொடர்ச்சியாக அமரவைக்கப்படும்" class="block font-semibold cursor-pointer"><input type="radio" name="benchOrderMode" value="continuous"> தொடர்ச்சியான தேர்வு எண் வரிசை (Continuous)</label>
+                </div>
+                <div class="bg-white p-2.5 rounded border space-y-1.5">
+                    <div class="font-extrabold text-slate-700">🖨️ அச்சு சுருக்கக் குறியீடுகள்:</div>
+                    <label class="block font-bold text-blue-900 cursor-pointer">
+                        <input type="checkbox" id="useShortSubjectPrint" checked class="w-3.5 h-3.5 mr-1">
+                        பாடங்களை சுருக்கக் குறியீட்டில் அச்சிடு (CS, MAT...)
+                    </label>
+                    <label class="block font-bold text-emerald-900 cursor-pointer">
+                        <input type="checkbox" id="useShortTeacherPrint" checked class="w-3.5 h-3.5 mr-1">
+                        ஆசிரியர்களை சுருக்கக் குறியீட்டில் அச்சிடு (RV...)
+                    </label>
                 </div>
             </div>
 
             <div class="flex justify-end">
-                <button onclick="generateFinalOutputs()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg text-base">🚀 Generate Notice Board & Visual Seating Map</button>
+                <button onclick="generateFinalOutputs()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-lg shadow text-sm">🚀 Generate Notice Board & Visual Seating Map</button>
             </div>
         </div>
 
         <!-- GENERATED OUTPUTS (PRINTABLE AREA) -->
-        <div id="generatedOutputArea" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-xl shadow border border-slate-200 space-y-3 no-print">
-                <div class="flex flex-wrap justify-between items-center gap-3">
+        <div id="generatedOutputArea" class="hidden space-y-5">
+            <div class="bg-white p-3.5 rounded-xl shadow border border-slate-200 space-y-2.5 no-print">
+                <div class="flex flex-wrap justify-between items-center gap-2">
                     <div>
-                        <span class="font-bold text-emerald-700">✅ அறை ஒதுக்கீடு பட்டியல் மற்றும் இருக்கை வரைபடம் தயாராகிவிட்டது!</span>
-                        <div id="activeSavedPlanBadge" class="hidden text-xs font-bold text-indigo-800 bg-indigo-50 border border-indigo-300 px-2.5 py-0.5 rounded mt-1 inline-block"></div>
+                        <span class="font-bold text-sm text-emerald-700">✅ அறை ஒதுக்கீடு & இருக்கை வரைபடம் தயார்!</span>
+                        <div id="activeSavedPlanBadge" class="hidden text-xs font-bold text-indigo-800 bg-indigo-50 border border-indigo-300 px-2 py-0.5 rounded mt-1 inline-block"></div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="saveCurrentSeatingPlan(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">💾 புதிய அமைப்பாக Cloud-ல் சேமி (Save)</button>
-                        <button id="updateSavedPlanBtn" onclick="saveCurrentSeatingPlan(true)" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🔄 இந்த சேமித்த அமைப்பை புதுப்பி (Update)</button>
-                        <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">🖨️ அச்சிடுக / PDF சேமி (Print)</button>
-                        <button onclick="shareAllocationToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow">📲 வாட்ஸ்அப்பிற்கு அனுப்பு (WhatsApp)</button>
-                        <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-sm">📥 Excel / CSV</button>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="saveCurrentSeatingPlan(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">💾 Cloud-ல் சேமி</button>
+                        <button id="updateSavedPlanBtn" onclick="saveCurrentSeatingPlan(true)" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🔄 புதுப்பி</button>
+                        <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🖨️ அச்சிடு (Print)</button>
+                        <button onclick="shareAllocationToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">📲 WhatsApp</button>
+                        <button onclick="downloadCSV()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs">📥 CSV</button>
                     </div>
                 </div>
-                <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-lg">
-                        <input type="checkbox" id="includeQpSummaryPrint" onchange="toggleQpSummaryVisibility()" class="w-4 h-4">
-                        📦 அறை வாரியான & மொத்த வினாத்தாள் தொகுப்பு (QP Packing Summary Table) அட்டவணையை அச்சில் இணைக்கவும்
+                <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 px-2.5 py-1 rounded-lg">
+                        <input type="checkbox" id="includeQpSummaryPrint" onchange="toggleQpSummaryVisibility()" class="w-3.5 h-3.5">
+                        📦 வினாத்தாள் தொகுப்பு (QP Packing Summary) அட்டவணையை அச்சில் இணை
                     </label>
-                    <button onclick="switchWorkTab('saved')" class="text-blue-800 hover:underline font-bold">📂 சேமிக்கப்பட்ட அனைத்து அமைப்புகளையும் பார்க்க (Saved Plans) →</button>
+                    <button onclick="switchWorkTab('saved')" class="text-blue-800 hover:underline font-bold">📂 சேமித்த அமைப்புகள் →</button>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow" id="printableNoticeBoard"></div>
-            <div id="printableVisualCharts" class="space-y-6"></div>
+            <div class="bg-white p-5 rounded-xl shadow" id="printableNoticeBoard"></div>
+            <div id="printableVisualCharts" class="space-y-5"></div>
         </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- DEDICATED PAGE: SAVED SEATING PLANS (CLOUD SYNCED, MAX 3/SESSION) -->
+    <!-- PAGE 7: SAVED SEATING PLANS                                       -->
     <!-- ================================================================= -->
-    <div id="workView-saved" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-5 no-print">
-        <div class="border-b pb-3 flex flex-wrap justify-between items-center gap-3">
-            <div>
-                <h2 class="text-lg font-bold text-slate-900">💾 சேமிக்கப்பட்ட தேர்வு அறை இருக்கை அமைப்புகள் (Saved Seating Arrangements)</h2>
-                <p class="text-xs text-slate-600">வீட்டில் உருவாக்கிய அமைப்புகளையும் பள்ளியில் அல்லது எந்தக் கணினியிலிருந்தும் திறந்து பார்க்கலாம், திருத்தலாம், அச்சிடலாம். (ஒரு தேர்வு நாள் & வேளைக்கு அதிகபட்சம் <b>3 அமைப்புகள்</b> வரை சேமிக்கலாம்; அதற்கு மேல் தேவைப்பட்டால் பழையதை நீக்கிவிட்டுப் புதிதாகச் சேமிக்கலாம்).</p>
+    <div id="workView-saved" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3.5 no-print">
+        <div class="border-b pb-2 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <h2 class="text-base md:text-lg font-extrabold text-slate-900">💾 7. சேமித்த இருக்கை அமைப்புகள் (Saved Plans)</h2>
+                <span data-tip="வீட்டில் உருவாக்கிய அமைப்புகளையும் பள்ளியில் திறந்து பார்க்கலாம், திருத்தலாம், அச்சிடலாம். ஒரு தேர்வு வேளைக்கு அதிகபட்சம் 3 அமைப்புகள் சேமிக்கலாம்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி</span>
             </div>
-            <button onclick="refreshSavedPlansView()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">🔄 Cloud-லிருந்து புதுப்பி (Sync)</button>
+            <button onclick="refreshSavedPlansView()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🔄 Cloud Sync</button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-lg border">
-            <label class="text-xs font-bold text-slate-700">தேர்வு நாள் & வேளை வாரியாக வடிகட்டு (Filter):</label>
-            <select id="savedFilterSession" onchange="renderSavedPlansList()" class="border rounded-lg px-3 py-1.5 text-sm font-semibold bg-white">
-                <option value="ALL">அனைத்துத் தேர்வுகளும் (Show All Saved Plans)</option>
+        <div class="flex flex-wrap items-center gap-2.5 bg-slate-50 p-2.5 rounded-lg border">
+            <label class="text-xs font-bold text-slate-700">வடிகட்டு (Filter):</label>
+            <select id="savedFilterSession" onchange="renderSavedPlansList()" class="border rounded-lg px-2.5 py-1 text-xs font-bold bg-white">
+                <option value="ALL">அனைத்துத் தேர்வுகளும்</option>
             </select>
         </div>
 
-        <div id="savedPlansContainer" class="space-y-4"></div>
+        <div id="savedPlansContainer" class="space-y-3"></div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 8: INVIGILATOR DUTY ABSTRACT, MATRIX & ASSIGNMENT            -->
+    <!-- PAGE 8: INVIGILATOR DUTY ABSTRACT & ROSTER                        -->
     <!-- ================================================================= -->
-    <div id="workView-duty" class="work-view hidden space-y-6">
-        <!-- PART A: OVERALL EXAM DUTY ABSTRACT & INTERACTIVE MATRIX (PRINTABLE) -->
-        <div id="printableDutyAbstractArea" class="bg-white rounded-xl shadow p-5 space-y-4 border border-slate-200">
-            <div class="flex flex-wrap justify-between items-center gap-3 border-b pb-3 no-print">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">📊 8. அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட் & சுழற்சி அட்டவணை (Invigilator Duty Abstract & Roster)</h2>
-                    <p class="text-xs text-slate-600">தேர்வு அட்டவணை மற்றும் மாணவர் எண்ணிக்கையின் அடிப்படையில் ஒவ்வொரு நாளுக்கும் வேளைக்கும் தேவையான அறைகள் & ஆசிரியர் பணிகள் தானாகக் கணக்கிடப்படும். எந்தக் கட்டத்தையும் கிளிக் செய்து <b>(X)</b> பணியை மாற்றிக்கொள்ளலாம்.</p>
+    <div id="workView-duty" class="work-view hidden space-y-4">
+        <div id="printableDutyAbstractArea" class="bg-white rounded-xl shadow p-4 space-y-3 border border-slate-200">
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-2 no-print">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-base md:text-lg font-extrabold text-slate-900">📊 8. கண்காணிப்புப் பணி அப்ஸ்ட்ராக்ட் (Duty Roster)</h2>
+                    <span data-tip="தேவைப்படும் ஆசிரியர்கள் எண்ணிக்கையை மாற்றலாம்; எந்தக் கட்டத்தையும் கிளிக் செய்து (X) பணியை மாற்றலாம். TOT = மொத்தம், FN = காலை, AN = மாலை." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி</span>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="autoGenerateDutyMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">⚡ தானியங்கி பணி ஒதுக்கீடு (Auto-Assign Fair Roster)</button>
-                    <button onclick="syncMatrixToRoomDuties()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">🔄 அறை வாரியாகப் பட்டியலில் இணை</button>
-                    <button onclick="printDutyAbstractOnly()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">🖨️ அப்ஸ்ட்ராக்ட் அச்சிடு (Print)</button>
-                    <button onclick="shareDutyAbstractToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">📲 வாட்ஸ்அப் அனுப்பு (WhatsApp)</button>
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="autoGenerateDutyMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">⚡ தானியங்கி பணி</button>
+                    <button onclick="syncMatrixToRoomDuties()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🔄 அறைப் பட்டியலில் இணை</button>
+                    <button onclick="printDutyAbstractOnly()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">🖨️ அச்சிடு</button>
+                    <button onclick="shareDutyAbstractToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">📲 WhatsApp</button>
                 </div>
             </div>
 
             <!-- 4 SUMMARY ABSTRACT CARDS -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                <div class="bg-blue-50 border border-blue-300 p-2.5 rounded-lg bw-print-box">
-                    <div class="text-[11px] font-bold text-blue-800">📅 மொத்த தேர்வு வேளைகள்</div>
-                    <div class="text-2xl font-black text-blue-950" id="absTotalSessions">0</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-center">
+                <div class="bg-blue-50 border border-blue-300 p-2 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-blue-800">📅 தேர்வு வேளைகள்</div>
+                    <div class="text-xl font-black text-blue-950" id="absTotalSessions">0</div>
                 </div>
-                <div class="bg-amber-50 border border-amber-300 p-2.5 rounded-lg bw-print-box">
-                    <div class="text-[11px] font-bold text-amber-800">🏫 மொத்த தேவைப்படும் பணிகள் (Duties)</div>
-                    <div class="text-2xl font-black text-amber-950" id="absTotalDutiesNeeded">0</div>
+                <div class="bg-amber-50 border border-amber-300 p-2 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-amber-800">🏫 தேவைப்படும் பணிகள்</div>
+                    <div class="text-xl font-black text-amber-950" id="absTotalDutiesNeeded">0</div>
                 </div>
-                <div class="bg-emerald-50 border border-emerald-300 p-2.5 rounded-lg bw-print-box">
-                    <div class="text-[11px] font-bold text-emerald-800">🧑‍🏫 பணியில் உள்ள மொத்த ஆசிரியர்கள்</div>
-                    <div class="text-2xl font-black text-emerald-950" id="absTotalTeachers">0</div>
+                <div class="bg-emerald-50 border border-emerald-300 p-2 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-emerald-800">🧑‍🏫 மொத்த ஆசிரியர்கள்</div>
+                    <div class="text-xl font-black text-emerald-950" id="absTotalTeachers">0</div>
                 </div>
-                <div class="bg-purple-50 border border-purple-300 p-2.5 rounded-lg bw-print-box">
-                    <div class="text-[11px] font-bold text-purple-800">⚖️ ஒரு ஆசிரியருக்கு சராசரி பணி</div>
-                    <div class="text-2xl font-black text-purple-950" id="absAvgDuties">0</div>
+                <div class="bg-purple-50 border border-purple-300 p-2 rounded-lg bw-print-box">
+                    <div class="text-[11px] font-bold text-purple-800">⚖️ சராசரி பணி / ஆசிரியர்</div>
+                    <div class="text-xl font-black text-purple-950" id="absAvgDuties">0</div>
                 </div>
             </div>
 
             <!-- PRINT HEADER FOR DUTY ABSTRACT -->
-            <div class="text-center border-b-2 border-black pb-1.5">
+            <div class="text-center border-b-2 border-black pb-1">
                 <h3 class="text-base md:text-lg font-extrabold uppercase" id="dutyAbstractSchoolTitle"></h3>
-                <div class="text-xs md:text-sm font-bold text-slate-800">தேர்வு அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட் & நாள் வாரியான பணி ஒதுக்கீட்டு அட்டவணை (INVIGILATION DUTY ABSTRACT & ROSTER)</div>
+                <div class="text-xs font-bold text-slate-800">தேர்வு அறை கண்காணிப்பாளர் பணி அப்ஸ்ட்ராக்ட் & சுழற்சி அட்டவணை (INVIGILATION DUTY ROSTER)</div>
             </div>
 
-            <!-- EXCEL-STYLE DUTY ABSTRACT & INTERACTIVE TEACHER × SESSION MATRIX -->
             <div class="overflow-x-auto">
                 <table class="official-tbl text-xs" id="dutyAbstractMatrixTable">
                     <thead id="dutyMatrixHead"></thead>
                     <tbody id="dutyMatrixBody"></tbody>
                 </table>
             </div>
-            <div class="text-[11px] text-slate-600 flex flex-wrap justify-between gap-2 no-print">
-                <span>💡 <b>குறிப்பு:</b> மேலே உள்ள அட்டவணையில் <b>"தேவைப்படும் ஆசிரியர்கள்"</b> எண்ணிக்கையை மாற்றலாம்; மேலும் ஒவ்வொரு ஆசிரியர் கட்டத்தையும் கிளிக் செய்து <b>X</b> (பணி ஒதுக்கீடு) சேர்க்கலாம் அல்லது நீக்கலாம்.</span>
-                <span><b>TOT</b> = மொத்த பணி | <b>FN</b> = காலை பணி | <b>AN</b> = மாலை பணி</span>
-            </div>
         </div>
 
-        <!-- PART B: ROOM-WISE INVIGILATOR ASSIGNMENT (EDIT & DELETE ENABLED) -->
-        <div class="bg-white rounded-xl shadow p-6 space-y-5 no-print">
-            <div class="border-b pb-2">
-                <h3 class="text-base font-bold">🚪 அறை வாரியான கண்காணிப்பாளர் பணி ஒதுக்கீடு (Room-Wise Invigilator Assignment)</h3>
-                <p class="text-xs text-slate-500">தனிப்பட்ட அறைகளுக்கு ஆசிரியர்களை ஒதுக்கவும், திருத்தவும் அல்லது நீக்கவும் முடியும்.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border">
+        <!-- PART B: ROOM-WISE INVIGILATOR ASSIGNMENT -->
+        <div class="bg-white rounded-xl shadow p-4 space-y-3 no-print">
+            <h3 class="text-sm md:text-base font-extrabold border-b pb-1.5">🚪 அறை வாரியான கண்காணிப்பாளர் ஒதுக்கீடு</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 bg-slate-50 p-3 rounded-lg border">
                 <input type="hidden" id="dutyEditId" value="">
                 <div>
-                    <label class="block text-xs font-semibold mb-1">தேர்வு தேதி & வேளை (Dropdown)</label>
-                    <select id="dutyExamSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                    <label class="block text-[11px] font-bold mb-0.5">தேதி & வேளை</label>
+                    <select id="dutyExamSelect" class="w-full border rounded p-2 text-sm bg-white font-bold"></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">அறை எண் (Dropdown)</label>
-                    <select id="dutyRoomSelect" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                    <label class="block text-[11px] font-bold mb-0.5">அறை எண்</label>
+                    <select id="dutyRoomSelect" class="w-full border rounded p-2 text-sm bg-white font-bold"></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">ஆசிரியர் (Dropdown)</label>
-                    <select id="dutyTeacherDropdown" class="w-full border rounded p-2 text-sm bg-white font-semibold"></select>
+                    <label class="block text-[11px] font-bold mb-0.5">ஆசிரியர்</label>
+                    <select id="dutyTeacherDropdown" class="w-full border rounded p-2 text-sm bg-white font-bold"></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-1">பணி நிலை</label>
-                    <div class="flex gap-2">
+                    <label class="block text-[11px] font-bold mb-0.5">பணி நிலை</label>
+                    <div class="flex gap-1.5">
                         <select id="dutyRoleSelect" class="w-full border rounded p-2 text-sm bg-white">
                             <option>அறை கண்காணிப்பாளர் (Invigilator)</option>
                             <option>பறக்கும் படை (Squad)</option>
                             <option>மாற்றுப் பணி (Reliever)</option>
                         </select>
-                        <button onclick="saveDuty()" id="dutySaveBtn" class="bg-blue-700 text-white px-4 rounded font-semibold text-sm">சேர்</button>
-                        <button onclick="cancelDutyEdit()" id="dutyCancelBtn" class="hidden bg-slate-500 text-white px-3 rounded font-semibold text-sm">ரத்து</button>
+                        <button onclick="saveDuty()" id="dutySaveBtn" class="bg-blue-700 text-white px-3.5 rounded font-bold text-sm">சேர்</button>
+                        <button onclick="cancelDutyEdit()" id="dutyCancelBtn" class="hidden bg-slate-500 text-white px-2.5 rounded font-bold text-sm">ரத்து</button>
                     </div>
                 </div>
             </div>
@@ -1081,10 +1106,10 @@
                         <tr>
                             <th class="p-2 border">தேதி & வேளை</th>
                             <th class="p-2 border">அறை எண்</th>
-                            <th class="p-2 border">சுருக்கக் குறியீடு</th>
-                            <th class="p-2 border">ஆசிரியர் முழுப் பெயர்</th>
+                            <th class="p-2 border">குறியீடு</th>
+                            <th class="p-2 border">ஆசிரியர் பெயர்</th>
                             <th class="p-2 border">பணி</th>
-                            <th class="p-2 border">திருத்து / நீக்கு</th>
+                            <th class="p-2 border">நடவடிக்கை</th>
                         </tr>
                     </thead>
                     <tbody id="dutyTableBody"></tbody>
@@ -1094,58 +1119,53 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 9: DEDICATED REPORTS & EXAM MASTER FILE                      -->
+    <!-- PAGE 9: DEDICATED REPORTS                                         -->
     <!-- ================================================================= -->
-    <div id="workView-reports" class="work-view hidden space-y-6">
-        <div class="bg-white rounded-xl shadow p-5 space-y-4 border border-slate-200 no-print">
-            <div class="flex flex-wrap justify-between items-center gap-3 border-b pb-3">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">📑 9. தேர்வு அறிக்கைகள் & ஒருங்கிணைந்த தேர்வுக் கோப்பு (Exam Reports & Master File)</h2>
-                    <p class="text-xs text-slate-600">தேர்ந்தெடுக்கப்பட்ட தேர்வின் <b>தேர்வு அட்டவணை</b> மற்றும் <b>வகுப்பு வாரியான மாணவ, மாணவியர் எண்ணிக்கை & தேர்வு எண் தொடக்கம் - முடிவு</b> ஆகியவற்றைத் தொகுத்து தேவைக்கேற்ப தனித்தனியாகவோ அல்லது மொத்தமாகவோ அச்சிடலாம்.</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="printSelectedReports()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">🖨️ தேர்ந்தெடுத்த அறிக்கைகளை அச்சிடு (Print)</button>
-                    <button onclick="downloadExamMasterCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">📥 முழுத் தேர்வுக் கோப்பு பதிவிறக்கம் (Excel / CSV)</button>
-                    <button onclick="shareReportsToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow">📲 வாட்ஸ்அப்பிற்கு அனுப்பு (WhatsApp)</button>
+    <div id="workView-reports" class="work-view hidden space-y-4">
+        <div class="bg-white rounded-xl shadow p-4 space-y-3 border border-slate-200 no-print">
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b pb-2">
+                <h2 class="text-base md:text-lg font-extrabold text-slate-900">📑 9. அறிக்கைகள் & தேர்வுக் கோப்பு (Reports)</h2>
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="printSelectedReports()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs shadow">🖨️ அச்சிடு (Print)</button>
+                    <button onclick="downloadExamMasterCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs shadow">📥 Excel / CSV</button>
+                    <button onclick="shareReportsToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs shadow">📲 WhatsApp</button>
                 </div>
             </div>
 
-            <!-- REPORT SELECTION CHECKBOXES -->
-            <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl flex flex-wrap items-center gap-4 text-xs md:text-sm">
-                <span class="font-extrabold text-blue-950">📌 அச்சிட வேண்டிய அறிக்கைகளைத் தேர்ந்தெடுக்கவும்:</span>
-                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
-                    <input type="checkbox" id="repChkTimetable" checked onchange="renderReportsPage()" class="w-4 h-4">
-                    📅 1. தேர்வு அட்டவணை அறிக்கை (Exam TimeTable)
+            <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-lg flex flex-wrap items-center gap-3 text-xs">
+                <span class="font-extrabold text-blue-950">அறிக்கைகள்:</span>
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded border">
+                    <input type="checkbox" id="repChkTimetable" checked onchange="renderReportsPage()" class="w-3.5 h-3.5">
+                    📅 தேர்வு அட்டவணை
                 </label>
-                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
-                    <input type="checkbox" id="repChkStrength" checked onchange="renderReportsPage()" class="w-4 h-4">
-                    👥 2. வகுப்பு வாரியான ஆண் / பெண் & தேர்வு எண் (Roll No) அறிக்கை
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded border">
+                    <input type="checkbox" id="repChkStrength" checked onchange="renderReportsPage()" class="w-3.5 h-3.5">
+                    👥 மாணவர் & தேர்வு எண்கள்
                 </label>
-                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border">
-                    <input type="checkbox" id="repChkRooms" onchange="renderReportsPage()" class="w-4 h-4">
-                    🚪 3. தேர்வு அறைகள் & இருக்கை கொள்ளளவு அறிக்கை (Rooms Summary)
+                <label class="font-bold text-slate-800 cursor-pointer inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded border">
+                    <input type="checkbox" id="repChkRooms" onchange="renderReportsPage()" class="w-3.5 h-3.5">
+                    🚪 அறைகள் கொள்ளளவு
                 </label>
             </div>
         </div>
 
-        <!-- PRINTABLE REPORT OUTPUT CONTAINER -->
-        <div id="printableReportsArea" class="bg-white rounded-xl shadow p-6 space-y-6 border border-slate-200"></div>
+        <div id="printableReportsArea" class="bg-white rounded-xl shadow p-5 space-y-5 border border-slate-200"></div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- PAGE 8: SCHOOL SETTINGS                                           -->
+    <!-- PAGE 10: SCHOOL SETTINGS                                          -->
     <!-- ================================================================= -->
-    <div id="workView-settings" class="work-view hidden bg-white rounded-xl shadow p-6 space-y-4 max-w-xl no-print">
-        <h2 class="text-lg font-bold border-b pb-2">⚙️ பள்ளி பெயர் & கடவுச்சொல் மாற்றம்</h2>
+    <div id="workView-settings" class="work-view hidden bg-white rounded-xl shadow p-4 space-y-3 max-w-lg no-print">
+        <h2 class="text-base md:text-lg font-extrabold border-b pb-2">⚙️ 10. பள்ளி அமைப்புகள் (Settings)</h2>
         <div>
-            <label class="block text-sm font-medium mb-1">பள்ளியின் பெயர்</label>
-            <input type="text" id="setSchoolName" class="w-full border rounded-lg p-2.5">
+            <label class="block text-xs font-bold mb-1">பள்ளியின் பெயர்</label>
+            <input type="text" id="setSchoolName" placeholder="அரசு மேல்நிலைப்பள்ளி..." data-tip="அச்சுப் பிரதிகளின் தலைப்பில் வரவேண்டிய பள்ளியின் முழுப் பெயர்" class="w-full border rounded-lg p-2 text-sm">
         </div>
         <div>
-            <label class="block text-sm font-medium mb-1">புதிய கடவுச்சொல் (மாற்ற விரும்பினால் மட்டும் உள்ளிடவும்)</label>
-            <input type="password" id="setNewPass" class="w-full border rounded-lg p-2.5">
+            <label class="block text-xs font-bold mb-1">புதிய கடவுச்சொல்</label>
+            <input type="password" id="setNewPass" placeholder="••••••••" data-tip="கடவுச்சொல்லை மாற்ற விரும்பினால் மட்டும் புதிய கடவுச்சொல்லை உள்ளிடவும்" class="w-full border rounded-lg p-2 text-sm">
         </div>
-        <button onclick="updateSchoolProfile()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-lg">மாற்றங்களை சேமி</button>
+        <button onclick="updateSchoolProfile()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg text-sm">💾 சேமி</button>
     </div>
 </section>
 
@@ -4618,6 +4638,58 @@
             alert("விவரங்கள் வெற்றிகரமாக மாற்றப்பட்டன!");
         }
     }
+
+    
+    // ---------------------------------------------------------
+    // SMART FLOATING TIP POPUP ON HOVER & FOCUS ([data-tip])
+    // ---------------------------------------------------------
+    (function initSmartTipPopups() {
+        const popup = document.getElementById('smartTipPopup');
+        if (!popup) return;
+
+        function showTip(el) {
+            const msg = el.getAttribute('data-tip');
+            if (!msg) return;
+            popup.innerHTML = `<span class="tip-badge">TIP</span>${msg}`;
+            popup.classList.add('visible');
+
+            const rect = el.getBoundingClientRect();
+            const popRect = popup.getBoundingClientRect();
+            let top = rect.top - popRect.height - 8;
+            if (top < 8) {
+                top = rect.bottom + 8;
+            }
+            let left = rect.left;
+            if (left + popRect.width > window.innerWidth - 12) {
+                left = window.innerWidth - popRect.width - 12;
+            }
+            if (left < 8) left = 8;
+
+            popup.style.top = `${top}px`;
+            popup.style.left = `${left}px`;
+        }
+
+        function hideTip() {
+            popup.classList.remove('visible');
+        }
+
+        document.addEventListener('mouseover', (e) => {
+            const target = e.target.closest('[data-tip]');
+            if (target) showTip(target);
+        });
+        document.addEventListener('mouseout', (e) => {
+            const target = e.target.closest('[data-tip]');
+            if (target) hideTip();
+        });
+        document.addEventListener('focusin', (e) => {
+            const target = e.target.closest('[data-tip]');
+            if (target) showTip(target);
+        });
+        document.addEventListener('focusout', (e) => {
+            const target = e.target.closest('[data-tip]');
+            if (target) hideTip();
+        });
+    })();
 
     window.onload = async function() {
         updateCloudBadge();
