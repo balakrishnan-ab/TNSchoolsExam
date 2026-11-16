@@ -893,45 +893,57 @@
                 <span data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுத்து '⚡ தானாக நிரப்பு' அழுத்தி, பின்னர் '🚀 Generate' அழுத்தவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">1. தேர்வு தேதி & வேளை</label>
-                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="ஒதுக்கீடு செய்ய வேண்டிய தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded-lg p-2 bg-blue-50 font-bold text-sm"></select>
+            <!-- COCKPIT ROW 1: EXAM SESSION + ROOM COUNT + LIVE STRENGTH/CAPACITY METER -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-stretch">
+                <div class="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">1️⃣ தேர்வு தேதி & வேளை</label>
+                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="ஒதுக்கீடு செய்ய வேண்டிய தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded-md px-2.5 py-1.5 bg-blue-50 text-blue-950 font-extrabold text-sm cursor-pointer"></select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">2. அறைகளின் எண்ணிக்கை</label>
-                    <input type="number" id="allocRoomCount" min="1" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கையை உள்ளிடவும் (கீழே உள்ள அறைகளை டிக் செய்தும் மாற்றலாம்)" onchange="applyRoomCountSelection()" class="w-36 border rounded-lg p-2 font-bold text-sm">
+
+                <div class="lg:col-span-3 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[11px] font-extrabold text-slate-600">2️⃣ அறை எண்ணிக்கை</label>
+                        <div class="flex gap-1 text-[10px]">
+                            <button type="button" onclick="toggleAllAllocRooms(true)" class="px-1.5 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded font-bold">All</button>
+                            <button type="button" onclick="toggleAllAllocRooms(false)" class="px-1.5 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-bold">None</button>
+                        </div>
+                    </div>
+                    <input type="number" id="allocRoomCount" min="1" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கையை உள்ளிடவும்" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded-md px-2.5 py-1.5 bg-white font-black text-sm text-center">
+                </div>
+
+                <div class="lg:col-span-5 grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-2 flex flex-col justify-center">
+                        <div class="text-[10px] text-pink-800 font-extrabold">👧 மாணவிகள்</div>
+                        <div class="text-xl font-black text-pink-950 leading-tight" id="statGirls">0</div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 flex flex-col justify-center">
+                        <div class="text-[10px] text-blue-800 font-extrabold">👦 மாணவர்கள்</div>
+                        <div class="text-xl font-black text-blue-950 leading-tight" id="statBoys">0</div>
+                    </div>
+                    <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center">
+                        <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர் / இருக்கை</div>
+                        <div class="text-lg md:text-xl font-black text-slate-950 leading-tight"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-bold text-slate-700">தேர்வு அறைகள்:</span>
-                <div id="allocRoomCheckboxes" class="flex flex-wrap gap-2"></div>
+            <!-- COCKPIT ROW 2: COMPACT ROOM PILL CHIPS -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex flex-wrap items-center gap-2">
+                <span class="text-xs font-extrabold text-slate-700 shrink-0">🏫 அறைகள்:</span>
+                <div id="allocRoomCheckboxes" class="flex flex-wrap gap-1.5"></div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2.5 text-center">
-                <div class="bg-pink-50 border border-pink-200 p-2 rounded-lg">
-                    <div class="text-[11px] text-pink-700 font-bold">👧 மாணவிகள் (Girls)</div>
-                    <div class="text-xl font-black text-pink-900" id="statGirls">0</div>
+            <!-- COCKPIT ROW 3: SINGLE-LINE GENDER RULE + AUTO-FILL & CLEAR ACTIONS -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 px-3 py-2 rounded-lg flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-3 text-xs">
+                    <label data-tip="மாணவிகளுக்குத் தனி அறைகளும் மாணவர்களுக்குத் தனி அறைகளும் ஒதுக்கப்படும்" class="font-extrabold text-slate-800 cursor-pointer inline-flex items-center gap-1"><input type="radio" name="genderRule" value="strict" checked onchange="initAllocationMatrix()"> ஆண்/பெண் தனித்தனி</label>
+                    <label data-tip="முதலில் தனித்தனி அறைகள் நிரப்பப்பட்டு, மீதமுள்ளவர்கள் மட்டும் ஒன்றாக இணைக்கப்படுவர்" class="font-extrabold text-slate-800 cursor-pointer inline-flex items-center gap-1"><input type="radio" name="genderRule" value="hybrid" onchange="initAllocationMatrix()"> ஸ்மார்ட் கலப்பு</label>
+                    <label data-tip="ஆண், பெண் எனப் பிரிக்காமல் வகுப்பு மொத்த எண்ணிக்கையில் தொடர்ச்சியான தேர்வு எண்கள் படி நிரப்பப்படும்" class="font-extrabold text-blue-950 cursor-pointer inline-flex items-center gap-1"><input type="radio" name="genderRule" value="continuous" onchange="initAllocationMatrix()"> தொடர்ச்சியான எண்கள் (வகுப்பு மொத்தம்)</label>
                 </div>
-                <div class="bg-blue-50 border border-blue-200 p-2 rounded-lg">
-                    <div class="text-[11px] text-blue-700 font-bold">👦 மாணவர்கள் (Boys)</div>
-                    <div class="text-xl font-black text-blue-900" id="statBoys">0</div>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="clearAllocationMatrix()" data-tip="அனைத்து அறை மதிப்புகளையும் பூஜ்ஜியமாக்கும்" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold px-2.5 py-1.5 rounded-lg text-xs">🧹 Clear</button>
+                    <button type="button" onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-extrabold px-3.5 py-1.5 rounded-lg text-xs shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
                 </div>
-                <div class="bg-slate-100 border border-slate-300 p-2 rounded-lg">
-                    <div class="text-[11px] text-slate-700 font-bold">👥 தேர்வர்கள் / இருக்கை</div>
-                    <div class="text-xl font-black text-slate-900"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
-                </div>
-            </div>
-
-            <!-- Auto-Fill Gender & Roll Ordering Controls -->
-            <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg flex flex-wrap items-center justify-between gap-2.5">
-                <div class="flex flex-wrap gap-3 text-xs md:text-sm">
-                    <label data-tip="மாணவிகளுக்குத் தனி அறைகளும் மாணவர்களுக்குத் தனி அறைகளும் ஒதுக்கப்படும்" class="font-bold cursor-pointer"><input type="radio" name="genderRule" value="strict" checked onchange="initAllocationMatrix()"> ஆண், பெண் தனித்தனி அறைகள்</label>
-                    <label data-tip="முதலில் தனித்தனி அறைகள் நிரப்பப்பட்டு, மீதமுள்ளவர்கள் மட்டும் ஒன்றாக இணைக்கப்படுவர்" class="font-bold cursor-pointer"><input type="radio" name="genderRule" value="hybrid" onchange="initAllocationMatrix()"> ஸ்மார்ட் கலப்பு முறை</label>
-                    <label data-tip="ஆண், பெண் எனப் பிரிக்காமல் வகுப்பு மொத்த எண்ணிக்கையில் தொடர்ச்சியான தேர்வு எண்கள் படி நிரப்பப்படும்" class="font-bold text-blue-950 cursor-pointer"><input type="radio" name="genderRule" value="continuous" onchange="initAllocationMatrix()"> தொடர்ச்சியான தேர்வு எண்கள் (வகுப்பு மொத்தம்)</label>
-                </div>
-                <button onclick="autoFillMatrix()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs shadow">⚡ தானாக நிரப்பு (Auto-Fill)</button>
             </div>
 
             <div class="overflow-x-auto">
@@ -2849,21 +2861,63 @@
         sel.innerHTML = uniqueSessions.map(u => `<option value="${u.key}">${u.label}</option>`).join('');
 
         document.getElementById('allocRoomCount').value = Math.min(5, rooms.length || 1);
-        document.getElementById('allocRoomCheckboxes').innerHTML = rooms.map((r, idx) => `
-            <label class="bg-slate-50 border px-3 py-1.5 rounded text-sm font-semibold">
-                <input type="checkbox" class="alloc-rm-cb mr-1" value="${r.roomNo}" ${idx < 5 ? 'checked' : ''} onchange="initAllocationMatrix()">
-                Room ${r.roomNo} (Max: ${r.capacity}, ${r.perBench || 2}/bench)
-            </label>
-        `).join('');
+        document.getElementById('allocRoomCheckboxes').innerHTML = rooms.map((r, idx) => {
+            const isChk = idx < 5;
+            return `
+                <label class="alloc-rm-pill cursor-pointer border px-2.5 py-1 rounded-md text-xs font-bold transition select-none inline-flex items-center gap-1.5 ${isChk ? 'bg-blue-100 border-blue-500 text-blue-950' : 'bg-white border-slate-300 text-slate-600'}">
+                    <input type="checkbox" class="alloc-rm-cb accent-blue-700" value="${r.roomNo}" ${isChk ? 'checked' : ''} onchange="onRoomCheckboxToggle()">
+                    <span>Room ${r.roomNo}</span>
+                    <span class="text-[10px] font-semibold opacity-80">(${r.capacity} | ${r.perBench || 2}/b)</span>
+                </label>
+            `;
+        }).join('');
 
         initAllocationMatrix();
     }
 
+    function refreshRoomPillStyles() {
+        document.querySelectorAll('.alloc-rm-pill').forEach(lbl => {
+            const cb = lbl.querySelector('.alloc-rm-cb');
+            if (cb && cb.checked) {
+                lbl.classList.remove('bg-white', 'border-slate-300', 'text-slate-600');
+                lbl.classList.add('bg-blue-100', 'border-blue-500', 'text-blue-950');
+            } else {
+                lbl.classList.remove('bg-blue-100', 'border-blue-500', 'text-blue-950');
+                lbl.classList.add('bg-white', 'border-slate-300', 'text-slate-600');
+            }
+        });
+    }
+
+    function onRoomCheckboxToggle() {
+        const checkedCount = document.querySelectorAll('.alloc-rm-cb:checked').length;
+        document.getElementById('allocRoomCount').value = checkedCount;
+        refreshRoomPillStyles();
+        initAllocationMatrix();
+    }
+
+    function toggleAllAllocRooms(flag) {
+        const cbs = document.querySelectorAll('.alloc-rm-cb');
+        cbs.forEach(cb => cb.checked = flag);
+        document.getElementById('allocRoomCount').value = flag ? cbs.length : 0;
+        refreshRoomPillStyles();
+        initAllocationMatrix();
+    }
+
     function applyRoomCountSelection() {
-        const count = parseInt(document.getElementById('allocRoomCount').value) || 1;
+        const count = Math.max(0, parseInt(document.getElementById('allocRoomCount').value) || 0);
         const cbs = document.querySelectorAll('.alloc-rm-cb');
         cbs.forEach((cb, i) => cb.checked = (i < count));
+        refreshRoomPillStyles();
         initAllocationMatrix();
+    }
+
+    function clearAllocationMatrix() {
+        const activeRooms = getActiveRooms();
+        activeRooms.forEach(rm => {
+            matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
+        });
+        renderMatrixTable();
     }
 
     function getActiveRooms() {
@@ -2956,10 +3010,22 @@
         }
 
         const totCap = activeRooms.reduce((acc, r) => acc + r.capacity, 0);
+        const grandStu = totGirls + totBoys;
         document.getElementById('statGirls').textContent = totGirls;
         document.getElementById('statBoys').textContent = totBoys;
-        document.getElementById('statTotal').textContent = totGirls + totBoys;
-        document.getElementById('statCap').textContent = totCap;
+        document.getElementById('statTotal').textContent = grandStu;
+        const capEl = document.getElementById('statCap');
+        const capBox = document.getElementById('statCapBox');
+        capEl.textContent = totCap;
+        if (capBox) {
+            if (totCap < grandStu) {
+                capBox.className = "bg-red-50 border-2 border-red-400 rounded-lg p-2 flex flex-col justify-center";
+                capEl.className = "text-red-700";
+            } else {
+                capBox.className = "bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center";
+                capEl.className = "text-emerald-700";
+            }
+        }
 
         activeRooms.forEach(rm => {
             if (!matrixState[rm.roomNo]) matrixState[rm.roomNo] = {};
