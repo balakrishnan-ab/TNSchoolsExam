@@ -3096,729 +3096,226 @@
 
     function clearAllocationMatrix() {
         const activeRooms = getActiveRooms();
+        // First validate that NO room exceeds its fixed configured bench capacity!
+        const overCapacityRooms = [];
         activeRooms.forEach(rm => {
-            matrixState[rm.roomNo] = {};
-            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
-        });
-        renderMatrixTable();
-    }
-
-    function getActiveRooms() {
-        const rooms = getData(schoolDataKey('rooms'), []);
-        const checkedNos = Array.from(document.querySelectorAll('.alloc-rm-cb:checked')).map(cb => cb.value);
-        return rooms.filter(r => checkedNos.includes(r.roomNo));
-    }
-
-    function normClsName(str) {
-        return String(str || '').trim().toUpperCase().replace(/\s+/g, '');
-    }
-
-    function initAllocationMatrix() {
-        const examVal = document.getElementById('allocExamSelect').value;
-        if (!examVal) return;
-        const [rawDate, rawSess] = examVal.split('|');
-        const selDate = String(rawDate || '').trim();
-        const selSess = String(rawSess || '').trim();
-
-        const rawTt = getData(schoolDataKey('timetable'), []).filter(t =>
-            String(t.date || '').trim() === selDate && String(t.session || '').trim() === selSess
-        );
-
-        // Sort timetable entries cleanly: Grade descending (12th -> 11th -> 10th...) then className ascending
-        const tt = [...rawTt].sort((a, b) => {
-            const ga = parseInt(extractGradeKey(a.className)) || 0;
-            const gb = parseInt(extractGradeKey(b.className)) || 0;
-            if (ga !== gb) return gb - ga;
-            return String(a.className || '').localeCompare(String(b.className || ''), undefined, { numeric: true });
-        });
-
-        const strengths = getData(schoolDataKey('strength'), []);
-        const activeRooms = getActiveRooms();
-        const ruleEl = document.querySelector('input[name="genderRule"]:checked');
-        const rule = ruleEl ? ruleEl.value : 'strict';
-
-        matrixColumns = [];
-        let totGirls = 0, totBoys = 0;
-
-        const findMatchingStrengths = (clsName) => {
-            const target = normClsName(clsName);
-            return strengths.filter(s => normClsName(s.className) === target);
-        };
-
-        if (rule === 'continuous') {
-            tt.forEach(t => {
-                const sCode = t.subjectCode || t.subject;
-                const sFull = t.subjectFull || sCode;
-                const stList = findMatchingStrengths(t.className);
-                stList.forEach(st => {
-                    const gc = parseInt(st.gCount) || 0;
-                    const bc = parseInt(st.bCount) || 0;
-                    totGirls += gc;
-                    totBoys += bc;
-                    const combinedTot = gc + bc;
-                    if (combinedTot > 0) {
-                        const firstRoll = gc > 0 ? st.gStart : st.bStart;
-                        matrixColumns.push({
-                            key: `C_${st.id}_${sCode}`,
-                            gender: 'All',
-                            classLabel: `${st.className.trim()}(${st.medium})`,
-                            subjectCode: sCode,
-                            subjectFull: sFull,
-                            startRoll: firstRoll,
-                            maxCount: combinedTot
-                        });
-                    }
-                });
-            });
-        } else {
-            // Strict / Hybrid Separate Gender mode: Girls columns first (12th -> 11th...), Boys columns second (12th -> 11th...)
-            tt.forEach(t => {
-                const sCode = t.subjectCode || t.subject;
-                const sFull = t.subjectFull || sCode;
-                const stList = findMatchingStrengths(t.className);
-                stList.forEach(st => {
-                    const gc = parseInt(st.gCount) || 0;
-                    if (gc > 0) {
-                        totGirls += gc;
-                        matrixColumns.push({
-                            key: `G_${st.id}_${sCode}`,
-                            gender: 'Girls',
-                            classLabel: `${st.className.trim()}(${st.medium})`,
-                            subjectCode: sCode,
-                            subjectFull: sFull,
-                            startRoll: st.gStart,
-                            maxCount: gc
-                        });
-                    }
-                });
-            });
-
-            tt.forEach(t => {
-                const sCode = t.subjectCode || t.subject;
-                const sFull = t.subjectFull || sCode;
-                const stList = findMatchingStrengths(t.className);
-                stList.forEach(st => {
-                    const bc = parseInt(st.bCount) || 0;
-                    if (bc > 0) {
-                        totBoys += bc;
-                        matrixColumns.push({
-                            key: `B_${st.id}_${sCode}`,
-                            gender: 'Boys',
-                            classLabel: `${st.className.trim()}(${st.medium})`,
-                            subjectCode: sCode,
-                            subjectFull: sFull,
-                            startRoll: st.bStart,
-                            maxCount: bc
-                        });
-                    }
-                });
-            });
-        }
-
-        const totCap = activeRooms.reduce((acc, r) => acc + r.capacity, 0);
-        const grandStu = totGirls + totBoys;
-        document.getElementById('statGirls').textContent = totGirls;
-        document.getElementById('statBoys').textContent = totBoys;
-        document.getElementById('statTotal').textContent = grandStu;
-        const capEl = document.getElementById('statCap');
-        const capBox = document.getElementById('statCapBox');
-        capEl.textContent = totCap;
-        if (capBox) {
-            if (totCap < grandStu) {
-                capBox.className = "bg-red-50 border-2 border-red-400 rounded-lg p-1.5 flex flex-col justify-center";
-                capEl.className = "text-red-700";
-            } else {
-                capBox.className = "bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex flex-col justify-center";
-                capEl.className = "text-emerald-700";
-            }
-        }
-
-        activeRooms.forEach(rm => {
-            if (!matrixState[rm.roomNo]) matrixState[rm.roomNo] = {};
-            matrixColumns.forEach(col => {
-                if (matrixState[rm.roomNo][col.key] === undefined) {
-                    matrixState[rm.roomNo][col.key] = 0;
-                }
-            });
-        });
-
-        renderMatrixTable();
-    }
-
-    function renderMatrixTable() {
-        const activeRooms = getActiveRooms();
-        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
-        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
-        const allCols = matrixColumns.filter(c => c.gender === 'All');
-
-        const remMap = {};
-        matrixColumns.forEach(col => {
-            let used = 0;
-            activeRooms.forEach(rm => used += (parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0));
-            remMap[col.key] = col.maxCount - used;
-        });
-
-        let groupHeaderHtml = '';
-        if (allCols.length > 0) {
-            groupHeaderHtml = `<th colspan="${allCols.length}" class="border border-slate-400 p-1 bg-indigo-100 text-indigo-950 font-extrabold">வகுப்பு மொத்தம் (Continuous Roll No)</th>`;
-        } else {
-            groupHeaderHtml = `
-                ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
-                ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
-            `;
-        }
-
-        let headHtml = `
-            <tr class="bg-slate-200 font-bold">
-                <th rowspan="3" class="sticky-room-col bg-slate-200 border border-slate-400 px-1.5 py-1" style="width:42px; min-width:42px;">Room</th>
-                <th rowspan="3" class="border border-slate-400 px-1.5 py-1" style="width:46px;">Cap</th>
-                <th rowspan="3" class="border border-slate-400 px-1.5 py-1" style="width:54px;">Rows</th>
-                ${groupHeaderHtml}
-                <th rowspan="3" class="sticky-total-col bg-emerald-100 border border-slate-400 px-1.5 py-1" style="width:50px; min-width:50px;">Total</th>
-            </tr>
-            <tr class="bg-amber-100 font-semibold">
-                ${matrixColumns.map(c => `<th class="border border-slate-400 px-1 py-1" style="min-width:62px; max-width:74px;">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
-            </tr>
-            <tr class="bg-slate-50 text-[10px]">
-                ${matrixColumns.map(c => {
-                    const rem = remMap[c.key];
-                    const badgeCls = rem === 0 ? 'text-emerald-700 font-extrabold' : (rem < 0 ? 'text-red-600 font-extrabold' : 'text-amber-800 font-extrabold');
-                    return `<th class="border border-slate-400 px-1 py-0.5">மொ: ${c.maxCount}<br><span class="${badgeCls}">மீ: ${rem}</span></th>`;
-                }).join('')}
-            </tr>
-        `;
-        document.getElementById('matrixHead').innerHTML = headHtml;
-
-        let bodyHtml = activeRooms.map(rm => {
-            let rowSum = 0;
-            const cells = matrixColumns.map(col => {
-                const val = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
-                rowSum += val;
-                return `<td class="border border-slate-400 p-0.5 bg-white">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" value="${val}"
-                        onfocus="this.select()"
-                        onkeydown="if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();}"
-                        onwheel="this.blur()"
-                        onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
-                        class="no-spin w-11 text-center border rounded py-0.5 px-0.5 font-extrabold text-xs ${val > 0 ? 'bg-yellow-50 border-amber-400 text-slate-950' : 'text-slate-500'}">
-                </td>`;
-            }).join('');
-
+            const students = roomSeatMap[rm.roomNo] || [];
+            const perBench = rm.perBench || 2;
             const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 5);
-            const overCap = rowSum > rm.capacity;
-            return `
-                <tr>
-                    <td class="sticky-room-col bg-slate-100 border border-slate-400 px-1 py-1 font-black text-xs">${rm.roomNo}</td>
-                    <td class="border border-slate-400 px-1 py-1 font-semibold bg-white text-[11px]">${rm.capacity}</td>
-                    <td class="border border-slate-400 px-1 py-1 text-[10px] bg-white whitespace-nowrap">${cRows.join('+')}</td>
-                    ${cells}
-                    <td class="sticky-total-col border border-slate-400 px-1 py-1 font-black text-xs ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
-                        ${rowSum}${overCap ? '⚠️' : ''}
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        document.getElementById('matrixBody').innerHTML = bodyHtml;
-    }
-
-    function evalMiniExcelCalc(lineNo) {
-        const inp = document.getElementById(`excelCalcExpr${lineNo}`);
-        const resEl = document.getElementById(`excelCalcRes${lineNo}`);
-        if (!inp || !resEl) return;
-        let expr = String(inp.value || '').trim();
-        if (!expr) {
-            resEl.textContent = '0';
-            return;
-        }
-        // Strip leading '=' if user types Excel style '=48-11-19'
-        if (expr.startsWith('=')) expr = expr.slice(1).trim();
-        // Allow only safe arithmetic characters: digits, +, -, *, /, (, ), ., spaces
-        if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
-            resEl.textContent = 'Err';
-            return;
-        }
-        try {
-            const val = Function('"use strict"; return (' + expr + ')')();
-            if (typeof val === 'number' && isFinite(val)) {
-                resEl.textContent = Number.isInteger(val) ? String(val) : val.toFixed(2);
-            } else {
-                resEl.textContent = 'Err';
-            }
-        } catch (e) {
-            resEl.textContent = '...';
-        }
-    }
-
-    function updateMatrixCell(roomNo, colKey, val) {
-        if (!matrixState[roomNo]) matrixState[roomNo] = {};
-        matrixState[roomNo][colKey] = parseInt(val) || 0;
-        renderMatrixTable();
-    }
-
-    function extractGradeKey(classLabel) {
-        const m = String(classLabel || '').trim().match(/^(\d+)/);
-        return m ? m[1] : String(classLabel || '').split('-')[0].trim();
-    }
-
-    // Helper: Distribute a group of columns (`colsList`) EQUALLY / PROPORTIONALLY across `targetRooms`
-    // while keeping Grades (12th, 11th...) and Subjects (MAT, COM, PHY, ECO...) balanced in EVERY room!
-    function distributeColsEquallyAcrossRooms(targetRooms, colsList, rem, roomCapRem) {
-        if (!targetRooms.length || !colsList.length) return;
-        const totalStudents = colsList.reduce((s, c) => s + rem[c.key], 0);
-        if (totalStudents <= 0) return;
-
-        const totalCap = targetRooms.reduce((s, rm) => s + roomCapRem[rm.roomNo], 0);
-        if (totalCap <= 0) return;
-
-        // Calculate proportional target quota per room so ALL active rooms share students evenly!
-        // Example: 212 students across 5 rooms (cap 48,48,48,48,30) -> ~41, 41, 41, 41, 26 (or equal ~43 each if capacity allows!)
-        const equalShare = Math.ceil(totalStudents / targetRooms.length);
-        const roomTargetQuota = {};
-        let assignedTargetSum = 0;
-
-        targetRooms.forEach((rm, idx) => {
-            const cap = roomCapRem[rm.roomNo];
-            // If equalShare fits within this room's capacity, give equalShare; otherwise give up to its capacity
-            const q = Math.min(cap, equalShare);
-            roomTargetQuota[rm.roomNo] = q;
-            assignedTargetSum += q;
-        });
-
-        // If some rooms had smaller capacity (e.g. Room 6 = 30), distribute the remaining students evenly across rooms with spare capacity
-        let leftoverToAssign = Math.min(totalStudents, totalCap) - assignedTargetSum;
-        while (leftoverToAssign > 0) {
-            let progressed = false;
-            for (const rm of targetRooms) {
-                if (leftoverToAssign <= 0) break;
-                if (roomTargetQuota[rm.roomNo] < roomCapRem[rm.roomNo]) {
-                    roomTargetQuota[rm.roomNo] += 1;
-                    leftoverToAssign -= 1;
-                    progressed = true;
-                }
-            }
-            if (!progressed) break;
-        }
-
-        // Now fill each room up to its `roomTargetQuota[rm.roomNo]`, balancing across Grades & Subjects!
-        targetRooms.forEach(rm => {
-            const targetForThisRoom = roomTargetQuota[rm.roomNo];
-            if (targetForThisRoom <= 0) return;
-
-            // Create a temporary cap map capped at `targetForThisRoom` so `fillRoomGradeBalanced` fills exact equal share
-            const tempCapMap = { [rm.roomNo]: targetForThisRoom };
-            fillRoomGradeBalanced(rm, colsList, rem, tempCapMap);
-            const actuallyTaken = targetForThisRoom - tempCapMap[rm.roomNo];
-            roomCapRem[rm.roomNo] -= actuallyTaken;
-        });
-
-        // Safety pass: if any student remains due to rounding and any target room still has capacity, fill evenly 1-by-1
-        let remAfter = colsList.reduce((s, c) => s + rem[c.key], 0);
-        while (remAfter > 0) {
-            let anyPlaced = false;
-            for (const rm of targetRooms) {
-                if (roomCapRem[rm.roomNo] <= 0) continue;
-                const c = colsList.find(col => rem[col.key] > 0);
-                if (!c) break;
-                matrixState[rm.roomNo][c.key] += 1;
-                rem[c.key] -= 1;
-                roomCapRem[rm.roomNo] -= 1;
-                remAfter -= 1;
-                anyPlaced = true;
-            }
-            if (!anyPlaced) break;
-        }
-    }
-
-    function fillRoomGradeBalanced(rm, colsList, rem, roomCapRem) {
-        if (roomCapRem[rm.roomNo] <= 0) return;
-        const activeCols = colsList.filter(c => rem[c.key] > 0);
-        if (activeCols.length === 0) return;
-
-        // Group active columns by Grade (e.g. "12", "11", "10")
-        const gradeGroups = {};
-        activeCols.forEach(c => {
-            const g = extractGradeKey(c.classLabel);
-            if (!gradeGroups[g]) gradeGroups[g] = [];
-            gradeGroups[g].push(c);
-        });
-        const grades = Object.keys(gradeGroups);
-
-        // Give each Grade a balanced share of this room's target quota, AND within each Grade distribute across distinct Subjects!
-        const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
-        grades.forEach(g => {
-            let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
-            if (gradeQuota <= 0) return;
-
-            const subjGroups = {};
-            gradeGroups[g].forEach(c => {
-                const sub = c.subjectCode || 'SUB';
-                if (!subjGroups[sub]) subjGroups[sub] = [];
-                subjGroups[sub].push(c);
-            });
-            const subKeys = Object.keys(subjGroups);
-            const perSubjTarget = Math.max(1, Math.ceil(gradeQuota / subKeys.length));
-
-            // Round 1: Take balanced quota from each distinct Subject in this Grade
-            subKeys.forEach(sub => {
-                let subjQuota = Math.min(perSubjTarget, gradeQuota, roomCapRem[rm.roomNo]);
-                subjGroups[sub].forEach(c => {
-                    if (subjQuota <= 0 || gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0) return;
-                    const take = Math.min(rem[c.key], subjQuota, gradeQuota, roomCapRem[rm.roomNo]);
-                    matrixState[rm.roomNo][c.key] += take;
-                    rem[c.key] -= take;
-                    roomCapRem[rm.roomNo] -= take;
-                    gradeQuota -= take;
-                    subjQuota -= take;
-                });
-            });
-
-            // Round 2: Fill remaining grade quota from columns of this grade
-            if (gradeQuota > 0 && roomCapRem[rm.roomNo] > 0) {
-                gradeGroups[g].forEach(c => {
-                    if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
-                    const take = Math.min(rem[c.key], gradeQuota, roomCapRem[rm.roomNo]);
-                    matrixState[rm.roomNo][c.key] += take;
-                    rem[c.key] -= take;
-                    roomCapRem[rm.roomNo] -= take;
-                    gradeQuota -= take;
-                });
+            const fixedBenches = cRows.reduce((a, b) => a + b, 0);
+            const maxSeats = fixedBenches * perBench;
+            if (students.length > maxSeats) {
+                overCapacityRooms.push(`Room ${rm.roomNo}: ஒதுக்கியது ${students.length} / அதிகபட்ச இருக்கை ${maxSeats} (${fixedBenches} Benches × ${perBench})`);
             }
         });
 
-        // Round 3: Fill any leftover target quota from remaining columns
-        colsList.forEach(c => {
-            if (roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
-            const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
-            matrixState[rm.roomNo][c.key] += take;
-            rem[c.key] -= take;
-            roomCapRem[rm.roomNo] -= take;
-        });
-    }
-
-    function autoFillMatrix() {
-        const activeRooms = getActiveRooms();
-        if (activeRooms.length === 0) return;
-        const rule = document.querySelector('input[name="genderRule"]:checked').value;
+        if (overCapacityRooms.length > 0) {
+            alert(
+                `❌ பிழை: கீழ்க்காணும் அறைகளில் உள்ள பெஞ்சுகளின் எண்ணிக்கையை விட அதிகமான மாணவர்கள் ஒதுக்கப்பட்டுள்ளனர்!\n\n` +
+                overCapacityRooms.join('\n') +
+                `\n\nஅறைக்கு ஒதுக்கப்பட்ட பெஞ்சுகளின் எண்ணிக்கை கூட்டப்படாது. தயவுசெய்து அறை ஒதுக்கீட்டுக் கட்டத்தில் (Matrix) மாணவர் எண்ணிக்கையைச் சரிசெய்யவும்.`
+            );
+        }
 
         activeRooms.forEach(rm => {
-            matrixState[rm.roomNo] = {};
-            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
-        });
+            const students = roomSeatMap[rm.roomNo] || [];
+            if (students.length === 0) return;
 
-        const rem = {};
-        matrixColumns.forEach(col => rem[col.key] = col.maxCount);
-        const roomCapRem = {};
-        activeRooms.forEach(rm => roomCapRem[rm.roomNo] = rm.capacity);
+            const perBench = rm.perBench || 2;
+            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 5);
+            const effectiveColRows = [...cRows];
+            const configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            const maxRoomSeats = configuredBenches * perBench;
+            let ordered = [...students];
 
-        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
-        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+            let overflowWarningHtml = '';
+            if (ordered.length > maxRoomSeats) {
+                overflowWarningHtml = `<div class="mb-2 p-2 bg-red-100 border-2 border-red-600 text-red-950 text-xs rounded text-center font-extrabold">❌ பிழை: இந்த அறையில் ${configuredBenches} பெஞ்சுகள் (${maxRoomSeats} இருக்கைகள்) மட்டுமே உள்ளன; ஆனால் ${ordered.length} மாணவர்கள் ஒதுக்கப்பட்டுள்ளனர்! (${ordered.length - maxRoomSeats} மாணவர்களுக்கு இடமில்லை — அறை ஒதுக்கீட்டுக் கட்டத்தில் எண்ணிக்கையைக் குறைக்கவும்).</div>`;
+                ordered = ordered.slice(0, maxRoomSeats);
+            }
 
-        if (rule === 'strict') {
-            // Split activeRooms proportionally between Girls rooms and Boys rooms, then distribute EQUALLY within each set!
-            const totG = girlsCols.reduce((s, c) => s + rem[c.key], 0);
-            const totB = boysCols.reduce((s, c) => s + rem[c.key], 0);
-            const totAll = totG + totB;
+            // Initialize fixed slots matrix: `benchSlots[b][s]` for `b = 0 .. configuredBenches - 1`, `s = 0 .. perBench - 1`
+            const benchSlots = Array.from({ length: configuredBenches }, () => Array(perBench).fill(null));
 
-            if (totAll > 0 && activeRooms.length > 1) {
-                let gRoomCount = totG > 0 ? Math.max(1, Math.round((totG / totAll) * activeRooms.length)) : 0;
-                if (totB > 0 && gRoomCount >= activeRooms.length) gRoomCount = activeRooms.length - 1;
-                if (totG === 0) gRoomCount = 0;
-
-                // Ensure chosen Girls rooms have enough capacity for totG if possible
-                while (gRoomCount < activeRooms.length - (totB > 0 ? 1 : 0)) {
-                    const gCap = activeRooms.slice(0, gRoomCount).reduce((s, r) => s + r.capacity, 0);
-                    if (gCap >= totG) break;
-                    gRoomCount++;
+            if (benchOrderMode === 'continuous') {
+                ordered.sort((a, b) => a.roll - b.roll);
+                const N = ordered.length;
+                if (N <= configuredBenches) {
+                    // Spread evenly across ALL benches & columns (1 student per occupied bench)
+                    for (let i = 0; i < N; i++) {
+                        const bIdx = Math.floor((i * configuredBenches) / N);
+                        benchSlots[bIdx][0] = ordered[i];
+                    }
+                } else {
+                    // Fill Seat 1 across all benches first, then distribute remaining students evenly across benches
+                    for (let b = 0; b < configuredBenches; b++) {
+                        benchSlots[b][0] = ordered[b];
+                    }
+                    let remIdx = configuredBenches;
+                    for (let s = 1; s < perBench && remIdx < N; s++) {
+                        const takeForLane = Math.min(configuredBenches, N - remIdx);
+                        for (let i = 0; i < takeForLane; i++) {
+                            const bIdx = Math.floor((i * configuredBenches) / takeForLane);
+                            benchSlots[bIdx][s] = ordered[remIdx++];
+                        }
+                    }
                 }
-
-                const girlsRooms = activeRooms.slice(0, gRoomCount);
-                const boysRooms = activeRooms.slice(gRoomCount);
-
-                distributeColsEquallyAcrossRooms(girlsRooms, girlsCols, rem, roomCapRem);
-                distributeColsEquallyAcrossRooms(boysRooms, boysCols, rem, roomCapRem);
             } else {
-                distributeColsEquallyAcrossRooms(activeRooms, girlsCols, rem, roomCapRem);
-                distributeColsEquallyAcrossRooms(activeRooms, boysCols, rem, roomCapRem);
+                // Sort students cleanly by Grade -> Subject -> Class/Section -> Roll Number
+                ordered.sort((a, b) => {
+                    if (a.grade !== b.grade) return String(b.grade).localeCompare(String(a.grade), undefined, { numeric: true });
+                    if (a.subject !== b.subject) return String(a.subject).localeCompare(String(b.subject));
+                    if (a.classLabel !== b.classLabel) return String(a.classLabel).localeCompare(String(b.classLabel));
+                    return a.roll - b.roll;
+                });
+
+                const N = ordered.length;
+
+                if (N <= configuredBenches) {
+                    // Fewer or equal students than total benches:
+                    // Give EVERY occupied bench 1 student, spread evenly across ALL columns & rows, alternating Grades/Subjects!
+                    const gradeMap = new Map();
+                    ordered.forEach(stu => {
+                        if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
+                        gradeMap.get(stu.grade).push(stu);
+                    });
+                    const gBuckets = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
+                    const interleaved = [];
+                    while (interleaved.length < N) {
+                        for (const bk of gBuckets) {
+                            if (bk.length > 0) interleaved.push(bk.shift());
+                        }
+                    }
+                    for (let i = 0; i < N; i++) {
+                        const bIdx = Math.floor((i * configuredBenches) / N);
+                        // Alternate seat position cleanly (Seat 0 vs Seat perBench-1) for visual clarity
+                        const seatPos = (perBench > 1 && i % 2 === 1) ? (perBench - 1) : 0;
+                        benchSlots[bIdx][seatPos] = interleaved[i];
+                    }
+                } else {
+                    // More students than benches (up to maxRoomSeats):
+                    // Build vertical Grade/Subject lanes, strictly capped at `configuredBenches` per lane (NO extra benches added!),
+                    // and distribute each lane evenly across ALL columns & rows so every bench is utilized!
+                    let laneLists = Array.from({ length: perBench }, () => []);
+
+                    const gradeMap = new Map();
+                    ordered.forEach(stu => {
+                        if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
+                        gradeMap.get(stu.grade).push(stu);
+                    });
+                    const gradeGroups = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
+
+                    if (gradeGroups.length >= perBench) {
+                        for (let s = 0; s < perBench; s++) {
+                            laneLists[s] = [...gradeGroups[s]];
+                        }
+                        for (let g = perBench; g < gradeGroups.length; g++) {
+                            let shortestIdx = 0;
+                            for (let s = 1; s < perBench; s++) {
+                                if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
+                            }
+                            laneLists[shortestIdx].push(...gradeGroups[g]);
+                        }
+                    } else if (gradeGroups.length === 2 && perBench === 3) {
+                        const gMajor = gradeGroups[0];
+                        const gMinor = gradeGroups[1];
+                        const halfMajor = Math.ceil(gMajor.length / 2);
+                        laneLists[0] = gMajor.slice(0, halfMajor);
+                        laneLists[1] = [...gMinor];
+                        laneLists[2] = gMajor.slice(halfMajor);
+                    } else if (gradeGroups.length === 1) {
+                        const subjMap = new Map();
+                        ordered.forEach(stu => {
+                            if (!subjMap.has(stu.subject)) subjMap.set(stu.subject, []);
+                            subjMap.get(stu.subject).push(stu);
+                        });
+                        const subjGroups = Array.from(subjMap.values()).sort((a, b) => b.length - a.length);
+
+                        if (subjGroups.length >= perBench) {
+                            for (let s = 0; s < perBench; s++) {
+                                laneLists[s] = [...subjGroups[s]];
+                            }
+                            for (let sg = perBench; sg < subjGroups.length; sg++) {
+                                let shortestIdx = 0;
+                                for (let s = 1; s < perBench; s++) {
+                                    if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
+                                }
+                                laneLists[shortestIdx].push(...subjGroups[sg]);
+                            }
+                        } else if (subjGroups.length === 2 && perBench === 3) {
+                            const sMajor = subjGroups[0];
+                            const sMinor = subjGroups[1];
+                            const halfSub = Math.ceil(sMajor.length / 2);
+                            laneLists[0] = sMajor.slice(0, halfSub);
+                            laneLists[1] = [...sMinor];
+                            laneLists[2] = sMajor.slice(halfSub);
+                        } else {
+                            const chunk = Math.ceil(ordered.length / perBench);
+                            for (let s = 0; s < perBench; s++) {
+                                laneLists[s] = ordered.slice(s * chunk, (s + 1) * chunk);
+                            }
+                        }
+                    }
+
+                    // Enforce strict cap: NO lane can exceed `configuredBenches` — spill excess into lanes with spare capacity!
+                    for (let s = 0; s < perBench; s++) {
+                        while (laneLists[s].length > configuredBenches) {
+                            const overflowStu = laneLists[s].pop();
+                            // Find lane with fewest students (< configuredBenches), preferring non-adjacent lane first
+                            let targetLane = -1;
+                            let minLen = configuredBenches;
+                            for (let cand = 0; cand < perBench; cand++) {
+                                if (cand !== s && laneLists[cand].length < minLen) {
+                                    minLen = laneLists[cand].length;
+                                    targetLane = cand;
+                                }
+                            }
+                            if (targetLane !== -1) {
+                                laneLists[targetLane].push(overflowStu);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Place each lane evenly across ALL `configuredBenches` benches (so Col 1, Col 2, Col 3 get equal students!)
+                    for (let s = 0; s < perBench; s++) {
+                        const lane = laneLists[s];
+                        const L = lane.length;
+                        for (let i = 0; i < L; i++) {
+                            const bIdx = Math.floor((i * configuredBenches) / L);
+                            benchSlots[bIdx][s] = lane[i];
+                        }
+                    }
+                }
             }
-        } else if (rule === 'hybrid') {
-            // Separate first across proportional rooms, then overflow any leftover into remaining room capacity
-            const totG = girlsCols.reduce((s, c) => s + rem[c.key], 0);
-            const totB = boysCols.reduce((s, c) => s + rem[c.key], 0);
-            const totAll = totG + totB;
-            let gRoomCount = (totAll > 0 && totG > 0) ? Math.max(1, Math.round((totG / totAll) * activeRooms.length)) : 0;
-            if (totB > 0 && gRoomCount >= activeRooms.length) gRoomCount = Math.max(1, activeRooms.length - 1);
 
-            const girlsRooms = activeRooms.slice(0, gRoomCount);
-            const boysRooms = activeRooms.slice(gRoomCount);
-            distributeColsEquallyAcrossRooms(girlsRooms, girlsCols, rem, roomCapRem);
-            distributeColsEquallyAcrossRooms(boysRooms, boysCols, rem, roomCapRem);
-            // Overflow any remaining into any room with spare capacity
-            distributeColsEquallyAcrossRooms(activeRooms, girlsCols, rem, roomCapRem);
-            distributeColsEquallyAcrossRooms(activeRooms, boysCols, rem, roomCapRem);
-        } else {
-            // Continuous Roll Number order: distribute EQUALLY across ALL active rooms!
-            const sortedByRoll = [...matrixColumns].sort((a, b) => a.startRoll - b.startRoll);
-            distributeColsEquallyAcrossRooms(activeRooms, sortedByRoll, rem, roomCapRem);
-        }
-
-        renderMatrixTable();
-    }
-
-        function formatDisplayDate(dStr) {
-        if (!dStr) return '';
-        const parts = String(dStr).trim().split('-');
-        if (parts.length === 3 && parts[0].length === 4) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        return dStr;
-    }
-
-
-    // ---------------------------------------------------------
-    // SAVED SEATING PLANS (CLOUD SYNCED, MAX 3 PER DATE+SESSION)
-    // ---------------------------------------------------------
-    let currentLoadedPlanId = null;
-
-    function toggleQpSummaryVisibility() {
-        const cb = document.getElementById('includeQpSummaryPrint');
-        const wrap = document.getElementById('qpSummaryPrintWrapper');
-        if (cb && wrap) {
-            if (cb.checked) wrap.classList.remove('hidden');
-            else wrap.classList.add('hidden');
-        }
-    }
-
-    function updateSavedPlanIndicator(planObj) {
-        const badge = document.getElementById('activeSavedPlanBadge');
-        const updBtn = document.getElementById('updateSavedPlanBtn');
-        if (planObj) {
-            currentLoadedPlanId = planObj.id;
-            if (badge) {
-                badge.classList.remove('hidden');
-                badge.textContent = `📌 தற்போது திறக்கப்பட்டுள்ள சேமித்த அமைப்பு: ${planObj.planName} (${formatDisplayDate(planObj.date)} ${planObj.session})`;
+            const totalRenderedBenches = configuredBenches;
+            const slots = [];
+            for (let b = 0; b < totalRenderedBenches; b++) {
+                for (let s = 0; s < perBench; s++) {
+                    slots.push(benchSlots[b][s]);
+                }
             }
-            if (updBtn) updBtn.classList.remove('hidden');
-        } else {
-            currentLoadedPlanId = null;
-            if (badge) badge.classList.add('hidden');
-            if (updBtn) updBtn.classList.add('hidden');
-        }
-    }
 
-    async function saveCurrentSeatingPlan(isUpdateExisting = false) {
-        const examVal = document.getElementById('allocExamSelect').value;
-        if (!examVal || !window.roomVisualData || Object.keys(window.roomVisualData).length === 0) {
-            alert("முதலில் 'Generate Notice Board & Visual Seating Map' பொத்தானை அழுத்தி இருக்கை அமைப்பை உருவாக்கவும்.");
-            return;
-        }
-        const [selDate, selSess, selTitle] = examVal.split('|');
-
-        // Pull latest saved plans from Cloud first so multi-device counts are accurate
-        await pullSchoolWorkspaceFromCloud(currentSchool.id);
-        let savedPlans = getData(schoolDataKey('saved_seating'), []);
-
-        if (isUpdateExisting && currentLoadedPlanId) {
-            const idx = savedPlans.findIndex(p => p.id === currentLoadedPlanId);
-            if (idx !== -1) {
-                const newName = prompt("இந்த அமைப்பின் பெயரை உறுதிப்படுத்தவும் / மாற்றவும்:", savedPlans[idx].planName);
-                if (newName === null) return;
-                savedPlans[idx] = {
-                    ...savedPlans[idx],
-                    planName: newName.trim() || savedPlans[idx].planName,
-                    updatedAt: nowStr(),
-                    activeRoomNos: getActiveRooms().map(r => r.roomNo),
-                    matrixState: JSON.parse(JSON.stringify(matrixState)),
-                    benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
-                    useShortSub: document.getElementById('useShortSubjectPrint').checked,
-                    useShortTch: document.getElementById('useShortTeacherPrint').checked,
-                    roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
-                };
-                setData(schoolDataKey('saved_seating'), savedPlans);
-                updateSavedPlanIndicator(savedPlans[idx]);
-                logActivity(currentSchool.id, currentSchool.name, `சேமித்த இருக்கை அமைப்பு புதுப்பிக்கப்பட்டது: ${savedPlans[idx].planName} (${selDate} ${selSess})`);
-                alert("✅ சேமித்த இருக்கை அமைப்பு Cloud-ல் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது!");
-                return;
-            }
-        }
-
-        // Check max 3 saved versions limit for this exact Date + Session
-        const sameSessionPlans = savedPlans.filter(p => p.date === selDate && p.session === selSess);
-        if (sameSessionPlans.length >= 3) {
-            const goSaved = confirm(
-                `⚠️ வரம்பு எட்டப்பட்டது (Maximum 3 Saved Versions)!\n\n` +
-                `${formatDisplayDate(selDate)} (${selSess}) தேர்வுக்கு ஏற்கனவே 3 இருக்கை அமைப்புகள் சேமிக்கப்பட்டுள்ளன.\n\n` +
-                `புதிய அமைப்பைச் சேமிக்க வேண்டுமெனில், 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் சென்று பழையவற்றில் ஒன்றை நீக்கிவிட்டு (Delete) எத்தனை முறை வேண்டுமானாலும் சேமித்துக்கொள்ளலாம்.\n\n` +
-                `இப்போது 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் செல்லலாமா?`
-            );
-            if (goSaved) switchWorkTab('saved');
-            return;
-        }
-
-        const defaultName = `${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3`;
-        const customName = prompt(`இந்த இருக்கை அமைப்பிற்கு ஒரு பெயர் தரவும் (${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3):`, defaultName);
-        if (customName === null) return;
-
-        const planObj = {
-            id: "plan_" + Date.now(),
-            planName: customName.trim() || defaultName,
-            date: selDate,
-            session: selSess,
-            title: selTitle,
-            savedAt: nowStr(),
-            updatedAt: nowStr(),
-            activeRoomNos: getActiveRooms().map(r => r.roomNo),
-            matrixState: JSON.parse(JSON.stringify(matrixState)),
-            benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
-            useShortSub: document.getElementById('useShortSubjectPrint').checked,
-            useShortTch: document.getElementById('useShortTeacherPrint').checked,
-            roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
-        };
-
-        savedPlans.unshift(planObj);
-        setData(schoolDataKey('saved_seating'), savedPlans);
-        updateSavedPlanIndicator(planObj);
-        logActivity(currentSchool.id, currentSchool.name, `புதிய இருக்கை அமைப்பு சேமிக்கப்பட்டது: ${planObj.planName} (${selDate} ${selSess})`);
-        alert(`🎉 "${planObj.planName}" Cloud-ல் சேமிக்கப்பட்டது! (${sameSessionPlans.length + 1}/3)\nஇனி பள்ளியிலிருந்தோ அல்லது வேறு எந்தக் கணினியிலிருந்தோ '7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்தில் திறந்து பார்க்கலாம் / திருத்தலாம்.`);
-    }
-
-    async function refreshSavedPlansView() {
-        const container = document.getElementById('savedPlansContainer');
-        if (container) container.innerHTML = `<div class="text-center text-sm text-slate-500 py-6">⏳ Cloud-லிருந்து சேமிக்கப்பட்ட அமைப்புகள் பெறப்படுகின்றன...</div>`;
-        await pullSchoolWorkspaceFromCloud(currentSchool.id);
-
-        const savedPlans = getData(schoolDataKey('saved_seating'), []);
-        const filterSel = document.getElementById('savedFilterSession');
-        if (filterSel) {
-            const prevVal = filterSel.value;
-            const sessionMap = new Map();
-            savedPlans.forEach(p => {
-                const k = `${p.date}|${p.session}`;
-                sessionMap.set(k, `${formatDisplayDate(p.date)} (${p.session}) - ${p.title}`);
-            });
-            filterSel.innerHTML = `<option value="ALL">அனைத்துத் தேர்வுகளும் (${savedPlans.length})</option>` +
-                Array.from(sessionMap.entries()).map(([k, lbl]) => `<option value="${k}">${lbl}</option>`).join('');
-            if (prevVal && (prevVal === 'ALL' || sessionMap.has(prevVal))) filterSel.value = prevVal;
-        }
-        renderSavedPlansList();
-    }
-
-    function renderSavedPlansList() {
-        const container = document.getElementById('savedPlansContainer');
-        if (!container) return;
-        const savedPlans = getData(schoolDataKey('saved_seating'), []);
-        const filterVal = document.getElementById('savedFilterSession') ? document.getElementById('savedFilterSession').value : 'ALL';
-
-        const filtered = filterVal === 'ALL'
-            ? savedPlans
-            : savedPlans.filter(p => `${p.date}|${p.session}` === filterVal);
-
-        if (filtered.length === 0) {
-            container.innerHTML = `
-                <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center space-y-2 bg-slate-50">
-                    <div class="text-3xl">📭</div>
-                    <div class="font-bold text-slate-700">இதுவரை எந்த இருக்கை அமைப்பும் சேமிக்கப்படவில்லை</div>
-                    <p class="text-xs text-slate-500">'6️⃣ அறை ஒதுக்கீடு & வரைபடம்' பக்கத்தில் இருக்கை ஒதுக்கீட்டை உருவாக்கிய பிறகு <b>"💾 புதிய அமைப்பாக Cloud-ல் சேமி"</b> பொத்தானை அழுத்தவும்.</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Count how many saved plans exist per (date + session)
-        const sessionCounts = {};
-        savedPlans.forEach(p => {
-            const k = `${p.date}|${p.session}`;
-            sessionCounts[k] = (sessionCounts[k] || 0) + 1;
+            const roomGrp = summaryGroups.find(g => String(g.roomNo) === String(rm.roomNo));
+            window.roomVisualData[rm.roomNo] = {
+                rm: rm,
+                roomItems: roomGrp ? roomGrp.items : [],
+                studentCount: students.length,
+                selTitle: selTitle,
+                selDate: dispDate,
+                selSess: selSess,
+                perBench: perBench,
+                effectiveColRows: effectiveColRows,
+                totalRenderedBenches: totalRenderedBenches,
+                overflowWarningHtml: overflowWarningHtml,
+                slots: slots,
+                initialSlots: slots.map(x => x ? { ...x } : null)
+            };
         });
 
-        container.innerHTML = filtered.map(p => {
-            const sKey = `${p.date}|${p.session}`;
-            const cntForSession = sessionCounts[sKey] || 1;
-            const totalStudents = Object.values(p.roomVisualData || {}).reduce((acc, r) => acc + (r.studentCount || 0), 0);
-            const roomsList = (p.activeRoomNos || []).join(', ');
-
-            return `
-                <div class="border-2 border-slate-200 hover:border-blue-400 rounded-xl p-4 bg-white shadow-sm flex flex-wrap justify-between items-center gap-4">
-                    <div class="space-y-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-base font-extrabold text-blue-950">📋 ${p.planName}</span>
-                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${cntForSession >= 3 ? 'bg-amber-100 text-amber-900 border border-amber-400' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}">
-                                ${formatDisplayDate(p.date)} (${p.session}) : ${cntForSession} / 3 அமைப்புகள்
-                            </span>
-                        </div>
-                        <div class="text-xs font-semibold text-slate-700">${p.title}</div>
-                        <div class="text-xs text-slate-600">
-                            🏫 அறைகள்: <b>${roomsList}</b> &nbsp;|&nbsp; 👥 மொத்த மாணவர்கள்: <b>${totalStudents}</b> &nbsp;|&nbsp; 🕒 சேமித்த நேரம்: ${p.updatedAt || p.savedAt}
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="loadSavedSeatingPlan('${p.id}', false)" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
-                            👁️ திறந்து பார் / திருத்து
-                        </button>
-                        <button onclick="loadSavedSeatingPlan('${p.id}', true)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
-                            🖨️ நேரடியாக அச்சிடு
-                        </button>
-                        <button onclick="deleteSavedSeatingPlan('${p.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
-                            🗑️ நீக்கு
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function loadSavedSeatingPlan(planId, autoPrint = false) {
-        const savedPlans = getData(schoolDataKey('saved_seating'), []);
-        const plan = savedPlans.find(p => p.id === planId);
-        if (!plan) {
-            alert("இந்த அமைப்பு காணப்படவில்லை.");
-            return;
-        }
-
-        // Switch to Allocation workspace
-        switchWorkTab('allocate');
-
-        // Select matching exam date + session in dropdown
-        const sel = document.getElementById('allocExamSelect');
-        const targetKey = `${plan.date}|${plan.session}|${plan.title}`;
-        if (sel) {
-            const optExists = Array.from(sel.options).some(o => o.value === targetKey);
-            if (!optExists) {
-                const opt = document.createElement('option');
-                opt.value = targetKey;
-                opt.textContent = `${plan.date} (${plan.session}) - ${plan.title}`;
-                sel.appendChild(opt);
-            }
-            sel.value = targetKey;
-        }
-
-        // Restore checked rooms
-        const cbs = document.querySelectorAll('.alloc-rm-cb');
-        cbs.forEach(cb => {
-            cb.checked = (plan.activeRoomNos || []).includes(cb.value);
-        });
-        document.getElementById('allocRoomCount').value = (plan.activeRoomNos || []).length || 1;
-
-        // Re-initialize matrix columns & restore saved matrixState
-        initAllocationMatrix();
-        matrixState = JSON.parse(JSON.stringify(plan.matrixState || {}));
-        renderMatrixTable();
-
-        // Restore radio & checkbox options
-        if (plan.benchOrderMode) {
-            const rad = document.querySelector(`input[name="benchOrderMode"][value="${plan.benchOrderMode}"]`);
-            if (rad) rad.checked = true;
-        }
-        if (typeof plan.useShortSub === 'boolean') document.getElementById('useShortSubjectPrint').checked = plan.useShortSub;
-        if (typeof plan.useShortTch === 'boolean') document.getElementById('useShortTeacherPrint').checked = plan.useShortTch;
-
-        // Generate Notice Board & Committee tables from restored matrix
-        generateFinalOutputs();
-
-        // Restore exact saved visual seating slots (including any manual drag-and-drop seat swaps!)
-        if (plan.roomVisualData && Object.keys(plan.roomVisualData).length > 0) {
-            window.roomVisualData = JSON.parse(JSON.stringify(plan.roomVisualData));
-            renderAllVisualRooms();
+        renderAllVisualRooms();
         }
 
         updateSavedPlanIndicator(plan);
