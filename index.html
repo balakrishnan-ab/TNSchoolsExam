@@ -1354,11 +1354,12 @@
     let selectedExamCycleId = 'default';
 
     function schoolDataKey(suffix) {
+        const schId = (currentSchool && currentSchool.id) ? currentSchool.id : 'demo';
         const masterSuffixes = ['teachers', 'subjects_master', 'classes_master', 'rooms', 'exam_cycles'];
         if (masterSuffixes.includes(suffix) || !selectedExamCycleId || selectedExamCycleId === 'default') {
-            return `esp_sdata_${currentSchool.id}_${suffix}`;
+            return `esp_sdata_${schId}_${suffix}`;
         }
-        return `esp_sdata_${currentSchool.id}_${selectedExamCycleId}_${suffix}`;
+        return `esp_sdata_${schId}_${selectedExamCycleId}_${suffix}`;
     }
 
     async function pullSchoolsFromCloud() {
@@ -2867,14 +2868,7 @@
         }
 
         const classesMaster = getData(schoolDataKey('classes_master'), []);
-        let uniqueClasses = [...new Set(classesMaster.map(c => c.className))];
-        if (uniqueClasses.length === 0) {
-            const altClasses = getData(schoolDataKey('classes'), []);
-            uniqueClasses = [...new Set(altClasses.map(c => c.className || c))];
-        }
-        if (uniqueClasses.length === 0) {
-            uniqueClasses = ["12-A1", "12-A", "12-B1", "12-B", "12-C", "12-D", "11-A1", "11-A", "11-B1", "11-B", "11-C", "11-D", "10-A", "10-B", "10-C", "9-A", "9-B", "9-C", "8-A", "8-B", "7-A", "7-B", "6-A", "6-B"];
-        }
+        const uniqueClasses = [...new Set(classesMaster.map(c => c.className))];
         const container = document.getElementById('ttClassCheckboxes');
 
         if (!uniqueClasses.length) {
