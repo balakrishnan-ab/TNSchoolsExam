@@ -98,10 +98,10 @@
             }
             table.official-tbl th { font-size: 10.5px !important; padding: 2.5px 4px !important; line-height: 1.12 !important; }
             table.official-tbl td { padding: 3px 4px !important; line-height: 1.2 !important; }
-            .print-data-cell { font-size: 14.5px !important; font-weight: 800 !important; }
-            .print-room-no { font-size: 42px !important; font-weight: 900 !important; line-height: 0.9 !important; }
-            .print-roll-num { font-size: 17px !important; font-weight: 900 !important; }
-            .print-room-total { font-size: 17.5px !important; font-weight: 900 !important; }
+            .print-data-cell { font-size: 13px !important; font-weight: 800 !important; }
+            .print-room-no { font-size: 44px !important; font-weight: 900 !important; line-height: 0.9 !important; }
+            .print-roll-num { font-size: 15.5px !important; font-weight: 900 !important; }
+            .print-room-total { font-size: 17px !important; font-weight: 900 !important; }
             .print-qp-box { font-size: 12.5px !important; line-height: 1.12 !important; padding: 1.5px 5px !important; }
             table.room-mini-tbl th { font-size: 9px !important; padding: 1px 2px !important; line-height: 1.05 !important; }
             table.room-mini-tbl td { font-size: 11px !important; font-weight: 800 !important; padding: 1px 2px !important; line-height: 1.05 !important; }
@@ -149,18 +149,6 @@
             font-weight: 500;
         }
 
-
-        
-        /* Remove spinner arrows and accidental scroll/arrow mutation on matrix cells */
-        input.no-spin::-webkit-outer-spin-button,
-        input.no-spin::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input.no-spin {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
 
         /* Sticky left Room No and right Room Total in Allocation Matrix */
         #matrixTable { border-collapse: separate; border-spacing: 0; }
@@ -826,7 +814,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-emerald-800 mb-0.5">அதிகபட்ச இருக்கை</label>
-                    <input type="number" id="rmMaxCap" value="20" min="1" placeholder="20" data-tip="இந்த அறையில் அமரக்கூடிய மொத்த மாணவர்கள் எண்ணிக்கை" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
+                    <input type="number" id="rmMaxCap" value="60" min="1" placeholder="48" data-tip="இந்த அறையில் அமரக்கூடிய மொத்த மாணவர்கள் எண்ணிக்கை" class="w-full border-2 border-emerald-500 rounded p-2 text-sm font-bold bg-emerald-50">
                 </div>
                 <div class="flex items-end gap-1.5 col-span-2 md:col-span-1">
                     <button onclick="saveRoom()" id="rmSaveBtn" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 rounded-lg text-sm">➕ சேமி</button>
@@ -887,18 +875,14 @@
                 <label class="block text-[11px] font-bold text-slate-700 mb-0.5">பாடம்</label>
                 <select id="ttSubjectDropdown" data-tip="பட்டியலிலிருந்து பாடத்தைத் தேர்ந்தெடுக்கவும்" class="w-full border rounded p-2 text-sm font-bold bg-white"></select>
             </div>
-            <div class="md:col-span-4 space-y-2 pt-1 border-t border-slate-200">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-extrabold text-slate-800">🏫 வகுப்பு & பிரிவுகளைத் தேர்ந்தெடுக்கவும் (குழு வாரியாக - அனைத்தும் அல்லது தேவையான பிரிவுகள் மட்டும்):</span>
-                    <div class="flex gap-1.5">
-                        <button type="button" onclick="toggleAllTimetableGrades(true)" class="bg-blue-100 hover:bg-blue-200 text-blue-900 font-bold px-2.5 py-0.5 rounded text-[11px]">✅ அனைத்தும்</button>
-                        <button type="button" onclick="toggleAllTimetableGrades(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2.5 py-0.5 rounded text-[11px]">✖ நீக்கு</button>
-                    </div>
+            <div class="md:col-span-4 flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-700">வகுப்புகள்:</span>
+                    <div id="ttClassCheckboxes" class="flex flex-wrap gap-2"></div>
                 </div>
-                <div id="ttClassCheckboxes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
-                <div class="flex justify-end gap-2 pt-1">
-                    <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-bold px-4 py-2 rounded-lg text-xs">ரத்து</button>
-                    <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-5 py-2 rounded-lg text-xs shadow">➕ அட்டவணையில் சேர்</button>
+                <div class="flex gap-2">
+                    <button onclick="cancelTimetableEdit()" id="ttCancelBtn" class="hidden bg-slate-500 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs">ரத்து</button>
+                    <button onclick="saveTimetable()" id="ttSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs">➕ சேர்</button>
                 </div>
             </div>
         </div>
@@ -929,55 +913,36 @@
                 <span data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுத்து '⚡ தானாக நிரப்பு' அழுத்தி, பின்னர் '🚀 Generate' அழுத்தவும்." class="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full cursor-help">💡 உதவி / உதாரணம்</span>
             </div>
             
-            <!-- COCKPIT ROW 1: DATE/SESSION + ROOMS | LIVE COUNTERS | WHITE EXCEL CALCULATOR ON RIGHT -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 items-stretch">
-                <!-- 1. Date & Session -->
-                <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
-                    <label class="block text-[10px] font-extrabold text-slate-600 mb-1">1️⃣ தேதி & வேளை</label>
-                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded px-1.5 py-1 bg-blue-50 text-blue-950 font-extrabold text-xs cursor-pointer"></select>
+            <!-- COCKPIT ROW 1: EXAM SESSION + ROOM COUNT + LIVE STRENGTH/CAPACITY METER -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-stretch">
+                <div class="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">1️⃣ தேர்வு தேதி & வேளை</label>
+                    <select id="allocExamSelect" onchange="initAllocationMatrix()" data-tip="ஒதுக்கீடு செய்ய வேண்டிய தேர்வு தேதி & வேளையைத் தேர்ந்தெடுக்கவும்" class="w-full border border-blue-400 rounded-md px-2.5 py-1.5 bg-blue-50 text-blue-950 font-extrabold text-sm cursor-pointer"></select>
                 </div>
 
-                <!-- 2. Room Count + All/None -->
-                <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-lg p-2 flex flex-col justify-between">
+                <div class="lg:col-span-3 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="text-[10px] font-extrabold text-slate-600">2️⃣ அறைகள்</label>
-                        <div class="flex gap-0.5 text-[9px]">
-                            <button type="button" onclick="toggleAllAllocRooms(true)" class="px-1 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded font-bold">All</button>
-                            <button type="button" onclick="toggleAllAllocRooms(false)" class="px-1 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-bold">None</button>
+                        <label class="text-[11px] font-extrabold text-slate-600">2️⃣ அறை எண்ணிக்கை</label>
+                        <div class="flex gap-1 text-[10px]">
+                            <button type="button" onclick="toggleAllAllocRooms(true)" class="px-1.5 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded font-bold">All</button>
+                            <button type="button" onclick="toggleAllAllocRooms(false)" class="px-1.5 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded font-bold">None</button>
                         </div>
                     </div>
-                    <input type="text" inputmode="numeric" id="allocRoomCount" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கை" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded px-1.5 py-1 bg-white font-black text-xs text-center">
+                    <input type="number" id="allocRoomCount" min="1" value="5" placeholder="5" data-tip="தேவைப்படும் அறைகளின் எண்ணிக்கையை உள்ளிடவும்" onchange="applyRoomCountSelection()" class="w-full border border-slate-300 rounded-md px-2.5 py-1.5 bg-white font-black text-sm text-center">
                 </div>
 
-                <!-- 3. Middle: Live Counters (Girls | Boys | Total/Seats) -->
-                <div class="lg:col-span-4 grid grid-cols-3 gap-1.5 text-center">
-                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-1.5 flex flex-col justify-center">
+                <div class="lg:col-span-5 grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-2 flex flex-col justify-center">
                         <div class="text-[10px] text-pink-800 font-extrabold">👧 மாணவிகள்</div>
-                        <div class="text-lg font-black text-pink-950 leading-tight" id="statGirls">0</div>
+                        <div class="text-xl font-black text-pink-950 leading-tight" id="statGirls">0</div>
                     </div>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-1.5 flex flex-col justify-center">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 flex flex-col justify-center">
                         <div class="text-[10px] text-blue-800 font-extrabold">👦 மாணவர்கள்</div>
-                        <div class="text-lg font-black text-blue-950 leading-tight" id="statBoys">0</div>
+                        <div class="text-xl font-black text-blue-950 leading-tight" id="statBoys">0</div>
                     </div>
-                    <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-1.5 flex flex-col justify-center">
-                        <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர்/இருக்கை</div>
-                        <div class="text-base font-black text-slate-950 leading-tight"><span id="statTotal">0</span>/<span id="statCap" class="text-emerald-700">0</span></div>
-                    </div>
-                </div>
-
-                <!-- 4. Right: WHITE 2-LINE EXCEL FORMULA CALCULATOR -->
-                <div class="lg:col-span-4 bg-white text-slate-900 border-2 border-slate-300 rounded-lg p-2 flex flex-col justify-center space-y-1 shadow-2xs" data-tip="எக்செல் கால்குலேட்டர்: எ.கா: 48-11-19 அல்லது 212/5 எனத் தட்டச்சு செய்தால் வலதுபுறம் விடை உடனே காட்டும்">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-extrabold text-blue-800 shrink-0 w-9">fx 1:</span>
-                        <input type="text" id="excelCalcExpr1" oninput="evalMiniExcelCalc(1)" placeholder="48 - 11 - 19" class="flex-1 min-w-0 bg-slate-50 border border-slate-300 focus:border-blue-600 focus:bg-white rounded px-2 py-0.5 text-xs font-mono font-bold text-slate-900 focus:outline-none">
-                        <span class="text-slate-500 text-xs font-extrabold">=</span>
-                        <span id="excelCalcRes1" class="min-w-[54px] text-right bg-emerald-50 border border-emerald-400 text-emerald-900 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-extrabold text-indigo-800 shrink-0 w-9">fx 2:</span>
-                        <input type="text" id="excelCalcExpr2" oninput="evalMiniExcelCalc(2)" placeholder="38 + 42" class="flex-1 min-w-0 bg-slate-50 border border-slate-300 focus:border-indigo-600 focus:bg-white rounded px-2 py-0.5 text-xs font-mono font-bold text-slate-900 focus:outline-none">
-                        <span class="text-slate-500 text-xs font-extrabold">=</span>
-                        <span id="excelCalcRes2" class="min-w-[54px] text-right bg-blue-50 border border-blue-400 text-blue-900 font-mono font-black text-xs px-2 py-0.5 rounded">0</span>
+                    <div id="statCapBox" class="bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center">
+                        <div class="text-[10px] text-slate-700 font-extrabold">👥 தேர்வர் / இருக்கை</div>
+                        <div class="text-lg md:text-xl font-black text-slate-950 leading-tight"><span id="statTotal">0</span> / <span id="statCap" class="text-emerald-700">0</span></div>
                     </div>
                 </div>
             </div>
@@ -1002,7 +967,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-auto text-xs border-collapse border border-slate-400 text-center mx-auto" id="matrixTable">
+                <table class="w-full text-xs border-collapse border border-slate-400 text-center" id="matrixTable">
                     <thead id="matrixHead"></thead>
                     <tbody id="matrixBody"></tbody>
                 </table>
@@ -2427,7 +2392,7 @@
                 alert(`'${shortCode}' என்ற சுருக்கக் குறியீடு ஏற்கனவே உள்ளது!`);
                 return;
             }
-            list.unshift({ id: Date.now(), fullName, shortCode, dept });
+            list.push({ id: Date.now(), fullName, shortCode, dept });
             logActivity(currentSchool.id, currentSchool.name, `ஆசிரியர் சேர்க்கப்பட்டார்: ${shortCode} - ${fullName}`);
         }
         setData(schoolDataKey('teachers'), list);
@@ -2497,7 +2462,7 @@
                 alert("இந்த வகுப்பு ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.");
                 return;
             }
-            list.unshift({ id: Date.now(), className, medium });
+            list.push({ id: Date.now(), className, medium });
         }
         setData(schoolDataKey('classes_master'), list);
         cancelClassEdit();
@@ -2546,7 +2511,7 @@
                 alert(`'${shortCode}' என்ற பாடக் குறியீடு ஏற்கனவே உள்ளது.`);
                 return;
             }
-            list.unshift({ id: Date.now(), fullName, shortCode });
+            list.push({ id: Date.now(), fullName, shortCode });
         }
         setData(schoolDataKey('subjects_master'), list);
         cancelSubjectEdit();
@@ -2682,7 +2647,7 @@
             if (idx > -1) list[idx] = { ...list[idx], className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount };
             logActivity(currentSchool.id, currentSchool.name, `மாணவர் எண்ணிக்கை திருத்தப்பட்டது: ${className} (${medium})`);
         } else {
-            list.unshift({ id: Date.now(), className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount });
+            list.push({ id: Date.now(), className, medium, gStart, gEnd, gCount, bStart, bEnd, bCount });
             logActivity(currentSchool.id, currentSchool.name, `மாணவியர்/மாணவர் எண்ணிக்கை சேர்க்கப்பட்டது: ${className} (${medium})`);
         }
         setData(schoolDataKey('strength'), list);
@@ -2754,7 +2719,7 @@
         const container = document.getElementById('roomColRowsContainer');
         let html = '';
         for (let i = 0; i < cols; i++) {
-            const val = (existingColRows && existingColRows[i] !== undefined) ? existingColRows[i] : 5;
+            const val = (existingColRows && existingColRows[i] !== undefined) ? existingColRows[i] : 15;
             html += `
                 <div class="bg-slate-50 border rounded p-2 text-center">
                     <label class="block text-[11px] font-bold text-blue-900 mb-1">Col ${i + 1} வரிசைகள்</label>
@@ -2793,7 +2758,7 @@
                 alert(`Room ${roomNo} ஏற்கனவே உள்ளது!`);
                 return;
             }
-            rooms.unshift({ id: Date.now(), roomNo, cols, colRows, perBench, capacity });
+            rooms.push({ id: Date.now(), roomNo, cols, colRows, perBench, capacity });
             logActivity(currentSchool.id, currentSchool.name, `அறை சேர்க்கப்பட்டது: Room ${roomNo} (Max Cap: ${capacity})`);
         }
         setData(schoolDataKey('rooms'), rooms);
@@ -2809,7 +2774,7 @@
         document.getElementById('rmNo').value = r.roomNo;
         document.getElementById('rmCols').value = r.cols;
         document.getElementById('rmPerBench').value = r.perBench || 2;
-        const cRows = r.colRows || Array(r.cols).fill(r.rows || 5);
+        const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
         renderRoomColRowInputs(cRows);
         document.getElementById('rmMaxCap').value = r.capacity;
         document.getElementById('rmSaveBtn').textContent = "💾 புதுப்பி";
@@ -2821,7 +2786,7 @@
         document.getElementById('rmNo').value = '';
         document.getElementById('rmCols').value = 2;
         document.getElementById('rmPerBench').value = 2;
-        renderRoomColRowInputs([5, 5]);
+        renderRoomColRowInputs([15, 15]);
         document.getElementById('rmSaveBtn').textContent = "➕ அறையை சேமி";
         document.getElementById('rmCancelBtn').classList.add('hidden');
     }
@@ -2829,7 +2794,7 @@
     function renderRoomsTable() {
         const rooms = getData(schoolDataKey('rooms'), []);
         document.getElementById('roomsTableBody').innerHTML = rooms.map(r => {
-            const cRows = r.colRows || Array(r.cols).fill(r.rows || 5);
+            const cRows = r.colRows || Array(r.cols).fill(r.rows || 15);
             const cRowsText = cRows.map((cnt, idx) => `Col ${idx + 1}: <b>${cnt}</b>`).join(' | ');
             return `
                 <tr class="border-b">
@@ -2868,79 +2833,11 @@
 
         const classesMaster = getData(schoolDataKey('classes_master'), []);
         const uniqueClasses = [...new Set(classesMaster.map(c => c.className))];
-        const container = document.getElementById('ttClassCheckboxes');
-
-        if (!uniqueClasses.length) {
-            container.innerHTML = `<span class="text-red-600 text-xs font-bold col-span-full">முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும்.</span>`;
-        } else {
-            // Group sections by Grade prefix (e.g., "12", "11", "10", "9", "8", "7", "6")
-            const gradeGroups = new Map();
-            uniqueClasses.forEach(cls => {
-                const m = String(cls).trim().match(/^(\d+)/);
-                const gKey = m ? m[1] : String(cls).split('-')[0].trim();
-                if (!gradeGroups.has(gKey)) gradeGroups.set(gKey, []);
-                gradeGroups.get(gKey).push(cls);
-            });
-
-            // Sort grades numerically descending (12, 11, 10, 9, 8, 7, 6...)
-            const sortedGrades = Array.from(gradeGroups.keys()).sort((a, b) => {
-                const na = parseInt(a), nb = parseInt(b);
-                if (!isNaN(na) && !isNaN(nb)) return nb - na;
-                return String(a).localeCompare(String(b));
-            });
-
-            container.innerHTML = sortedGrades.map(gKey => {
-                const sections = gradeGroups.get(gKey);
-                const isNum = /^\d+$/.test(gKey);
-                const groupTitle = isNum ? `${gKey}-ஆம் வகுப்பு` : `${gKey} குழு`;
-                const secHtml = sections.map(sec => `
-                    <label class="cursor-pointer inline-flex items-center gap-1 bg-slate-50 hover:bg-blue-50 border border-slate-300 px-2.5 py-1 rounded text-xs font-bold text-slate-800 select-none">
-                        <input type="checkbox" class="tt-cls-cb accent-blue-700" data-grade="${gKey}" value="${sec}" onchange="syncGradeMasterCheckbox('${gKey}')">
-                        <span>${sec}</span>
-                    </label>
-                `).join('');
-
-                return `
-                    <div class="bg-white border-2 border-slate-200 rounded-lg p-2.5 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                            <span class="text-xs font-extrabold text-blue-950">🎓 ${groupTitle} <span class="text-[10px] font-semibold text-slate-500">(${sections.length} பிரிவுகள்)</span></span>
-                            <label title="இந்த வகுப்பின் அனைத்துப் பிரிவுகளையும் தேர்வு செய் / நீக்கு" class="cursor-pointer inline-flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 p-1 rounded select-none">
-                                <input type="checkbox" id="ttGradeMaster_${gKey}" class="tt-grade-master-cb w-4 h-4 accent-emerald-700 cursor-pointer" onchange="toggleGradeGroupCheckboxes('${gKey}', this.checked)">
-                            </label>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5">
-                            ${secHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+        document.getElementById('ttClassCheckboxes').innerHTML = uniqueClasses.length
+            ? uniqueClasses.map(c => `<label class="bg-white border px-3 py-1.5 rounded shadow-sm text-sm font-semibold"><input type="checkbox" class="tt-cls-cb mr-1" value="${c}"> ${c}</label>`).join('')
+            : `<span class="text-red-600 text-sm">முதலில் '2️⃣ வகுப்புகள் & பாடங்கள்' பகுதியில் வகுப்புகளைச் சேர்க்கவும்.</span>`;
 
         renderTimetableTable();
-    }
-
-    function toggleGradeGroupCheckboxes(gKey, isChecked) {
-        document.querySelectorAll(`.tt-cls-cb[data-grade="${gKey}"]`).forEach(cb => {
-            cb.checked = isChecked;
-        });
-    }
-
-    function syncGradeMasterCheckbox(gKey) {
-        const allSecs = Array.from(document.querySelectorAll(`.tt-cls-cb[data-grade="${gKey}"]`));
-        const masterCb = document.getElementById(`ttGradeMaster_${gKey}`);
-        if (masterCb && allSecs.length > 0) {
-            masterCb.checked = allSecs.every(cb => cb.checked);
-        }
-    }
-
-    function syncAllGradeMasterCheckboxes() {
-        const grades = new Set(Array.from(document.querySelectorAll('.tt-cls-cb')).map(cb => cb.getAttribute('data-grade')));
-        grades.forEach(g => syncGradeMasterCheckbox(g));
-    }
-
-    function toggleAllTimetableGrades(flag) {
-        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = flag);
-        document.querySelectorAll('.tt-grade-master-cb').forEach(cb => cb.checked = flag);
     }
 
     function saveTimetable() {
@@ -2964,10 +2861,9 @@
                 tt[idx] = { ...tt[idx], title, date, session, className: selected[0], subjectCode, subjectFull };
             }
         } else {
-            const newEntries = selected.map((cls, idx) => ({
-                id: Date.now() + idx, title, date, session, className: cls, subjectCode, subjectFull
-            }));
-            tt.unshift(...newEntries);
+            selected.forEach((cls, idx) => {
+                tt.push({ id: Date.now() + idx, title, date, session, className: cls, subjectCode, subjectFull });
+            });
             logActivity(currentSchool.id, currentSchool.name, `தேர்வு அட்டவணை சேர்க்கப்பட்டது: ${date} ${session} (${subjectCode})`);
         }
         setData(schoolDataKey('timetable'), tt);
@@ -2985,14 +2881,13 @@
         document.getElementById('ttSession').value = t.session;
         document.getElementById('ttSubjectDropdown').value = `${t.subjectCode}|${t.subjectFull}`;
         document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = (cb.value === t.className));
-        syncAllGradeMasterCheckboxes();
         document.getElementById('ttSaveBtn').textContent = "💾 புதுப்பி";
         document.getElementById('ttCancelBtn').classList.remove('hidden');
     }
 
     function cancelTimetableEdit() {
         document.getElementById('ttEditId').value = '';
-        document.querySelectorAll('.tt-cls-cb, .tt-grade-master-cb').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.tt-cls-cb').forEach(cb => cb.checked = false);
         document.getElementById('ttSaveBtn').textContent = "➕ அட்டவணையில் சேர்";
         document.getElementById('ttCancelBtn').classList.add('hidden');
     }
@@ -3030,13 +2925,11 @@
         const uniqueSessions = [];
         const seen = new Set();
         tt.forEach(t => {
-            const dNorm = String(t.date || '').trim();
-            const sNorm = String(t.session || '').trim();
-            const dsKey = `${dNorm}|${sNorm}`;
-            if (dNorm && sNorm && !seen.has(dsKey)) {
-                seen.add(dsKey);
-                const fullKey = `${dNorm}|${sNorm}|${t.title || ''}`;
-                uniqueSessions.push({ key: fullKey, label: `${formatDisplayDate(dNorm)} (${sNorm})` });
+            const key = `${t.date}|${t.session}|${t.title}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                // Show ONLY Date and Session (no exam title repetition)
+                uniqueSessions.push({ key, label: `${formatDisplayDate(t.date)} (${t.session})` });
             }
         });
 
@@ -3096,226 +2989,590 @@
 
     function clearAllocationMatrix() {
         const activeRooms = getActiveRooms();
-        // First validate that NO room exceeds its fixed configured bench capacity!
-        const overCapacityRooms = [];
         activeRooms.forEach(rm => {
-            const students = roomSeatMap[rm.roomNo] || [];
-            const perBench = rm.perBench || 2;
-            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 5);
-            const fixedBenches = cRows.reduce((a, b) => a + b, 0);
-            const maxSeats = fixedBenches * perBench;
-            if (students.length > maxSeats) {
-                overCapacityRooms.push(`Room ${rm.roomNo}: ஒதுக்கியது ${students.length} / அதிகபட்ச இருக்கை ${maxSeats} (${fixedBenches} Benches × ${perBench})`);
-            }
+            matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
         });
+        renderMatrixTable();
+    }
 
-        if (overCapacityRooms.length > 0) {
-            alert(
-                `❌ பிழை: கீழ்க்காணும் அறைகளில் உள்ள பெஞ்சுகளின் எண்ணிக்கையை விட அதிகமான மாணவர்கள் ஒதுக்கப்பட்டுள்ளனர்!\n\n` +
-                overCapacityRooms.join('\n') +
-                `\n\nஅறைக்கு ஒதுக்கப்பட்ட பெஞ்சுகளின் எண்ணிக்கை கூட்டப்படாது. தயவுசெய்து அறை ஒதுக்கீட்டுக் கட்டத்தில் (Matrix) மாணவர் எண்ணிக்கையைச் சரிசெய்யவும்.`
-            );
+    function getActiveRooms() {
+        const rooms = getData(schoolDataKey('rooms'), []);
+        const checkedNos = Array.from(document.querySelectorAll('.alloc-rm-cb:checked')).map(cb => cb.value);
+        return rooms.filter(r => checkedNos.includes(r.roomNo));
+    }
+
+    function initAllocationMatrix() {
+        const examVal = document.getElementById('allocExamSelect').value;
+        if (!examVal) return;
+        const [selDate, selSess] = examVal.split('|');
+
+        const tt = getData(schoolDataKey('timetable'), []).filter(t => t.date === selDate && t.session === selSess);
+        const strengths = getData(schoolDataKey('strength'), []);
+        const activeRooms = getActiveRooms();
+        const ruleEl = document.querySelector('input[name="genderRule"]:checked');
+        const rule = ruleEl ? ruleEl.value : 'strict';
+
+        matrixColumns = [];
+        let totGirls = 0, totBoys = 0;
+
+        if (rule === 'continuous') {
+            // Continuous Roll No mode: show combined Class Total columns (Girls + Boys together)
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    const gc = parseInt(st.gCount) || 0;
+                    const bc = parseInt(st.bCount) || 0;
+                    totGirls += gc;
+                    totBoys += bc;
+                    const combinedTot = gc + bc;
+                    if (combinedTot > 0) {
+                        const firstRoll = gc > 0 ? st.gStart : st.bStart;
+                        matrixColumns.push({
+                            key: `C_${st.id}_${sCode}`,
+                            gender: 'All',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: firstRoll,
+                            maxCount: combinedTot
+                        });
+                    }
+                });
+            });
+        } else {
+            // Strict / Hybrid Separate Gender mode: Girls columns first, Boys columns second
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    if (st.gCount > 0) {
+                        totGirls += st.gCount;
+                        matrixColumns.push({
+                            key: `G_${st.id}_${sCode}`,
+                            gender: 'Girls',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: st.gStart,
+                            maxCount: st.gCount
+                        });
+                    }
+                });
+            });
+
+            tt.forEach(t => {
+                const sCode = t.subjectCode || t.subject;
+                const sFull = t.subjectFull || sCode;
+                const stList = strengths.filter(s => s.className === t.className);
+                stList.forEach(st => {
+                    if (st.bCount > 0) {
+                        totBoys += st.bCount;
+                        matrixColumns.push({
+                            key: `B_${st.id}_${sCode}`,
+                            gender: 'Boys',
+                            classLabel: `${st.className}(${st.medium})`,
+                            subjectCode: sCode,
+                            subjectFull: sFull,
+                            startRoll: st.bStart,
+                            maxCount: st.bCount
+                        });
+                    }
+                });
+            });
+        }
+
+        const totCap = activeRooms.reduce((acc, r) => acc + r.capacity, 0);
+        const grandStu = totGirls + totBoys;
+        document.getElementById('statGirls').textContent = totGirls;
+        document.getElementById('statBoys').textContent = totBoys;
+        document.getElementById('statTotal').textContent = grandStu;
+        const capEl = document.getElementById('statCap');
+        const capBox = document.getElementById('statCapBox');
+        capEl.textContent = totCap;
+        if (capBox) {
+            if (totCap < grandStu) {
+                capBox.className = "bg-red-50 border-2 border-red-400 rounded-lg p-2 flex flex-col justify-center";
+                capEl.className = "text-red-700";
+            } else {
+                capBox.className = "bg-emerald-50 border border-emerald-300 rounded-lg p-2 flex flex-col justify-center";
+                capEl.className = "text-emerald-700";
+            }
         }
 
         activeRooms.forEach(rm => {
-            const students = roomSeatMap[rm.roomNo] || [];
-            if (students.length === 0) return;
-
-            const perBench = rm.perBench || 2;
-            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 5);
-            const effectiveColRows = [...cRows];
-            const configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
-            const maxRoomSeats = configuredBenches * perBench;
-            let ordered = [...students];
-
-            let overflowWarningHtml = '';
-            if (ordered.length > maxRoomSeats) {
-                overflowWarningHtml = `<div class="mb-2 p-2 bg-red-100 border-2 border-red-600 text-red-950 text-xs rounded text-center font-extrabold">❌ பிழை: இந்த அறையில் ${configuredBenches} பெஞ்சுகள் (${maxRoomSeats} இருக்கைகள்) மட்டுமே உள்ளன; ஆனால் ${ordered.length} மாணவர்கள் ஒதுக்கப்பட்டுள்ளனர்! (${ordered.length - maxRoomSeats} மாணவர்களுக்கு இடமில்லை — அறை ஒதுக்கீட்டுக் கட்டத்தில் எண்ணிக்கையைக் குறைக்கவும்).</div>`;
-                ordered = ordered.slice(0, maxRoomSeats);
-            }
-
-            // Initialize fixed slots matrix: `benchSlots[b][s]` for `b = 0 .. configuredBenches - 1`, `s = 0 .. perBench - 1`
-            const benchSlots = Array.from({ length: configuredBenches }, () => Array(perBench).fill(null));
-
-            if (benchOrderMode === 'continuous') {
-                ordered.sort((a, b) => a.roll - b.roll);
-                const N = ordered.length;
-                if (N <= configuredBenches) {
-                    // Spread evenly across ALL benches & columns (1 student per occupied bench)
-                    for (let i = 0; i < N; i++) {
-                        const bIdx = Math.floor((i * configuredBenches) / N);
-                        benchSlots[bIdx][0] = ordered[i];
-                    }
-                } else {
-                    // Fill Seat 1 across all benches first, then distribute remaining students evenly across benches
-                    for (let b = 0; b < configuredBenches; b++) {
-                        benchSlots[b][0] = ordered[b];
-                    }
-                    let remIdx = configuredBenches;
-                    for (let s = 1; s < perBench && remIdx < N; s++) {
-                        const takeForLane = Math.min(configuredBenches, N - remIdx);
-                        for (let i = 0; i < takeForLane; i++) {
-                            const bIdx = Math.floor((i * configuredBenches) / takeForLane);
-                            benchSlots[bIdx][s] = ordered[remIdx++];
-                        }
-                    }
+            if (!matrixState[rm.roomNo]) matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => {
+                if (matrixState[rm.roomNo][col.key] === undefined) {
+                    matrixState[rm.roomNo][col.key] = 0;
                 }
-            } else {
-                // Sort students cleanly by Grade -> Subject -> Class/Section -> Roll Number
-                ordered.sort((a, b) => {
-                    if (a.grade !== b.grade) return String(b.grade).localeCompare(String(a.grade), undefined, { numeric: true });
-                    if (a.subject !== b.subject) return String(a.subject).localeCompare(String(b.subject));
-                    if (a.classLabel !== b.classLabel) return String(a.classLabel).localeCompare(String(b.classLabel));
-                    return a.roll - b.roll;
-                });
-
-                const N = ordered.length;
-
-                if (N <= configuredBenches) {
-                    // Fewer or equal students than total benches:
-                    // Give EVERY occupied bench 1 student, spread evenly across ALL columns & rows, alternating Grades/Subjects!
-                    const gradeMap = new Map();
-                    ordered.forEach(stu => {
-                        if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
-                        gradeMap.get(stu.grade).push(stu);
-                    });
-                    const gBuckets = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
-                    const interleaved = [];
-                    while (interleaved.length < N) {
-                        for (const bk of gBuckets) {
-                            if (bk.length > 0) interleaved.push(bk.shift());
-                        }
-                    }
-                    for (let i = 0; i < N; i++) {
-                        const bIdx = Math.floor((i * configuredBenches) / N);
-                        // Alternate seat position cleanly (Seat 0 vs Seat perBench-1) for visual clarity
-                        const seatPos = (perBench > 1 && i % 2 === 1) ? (perBench - 1) : 0;
-                        benchSlots[bIdx][seatPos] = interleaved[i];
-                    }
-                } else {
-                    // More students than benches (up to maxRoomSeats):
-                    // Build vertical Grade/Subject lanes, strictly capped at `configuredBenches` per lane (NO extra benches added!),
-                    // and distribute each lane evenly across ALL columns & rows so every bench is utilized!
-                    let laneLists = Array.from({ length: perBench }, () => []);
-
-                    const gradeMap = new Map();
-                    ordered.forEach(stu => {
-                        if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
-                        gradeMap.get(stu.grade).push(stu);
-                    });
-                    const gradeGroups = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
-
-                    if (gradeGroups.length >= perBench) {
-                        for (let s = 0; s < perBench; s++) {
-                            laneLists[s] = [...gradeGroups[s]];
-                        }
-                        for (let g = perBench; g < gradeGroups.length; g++) {
-                            let shortestIdx = 0;
-                            for (let s = 1; s < perBench; s++) {
-                                if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
-                            }
-                            laneLists[shortestIdx].push(...gradeGroups[g]);
-                        }
-                    } else if (gradeGroups.length === 2 && perBench === 3) {
-                        const gMajor = gradeGroups[0];
-                        const gMinor = gradeGroups[1];
-                        const halfMajor = Math.ceil(gMajor.length / 2);
-                        laneLists[0] = gMajor.slice(0, halfMajor);
-                        laneLists[1] = [...gMinor];
-                        laneLists[2] = gMajor.slice(halfMajor);
-                    } else if (gradeGroups.length === 1) {
-                        const subjMap = new Map();
-                        ordered.forEach(stu => {
-                            if (!subjMap.has(stu.subject)) subjMap.set(stu.subject, []);
-                            subjMap.get(stu.subject).push(stu);
-                        });
-                        const subjGroups = Array.from(subjMap.values()).sort((a, b) => b.length - a.length);
-
-                        if (subjGroups.length >= perBench) {
-                            for (let s = 0; s < perBench; s++) {
-                                laneLists[s] = [...subjGroups[s]];
-                            }
-                            for (let sg = perBench; sg < subjGroups.length; sg++) {
-                                let shortestIdx = 0;
-                                for (let s = 1; s < perBench; s++) {
-                                    if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
-                                }
-                                laneLists[shortestIdx].push(...subjGroups[sg]);
-                            }
-                        } else if (subjGroups.length === 2 && perBench === 3) {
-                            const sMajor = subjGroups[0];
-                            const sMinor = subjGroups[1];
-                            const halfSub = Math.ceil(sMajor.length / 2);
-                            laneLists[0] = sMajor.slice(0, halfSub);
-                            laneLists[1] = [...sMinor];
-                            laneLists[2] = sMajor.slice(halfSub);
-                        } else {
-                            const chunk = Math.ceil(ordered.length / perBench);
-                            for (let s = 0; s < perBench; s++) {
-                                laneLists[s] = ordered.slice(s * chunk, (s + 1) * chunk);
-                            }
-                        }
-                    }
-
-                    // Enforce strict cap: NO lane can exceed `configuredBenches` — spill excess into lanes with spare capacity!
-                    for (let s = 0; s < perBench; s++) {
-                        while (laneLists[s].length > configuredBenches) {
-                            const overflowStu = laneLists[s].pop();
-                            // Find lane with fewest students (< configuredBenches), preferring non-adjacent lane first
-                            let targetLane = -1;
-                            let minLen = configuredBenches;
-                            for (let cand = 0; cand < perBench; cand++) {
-                                if (cand !== s && laneLists[cand].length < minLen) {
-                                    minLen = laneLists[cand].length;
-                                    targetLane = cand;
-                                }
-                            }
-                            if (targetLane !== -1) {
-                                laneLists[targetLane].push(overflowStu);
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-
-                    // Place each lane evenly across ALL `configuredBenches` benches (so Col 1, Col 2, Col 3 get equal students!)
-                    for (let s = 0; s < perBench; s++) {
-                        const lane = laneLists[s];
-                        const L = lane.length;
-                        for (let i = 0; i < L; i++) {
-                            const bIdx = Math.floor((i * configuredBenches) / L);
-                            benchSlots[bIdx][s] = lane[i];
-                        }
-                    }
-                }
-            }
-
-            const totalRenderedBenches = configuredBenches;
-            const slots = [];
-            for (let b = 0; b < totalRenderedBenches; b++) {
-                for (let s = 0; s < perBench; s++) {
-                    slots.push(benchSlots[b][s]);
-                }
-            }
-
-            const roomGrp = summaryGroups.find(g => String(g.roomNo) === String(rm.roomNo));
-            window.roomVisualData[rm.roomNo] = {
-                rm: rm,
-                roomItems: roomGrp ? roomGrp.items : [],
-                studentCount: students.length,
-                selTitle: selTitle,
-                selDate: dispDate,
-                selSess: selSess,
-                perBench: perBench,
-                effectiveColRows: effectiveColRows,
-                totalRenderedBenches: totalRenderedBenches,
-                overflowWarningHtml: overflowWarningHtml,
-                slots: slots,
-                initialSlots: slots.map(x => x ? { ...x } : null)
-            };
+            });
         });
 
-        renderAllVisualRooms();
+        renderMatrixTable();
+    }
+
+    function renderMatrixTable() {
+        const activeRooms = getActiveRooms();
+        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
+        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+        const allCols = matrixColumns.filter(c => c.gender === 'All');
+
+        const remMap = {};
+        matrixColumns.forEach(col => {
+            let used = 0;
+            activeRooms.forEach(rm => used += (parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0));
+            remMap[col.key] = col.maxCount - used;
+        });
+
+        let groupHeaderHtml = '';
+        if (allCols.length > 0) {
+            groupHeaderHtml = `<th colspan="${allCols.length}" class="border border-slate-400 p-1.5 bg-indigo-100 text-indigo-950 font-extrabold">வகுப்பு வாரியான மொத்த மாணவர்கள் (Class Total - Continuous Roll No)</th>`;
+        } else {
+            groupHeaderHtml = `
+                ${girlsCols.length ? `<th colspan="${girlsCols.length}" class="border border-slate-400 p-1.5 bg-pink-100 text-pink-900">Girls (மாணவிகள்)</th>` : ''}
+                ${boysCols.length ? `<th colspan="${boysCols.length}" class="border border-slate-400 p-1.5 bg-blue-100 text-blue-900">Boys (மாணவர்கள்)</th>` : ''}
+            `;
+        }
+
+        let headHtml = `
+            <tr class="bg-slate-200 font-bold">
+                <th rowspan="3" class="sticky-room-col bg-slate-200 border border-slate-400 p-2 min-w-[54px]">Room</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Max Cap</th>
+                <th rowspan="3" class="border border-slate-400 p-2">Cols / Rows</th>
+                ${groupHeaderHtml}
+                <th rowspan="3" class="sticky-total-col bg-emerald-100 border border-slate-400 p-2 min-w-[66px]">Room Total</th>
+            </tr>
+            <tr class="bg-amber-100 font-semibold">
+                ${matrixColumns.map(c => `<th class="border border-slate-400 p-1 min-w-[78px]">${c.classLabel}<br><span class="text-[10px] text-slate-700">[${c.subjectCode}]</span></th>`).join('')}
+            </tr>
+            <tr class="bg-slate-50 text-[11px]">
+                ${matrixColumns.map(c => {
+                    const rem = remMap[c.key];
+                    const badgeCls = rem === 0 ? 'text-emerald-700 font-bold' : (rem < 0 ? 'text-red-600 font-bold' : 'text-amber-800 font-bold');
+                    return `<th class="border border-slate-400 p-1">மொத்தம்: ${c.maxCount}<br><span class="${badgeCls}">மீதம்: ${rem}</span></th>`;
+                }).join('')}
+            </tr>
+        `;
+        document.getElementById('matrixHead').innerHTML = headHtml;
+
+        let bodyHtml = activeRooms.map(rm => {
+            let rowSum = 0;
+            const cells = matrixColumns.map(col => {
+                const val = parseInt(matrixState[rm.roomNo] && matrixState[rm.roomNo][col.key]) || 0;
+                rowSum += val;
+                return `<td class="border border-slate-400 p-1 bg-white">
+                    <input type="number" min="0" value="${val}" onchange="updateMatrixCell('${rm.roomNo}', '${col.key}', this.value)"
+                        class="w-14 text-center border rounded p-1 font-bold ${val > 0 ? 'bg-yellow-50 border-amber-400' : ''}">
+                </td>`;
+            }).join('');
+
+            const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
+            const overCap = rowSum > rm.capacity;
+            return `
+                <tr>
+                    <td class="sticky-room-col bg-slate-100 border border-slate-400 p-2 font-black text-sm">${rm.roomNo}</td>
+                    <td class="border border-slate-400 p-2 font-semibold bg-white">${rm.capacity}</td>
+                    <td class="border border-slate-400 p-2 text-[11px] bg-white">${cRows.join(' + ')}</td>
+                    ${cells}
+                    <td class="sticky-total-col border border-slate-400 p-2 font-black text-sm ${overCap ? 'bg-red-200 text-red-900' : 'bg-emerald-50 text-emerald-900'}">
+                        ${rowSum} ${overCap ? '⚠️' : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        document.getElementById('matrixBody').innerHTML = bodyHtml;
+    }
+
+    function updateMatrixCell(roomNo, colKey, val) {
+        if (!matrixState[roomNo]) matrixState[roomNo] = {};
+        matrixState[roomNo][colKey] = parseInt(val) || 0;
+        renderMatrixTable();
+    }
+
+    function extractGradeKey(classLabel) {
+        const m = String(classLabel || '').trim().match(/^(\d+)/);
+        return m ? m[1] : String(classLabel || '').split('-')[0].trim();
+    }
+
+    // Helper: Fill a room's capacity by balancing across BOTH Grades (12th, 11th...) AND Subjects (MAT, COM, PHY, ECO...)!
+    // That way Room 2 gets MAT + COM + PHY + ECO rather than dumping all MAT into one room.
+    function fillRoomGradeBalanced(rm, colsList, rem, roomCapRem) {
+        if (roomCapRem[rm.roomNo] <= 0) return;
+        const activeCols = colsList.filter(c => rem[c.key] > 0);
+        if (activeCols.length === 0) return;
+
+        // Group active columns by Grade (e.g. "12", "11", "10")
+        const gradeGroups = {};
+        activeCols.forEach(c => {
+            const g = extractGradeKey(c.classLabel);
+            if (!gradeGroups[g]) gradeGroups[g] = [];
+            gradeGroups[g].push(c);
+        });
+        const grades = Object.keys(gradeGroups);
+
+        // Give each Grade a balanced share of this room's capacity, AND within each Grade distribute across distinct Subjects!
+        const perGradeTarget = Math.ceil(roomCapRem[rm.roomNo] / grades.length);
+        grades.forEach(g => {
+            let gradeQuota = Math.min(perGradeTarget, roomCapRem[rm.roomNo]);
+            if (gradeQuota <= 0) return;
+
+            // Group this grade's columns by Subject Code (e.g. MAT, COM, CS, CA)
+            const subjGroups = {};
+            gradeGroups[g].forEach(c => {
+                const sub = c.subjectCode || 'SUB';
+                if (!subjGroups[sub]) subjGroups[sub] = [];
+                subjGroups[sub].push(c);
+            });
+            const subKeys = Object.keys(subjGroups);
+            const perSubjTarget = Math.max(1, Math.ceil(gradeQuota / subKeys.length));
+
+            // Round 1: Take balanced quota from each distinct Subject in this Grade
+            subKeys.forEach(sub => {
+                let subjQuota = Math.min(perSubjTarget, gradeQuota, roomCapRem[rm.roomNo]);
+                subjGroups[sub].forEach(c => {
+                    if (subjQuota <= 0 || gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0) return;
+                    const take = Math.min(rem[c.key], subjQuota, gradeQuota, roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] += take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                    gradeQuota -= take;
+                    subjQuota -= take;
+                });
+            });
+
+            // Round 2: If this grade still has unused quota in this room, fill from remaining columns of this grade
+            if (gradeQuota > 0 && roomCapRem[rm.roomNo] > 0) {
+                gradeGroups[g].forEach(c => {
+                    if (gradeQuota <= 0 || roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
+                    const take = Math.min(rem[c.key], gradeQuota, roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] += take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                    gradeQuota -= take;
+                });
+            }
+        });
+
+        // Round 3: Fill any leftover room capacity from remaining columns
+        colsList.forEach(c => {
+            if (roomCapRem[rm.roomNo] <= 0 || rem[c.key] <= 0) return;
+            const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+            matrixState[rm.roomNo][c.key] += take;
+            rem[c.key] -= take;
+            roomCapRem[rm.roomNo] -= take;
+        });
+    }
+
+    function autoFillMatrix() {
+        const activeRooms = getActiveRooms();
+        const rule = document.querySelector('input[name="genderRule"]:checked').value;
+
+        activeRooms.forEach(rm => {
+            matrixState[rm.roomNo] = {};
+            matrixColumns.forEach(col => matrixState[rm.roomNo][col.key] = 0);
+        });
+
+        const rem = {};
+        matrixColumns.forEach(col => rem[col.key] = col.maxCount);
+        const roomCapRem = {};
+        activeRooms.forEach(rm => roomCapRem[rm.roomNo] = rm.capacity);
+
+        const girlsCols = matrixColumns.filter(c => c.gender === 'Girls');
+        const boysCols = matrixColumns.filter(c => c.gender === 'Boys');
+
+        if (rule === 'strict') {
+            // Girls rooms first, Boys rooms second (never mix Boys & Girls in same room), mixing Grades within each room
+            activeRooms.forEach(rm => {
+                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+                if (girlsLeft > 0) {
+                    fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
+                } else {
+                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
+                }
+            });
+        } else if (rule === 'hybrid') {
+            activeRooms.forEach(rm => {
+                fillRoomGradeBalanced(rm, girlsCols, rem, roomCapRem);
+                const girlsLeft = girlsCols.reduce((s, c) => s + rem[c.key], 0);
+                if (girlsLeft === 0) {
+                    fillRoomGradeBalanced(rm, boysCols, rem, roomCapRem);
+                }
+            });
+        } else {
+            // Continuous Roll Number order across classes
+            const sortedByRoll = [...matrixColumns].sort((a, b) => a.startRoll - b.startRoll);
+            activeRooms.forEach(rm => {
+                sortedByRoll.forEach(c => {
+                    const take = Math.min(rem[c.key], roomCapRem[rm.roomNo]);
+                    matrixState[rm.roomNo][c.key] = take;
+                    rem[c.key] -= take;
+                    roomCapRem[rm.roomNo] -= take;
+                });
+            });
+        }
+
+        renderMatrixTable();
+    }
+
+        function formatDisplayDate(dStr) {
+        if (!dStr) return '';
+        const parts = String(dStr).trim().split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        return dStr;
+    }
+
+
+    // ---------------------------------------------------------
+    // SAVED SEATING PLANS (CLOUD SYNCED, MAX 3 PER DATE+SESSION)
+    // ---------------------------------------------------------
+    let currentLoadedPlanId = null;
+
+    function toggleQpSummaryVisibility() {
+        const cb = document.getElementById('includeQpSummaryPrint');
+        const wrap = document.getElementById('qpSummaryPrintWrapper');
+        if (cb && wrap) {
+            if (cb.checked) wrap.classList.remove('hidden');
+            else wrap.classList.add('hidden');
+        }
+    }
+
+    function updateSavedPlanIndicator(planObj) {
+        const badge = document.getElementById('activeSavedPlanBadge');
+        const updBtn = document.getElementById('updateSavedPlanBtn');
+        if (planObj) {
+            currentLoadedPlanId = planObj.id;
+            if (badge) {
+                badge.classList.remove('hidden');
+                badge.textContent = `📌 தற்போது திறக்கப்பட்டுள்ள சேமித்த அமைப்பு: ${planObj.planName} (${formatDisplayDate(planObj.date)} ${planObj.session})`;
+            }
+            if (updBtn) updBtn.classList.remove('hidden');
+        } else {
+            currentLoadedPlanId = null;
+            if (badge) badge.classList.add('hidden');
+            if (updBtn) updBtn.classList.add('hidden');
+        }
+    }
+
+    async function saveCurrentSeatingPlan(isUpdateExisting = false) {
+        const examVal = document.getElementById('allocExamSelect').value;
+        if (!examVal || !window.roomVisualData || Object.keys(window.roomVisualData).length === 0) {
+            alert("முதலில் 'Generate Notice Board & Visual Seating Map' பொத்தானை அழுத்தி இருக்கை அமைப்பை உருவாக்கவும்.");
+            return;
+        }
+        const [selDate, selSess, selTitle] = examVal.split('|');
+
+        // Pull latest saved plans from Cloud first so multi-device counts are accurate
+        await pullSchoolWorkspaceFromCloud(currentSchool.id);
+        let savedPlans = getData(schoolDataKey('saved_seating'), []);
+
+        if (isUpdateExisting && currentLoadedPlanId) {
+            const idx = savedPlans.findIndex(p => p.id === currentLoadedPlanId);
+            if (idx !== -1) {
+                const newName = prompt("இந்த அமைப்பின் பெயரை உறுதிப்படுத்தவும் / மாற்றவும்:", savedPlans[idx].planName);
+                if (newName === null) return;
+                savedPlans[idx] = {
+                    ...savedPlans[idx],
+                    planName: newName.trim() || savedPlans[idx].planName,
+                    updatedAt: nowStr(),
+                    activeRoomNos: getActiveRooms().map(r => r.roomNo),
+                    matrixState: JSON.parse(JSON.stringify(matrixState)),
+                    benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
+                    useShortSub: document.getElementById('useShortSubjectPrint').checked,
+                    useShortTch: document.getElementById('useShortTeacherPrint').checked,
+                    roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
+                };
+                setData(schoolDataKey('saved_seating'), savedPlans);
+                updateSavedPlanIndicator(savedPlans[idx]);
+                logActivity(currentSchool.id, currentSchool.name, `சேமித்த இருக்கை அமைப்பு புதுப்பிக்கப்பட்டது: ${savedPlans[idx].planName} (${selDate} ${selSess})`);
+                alert("✅ சேமித்த இருக்கை அமைப்பு Cloud-ல் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது!");
+                return;
+            }
+        }
+
+        // Check max 3 saved versions limit for this exact Date + Session
+        const sameSessionPlans = savedPlans.filter(p => p.date === selDate && p.session === selSess);
+        if (sameSessionPlans.length >= 3) {
+            const goSaved = confirm(
+                `⚠️ வரம்பு எட்டப்பட்டது (Maximum 3 Saved Versions)!\n\n` +
+                `${formatDisplayDate(selDate)} (${selSess}) தேர்வுக்கு ஏற்கனவே 3 இருக்கை அமைப்புகள் சேமிக்கப்பட்டுள்ளன.\n\n` +
+                `புதிய அமைப்பைச் சேமிக்க வேண்டுமெனில், 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் சென்று பழையவற்றில் ஒன்றை நீக்கிவிட்டு (Delete) எத்தனை முறை வேண்டுமானாலும் சேமித்துக்கொள்ளலாம்.\n\n` +
+                `இப்போது 'சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்திற்குச் செல்லலாமா?`
+            );
+            if (goSaved) switchWorkTab('saved');
+            return;
+        }
+
+        const defaultName = `${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3`;
+        const customName = prompt(`இந்த இருக்கை அமைப்பிற்கு ஒரு பெயர் தரவும் (${formatDisplayDate(selDate)} - ${selSess} | ${sameSessionPlans.length + 1}/3):`, defaultName);
+        if (customName === null) return;
+
+        const planObj = {
+            id: "plan_" + Date.now(),
+            planName: customName.trim() || defaultName,
+            date: selDate,
+            session: selSess,
+            title: selTitle,
+            savedAt: nowStr(),
+            updatedAt: nowStr(),
+            activeRoomNos: getActiveRooms().map(r => r.roomNo),
+            matrixState: JSON.parse(JSON.stringify(matrixState)),
+            benchOrderMode: document.querySelector('input[name="benchOrderMode"]:checked').value,
+            useShortSub: document.getElementById('useShortSubjectPrint').checked,
+            useShortTch: document.getElementById('useShortTeacherPrint').checked,
+            roomVisualData: JSON.parse(JSON.stringify(window.roomVisualData))
+        };
+
+        savedPlans.unshift(planObj);
+        setData(schoolDataKey('saved_seating'), savedPlans);
+        updateSavedPlanIndicator(planObj);
+        logActivity(currentSchool.id, currentSchool.name, `புதிய இருக்கை அமைப்பு சேமிக்கப்பட்டது: ${planObj.planName} (${selDate} ${selSess})`);
+        alert(`🎉 "${planObj.planName}" Cloud-ல் சேமிக்கப்பட்டது! (${sameSessionPlans.length + 1}/3)\nஇனி பள்ளியிலிருந்தோ அல்லது வேறு எந்தக் கணினியிலிருந்தோ '7️⃣ சேமிக்கப்பட்ட இருக்கை அமைப்புகள்' பக்கத்தில் திறந்து பார்க்கலாம் / திருத்தலாம்.`);
+    }
+
+    async function refreshSavedPlansView() {
+        const container = document.getElementById('savedPlansContainer');
+        if (container) container.innerHTML = `<div class="text-center text-sm text-slate-500 py-6">⏳ Cloud-லிருந்து சேமிக்கப்பட்ட அமைப்புகள் பெறப்படுகின்றன...</div>`;
+        await pullSchoolWorkspaceFromCloud(currentSchool.id);
+
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const filterSel = document.getElementById('savedFilterSession');
+        if (filterSel) {
+            const prevVal = filterSel.value;
+            const sessionMap = new Map();
+            savedPlans.forEach(p => {
+                const k = `${p.date}|${p.session}`;
+                sessionMap.set(k, `${formatDisplayDate(p.date)} (${p.session}) - ${p.title}`);
+            });
+            filterSel.innerHTML = `<option value="ALL">அனைத்துத் தேர்வுகளும் (${savedPlans.length})</option>` +
+                Array.from(sessionMap.entries()).map(([k, lbl]) => `<option value="${k}">${lbl}</option>`).join('');
+            if (prevVal && (prevVal === 'ALL' || sessionMap.has(prevVal))) filterSel.value = prevVal;
+        }
+        renderSavedPlansList();
+    }
+
+    function renderSavedPlansList() {
+        const container = document.getElementById('savedPlansContainer');
+        if (!container) return;
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const filterVal = document.getElementById('savedFilterSession') ? document.getElementById('savedFilterSession').value : 'ALL';
+
+        const filtered = filterVal === 'ALL'
+            ? savedPlans
+            : savedPlans.filter(p => `${p.date}|${p.session}` === filterVal);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center space-y-2 bg-slate-50">
+                    <div class="text-3xl">📭</div>
+                    <div class="font-bold text-slate-700">இதுவரை எந்த இருக்கை அமைப்பும் சேமிக்கப்படவில்லை</div>
+                    <p class="text-xs text-slate-500">'6️⃣ அறை ஒதுக்கீடு & வரைபடம்' பக்கத்தில் இருக்கை ஒதுக்கீட்டை உருவாக்கிய பிறகு <b>"💾 புதிய அமைப்பாக Cloud-ல் சேமி"</b> பொத்தானை அழுத்தவும்.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Count how many saved plans exist per (date + session)
+        const sessionCounts = {};
+        savedPlans.forEach(p => {
+            const k = `${p.date}|${p.session}`;
+            sessionCounts[k] = (sessionCounts[k] || 0) + 1;
+        });
+
+        container.innerHTML = filtered.map(p => {
+            const sKey = `${p.date}|${p.session}`;
+            const cntForSession = sessionCounts[sKey] || 1;
+            const totalStudents = Object.values(p.roomVisualData || {}).reduce((acc, r) => acc + (r.studentCount || 0), 0);
+            const roomsList = (p.activeRoomNos || []).join(', ');
+
+            return `
+                <div class="border-2 border-slate-200 hover:border-blue-400 rounded-xl p-4 bg-white shadow-sm flex flex-wrap justify-between items-center gap-4">
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-base font-extrabold text-blue-950">📋 ${p.planName}</span>
+                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${cntForSession >= 3 ? 'bg-amber-100 text-amber-900 border border-amber-400' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}">
+                                ${formatDisplayDate(p.date)} (${p.session}) : ${cntForSession} / 3 அமைப்புகள்
+                            </span>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-700">${p.title}</div>
+                        <div class="text-xs text-slate-600">
+                            🏫 அறைகள்: <b>${roomsList}</b> &nbsp;|&nbsp; 👥 மொத்த மாணவர்கள்: <b>${totalStudents}</b> &nbsp;|&nbsp; 🕒 சேமித்த நேரம்: ${p.updatedAt || p.savedAt}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadSavedSeatingPlan('${p.id}', false)" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            👁️ திறந்து பார் / திருத்து
+                        </button>
+                        <button onclick="loadSavedSeatingPlan('${p.id}', true)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            🖨️ நேரடியாக அச்சிடு
+                        </button>
+                        <button onclick="deleteSavedSeatingPlan('${p.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs shadow">
+                            🗑️ நீக்கு
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function loadSavedSeatingPlan(planId, autoPrint = false) {
+        const savedPlans = getData(schoolDataKey('saved_seating'), []);
+        const plan = savedPlans.find(p => p.id === planId);
+        if (!plan) {
+            alert("இந்த அமைப்பு காணப்படவில்லை.");
+            return;
+        }
+
+        // Switch to Allocation workspace
+        switchWorkTab('allocate');
+
+        // Select matching exam date + session in dropdown
+        const sel = document.getElementById('allocExamSelect');
+        const targetKey = `${plan.date}|${plan.session}|${plan.title}`;
+        if (sel) {
+            const optExists = Array.from(sel.options).some(o => o.value === targetKey);
+            if (!optExists) {
+                const opt = document.createElement('option');
+                opt.value = targetKey;
+                opt.textContent = `${plan.date} (${plan.session}) - ${plan.title}`;
+                sel.appendChild(opt);
+            }
+            sel.value = targetKey;
+        }
+
+        // Restore checked rooms
+        const cbs = document.querySelectorAll('.alloc-rm-cb');
+        cbs.forEach(cb => {
+            cb.checked = (plan.activeRoomNos || []).includes(cb.value);
+        });
+        document.getElementById('allocRoomCount').value = (plan.activeRoomNos || []).length || 1;
+
+        // Re-initialize matrix columns & restore saved matrixState
+        initAllocationMatrix();
+        matrixState = JSON.parse(JSON.stringify(plan.matrixState || {}));
+        renderMatrixTable();
+
+        // Restore radio & checkbox options
+        if (plan.benchOrderMode) {
+            const rad = document.querySelector(`input[name="benchOrderMode"][value="${plan.benchOrderMode}"]`);
+            if (rad) rad.checked = true;
+        }
+        if (typeof plan.useShortSub === 'boolean') document.getElementById('useShortSubjectPrint').checked = plan.useShortSub;
+        if (typeof plan.useShortTch === 'boolean') document.getElementById('useShortTeacherPrint').checked = plan.useShortTch;
+
+        // Generate Notice Board & Committee tables from restored matrix
+        generateFinalOutputs();
+
+        // Restore exact saved visual seating slots (including any manual drag-and-drop seat swaps!)
+        if (plan.roomVisualData && Object.keys(plan.roomVisualData).length > 0) {
+            window.roomVisualData = JSON.parse(JSON.stringify(plan.roomVisualData));
+            renderAllVisualRooms();
         }
 
         updateSavedPlanIndicator(plan);
@@ -3435,14 +3692,14 @@
             grandTotal += grp.roomTotal;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:48px; line-height:0.95; width:46px; min-width:46px; padding:1px 2px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:76px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:20px; width:50px; min-width:50px; padding:1px 2px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
                 </tr>
             `).join('');
         }).join('');
@@ -3468,14 +3725,14 @@
             `;
             return grp.items.map((it, idx) => `
                 <tr>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:48px; line-height:0.95; width:44px; min-width:44px; padding:1px 2px;">${grp.roomNo}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-no font-black text-slate-950 bg-slate-100" style="font-size:56px; line-height:0.95; min-width:74px;">${grp.roomNo}</td>` : ''}
                     <td class="print-data-cell font-extrabold text-base">${it.classLabel}</td>
                     <td class="print-data-cell font-black text-base">${it.subject}</td>
                     <td class="print-data-cell font-bold text-base">${it.gender}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.start}</td>
                     <td class="print-roll-num font-black text-slate-950" style="font-size:18.5px; letter-spacing:0.3px;">${it.end}</td>
                     <td class="print-data-cell font-black text-lg">${it.count}</td>
-                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:20px; width:50px; min-width:50px; padding:1px 2px;">${grp.roomTotal}</td>` : ''}
+                    ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-room-total font-black text-slate-950 bg-slate-50" style="font-size:22px;">${grp.roomTotal}</td>` : ''}
                     ${idx === 0 ? `<td rowspan="${grp.items.length}" class="print-qp-box" style="text-align:left; background-color:#f8fafc; font-size:14.5px; line-height:1.18; padding:2px 6px;">${qpWithRoomTotalHtml}</td>` : ''}
                 </tr>
             `).join('');
@@ -3571,14 +3828,7 @@
                 <table class="official-tbl">
                     <thead>
                         <tr>
-                            <th style="width:46px; padding:2px;">Room</th>
-                            <th>Class</th>
-                            <th>Subject</th>
-                            <th>Gender</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th style="width:44px;">Count</th>
-                            <th style="width:52px; padding:2px;">Room<br>Total</th>
+                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3599,15 +3849,7 @@
                 <table class="official-tbl">
                     <thead>
                         <tr>
-                            <th style="width:44px; padding:2px;">Room</th>
-                            <th>Class</th>
-                            <th>Subject</th>
-                            <th>Gender</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th style="width:40px;">Cnt</th>
-                            <th style="width:48px; padding:2px;">Room<br>Total</th>
-                            <th style="background-color:#dbeafe;">வினாத்தாள் விவரம் (QP Count)</th>
+                            <th>Room</th><th>Class</th><th>Subject</th><th>Gender</th><th>Start</th><th>End</th><th>Count</th><th>Room Total</th><th style="background-color:#dbeafe;">வினாத்தாள் விவரம் (QP Count)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3638,127 +3880,155 @@
             const cRows = rm.colRows || Array(rm.cols).fill(rm.rows || 15);
             let ordered = [...students];
 
-            const effectiveColRows = [...cRows];
-            let configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
-            let neededBenches = Math.ceil(ordered.length / perBench);
-            let overflowWarningHtml = '';
-
-            // Helper: Build vertical Seat Lanes (Lane 0 = Seat 1 down all benches, Lane 1 = Seat 2 down all benches, etc.)
-            // Rule: Keep SAME Grade (12th / 11th / 10th) in the SAME vertical lane; separate lanes by DIFFERENT Grade (or different Subject if 1 Grade);
-            // Leave remaining seats in a shorter lane EMPTY ('---') rather than placing same-grade students side-by-side!
-            let laneLists = Array.from({ length: perBench }, () => []);
-
             if (benchOrderMode === 'continuous') {
                 ordered.sort((a, b) => a.roll - b.roll);
-                const totalRenderedBenchesTmp = Math.max(configuredBenches, neededBenches);
-                const totalSlotsTmp = totalRenderedBenchesTmp * perBench;
-                const flatSlots = [];
-                for (let i = 0; i < totalSlotsTmp; i++) flatSlots.push(ordered[i] || null);
-                // Convert flat bench-by-bench slots into laneLists for unified rendering
-                for (let b = 0; b < totalRenderedBenchesTmp; b++) {
-                    for (let s = 0; s < perBench; s++) {
-                        laneLists[s].push(flatSlots[b * perBench + s] || null);
-                    }
-                }
-            } else {
-                // Sort students cleanly by Grade -> Subject -> Class/Section -> Roll Number
-                ordered.sort((a, b) => {
-                    if (a.grade !== b.grade) return String(b.grade).localeCompare(String(a.grade), undefined, { numeric: true });
-                    if (a.subject !== b.subject) return String(a.subject).localeCompare(String(b.subject));
-                    if (a.classLabel !== b.classLabel) return String(a.classLabel).localeCompare(String(b.classLabel));
-                    return a.roll - b.roll;
-                });
-
-                // Group students by Grade (12, 11, 10...)
-                const gradeMap = new Map();
+            } else if (benchOrderMode === 'interleave' && ordered.length > 1) {
+                // ZERO-ADJACENT SAME-PAPER (GRADE + SUBJECT) ANTI-MALPRACTICE ALGORITHM:
+                // 1) Students of the SAME Grade + SAME Subject (e.g. 12th MAT across 12-A1, 12-A, 12-B1) have the SAME question paper,
+                //    so they MUST NEVER sit side-by-side (left/right neighbor) or directly in front!
+                // 2) On 3-seater benches when 2 subjects/grades exist, uses A - B - A sandwiching (e.g. 11th PHY | 12th MAT | 11th PHY)
+                //    so two 12th MAT students NEVER sit adjacent!
+                // 3) When 3+ subjects/grades are in the room (e.g. 11th PHY, 12th MAT, 12th COM / 11th ECO), places 3 distinct papers on every bench!
+                const bucketsMap = new Map();
                 ordered.forEach(stu => {
-                    if (!gradeMap.has(stu.grade)) gradeMap.set(stu.grade, []);
-                    gradeMap.get(stu.grade).push(stu);
+                    const bKey = `${stu.grade}|${stu.subject}|${stu.classLabel}`;
+                    if (!bucketsMap.has(bKey)) bucketsMap.set(bKey, []);
+                    bucketsMap.get(bKey).push(stu);
                 });
-                const gradeGroups = Array.from(gradeMap.values()).sort((a, b) => b.length - a.length);
+                bucketsMap.forEach(arr => arr.sort((a, b) => a.roll - b.roll));
 
-                if (gradeGroups.length >= perBench) {
-                    // Ideal: 2 Grades for 2-seater, or 3 Grades for 3-seater -> Each Grade gets its own dedicated vertical lane!
-                    // For 3-seater with 3 grades: Lane 0 = Grade 1 (e.g. 12th), Lane 1 = Grade 2 (e.g. 11th), Lane 2 = Grade 3 (e.g. 10th)
-                    for (let s = 0; s < perBench; s++) {
-                        laneLists[s] = [...gradeGroups[s]];
-                    }
-                    // If more than `perBench` grades exist, append remaining grades to the shortest lane
-                    for (let g = perBench; g < gradeGroups.length; g++) {
-                        let shortestIdx = 0;
-                        for (let s = 1; s < perBench; s++) {
-                            if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
-                        }
-                        laneLists[shortestIdx].push(...gradeGroups[g]);
-                    }
-                } else if (gradeGroups.length === 2 && perBench === 3) {
-                    // 2 Grades (e.g. 12th and 11th) on a 3-seater bench:
-                    // Middle Lane (Lane 1) = Second Grade (e.g. 11th) -> acts as separator barrier!
-                    // Left Lane (Lane 0) & Right Lane (Lane 2) = Split First Grade (e.g. 12th) into two halves (or by subject)!
-                    const gMajor = gradeGroups[0];
-                    const gMinor = gradeGroups[1];
-                    const halfMajor = Math.ceil(gMajor.length / 2);
-                    laneLists[0] = gMajor.slice(0, halfMajor);
-                    laneLists[1] = [...gMinor];
-                    laneLists[2] = gMajor.slice(halfMajor);
-                } else if (gradeGroups.length === 1) {
-                    // Only 1 Grade in this room -> Group by Subject so different subjects occupy separate vertical lanes!
-                    const subjMap = new Map();
-                    ordered.forEach(stu => {
-                        if (!subjMap.has(stu.subject)) subjMap.set(stu.subject, []);
-                        subjMap.get(stu.subject).push(stu);
-                    });
-                    const subjGroups = Array.from(subjMap.values()).sort((a, b) => b.length - a.length);
+                const buckets = Array.from(bucketsMap.values());
+                const totalStudentsInRoom = ordered.length;
+                const smartPlaced = [];
+                const numBenchesNeeded = Math.ceil(totalStudentsInRoom / perBench);
 
-                    if (subjGroups.length >= perBench) {
-                        for (let s = 0; s < perBench; s++) {
-                            laneLists[s] = [...subjGroups[s]];
+                const paperKey = (c) => `${c.grade}|${c.subject}`;
+
+                for (let b = 0; b < numBenchesNeeded; b++) {
+                    const benchSeats = [];
+                    const seatsOnThisBench = Math.min(perBench, totalStudentsInRoom - smartPlaced.length);
+
+                    for (let s = 0; s < seatsOnThisBench; s++) {
+                        const leftNeighbor = s > 0 ? benchSeats[s - 1] : null;
+                        const frontNeighbor = (b > 0 && smartPlaced.length >= perBench)
+                            ? smartPlaced[smartPlaced.length - perBench]
+                            : null;
+
+                        const usedPapersOnBench = new Set(benchSeats.map(x => paperKey(x)));
+                        const usedGradesOnBench = new Set(benchSeats.map(x => x.grade));
+                        const usedSubjectsOnBench = new Set(benchSeats.map(x => x.subject));
+
+                        const pickBestBucket = (predFn) => {
+                            let bestB = null;
+                            let bestScore = -1;
+
+                            // Count remaining students per (grade|subject) paper group so largest groups get paired early
+                            const paperRemTotals = {};
+                            buckets.forEach(bk => {
+                                if (bk.length > 0) {
+                                    const pk = paperKey(bk[0]);
+                                    paperRemTotals[pk] = (paperRemTotals[pk] || 0) + bk.length;
+                                }
+                            });
+
+                            buckets.forEach(bk => {
+                                if (bk.length === 0) return;
+                                const cand = bk[0];
+                                if (!predFn(cand)) return;
+
+                                let score = (paperRemTotals[paperKey(cand)] || 0) * 100 + bk.length;
+                                // Strong bonus for not matching front neighbor's question paper or grade
+                                if (frontNeighbor) {
+                                    if (paperKey(frontNeighbor) !== paperKey(cand)) score += 60;
+                                    if (frontNeighbor.grade !== cand.grade) score += 25;
+                                }
+                                // Bonus for bringing a subject not yet on this bench
+                                if (!usedSubjectsOnBench.has(cand.subject)) score += 30;
+                                if (!usedGradesOnBench.has(cand.grade)) score += 20;
+
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                    bestB = bk;
+                                }
+                            });
+                            return bestB;
+                        };
+
+                        // P1 (Ideal): Different Grade AND Different Subject from everyone on this bench AND not same paper as front neighbor
+                        let chosenBucket = pickBestBucket(c =>
+                            !usedGradesOnBench.has(c.grade) &&
+                            !usedSubjectsOnBench.has(c.subject) &&
+                            (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                            (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                        );
+
+                        // P2: Different Question Paper (Grade+Subject) from everyone on this bench AND not same as left/front neighbor
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                !usedPapersOnBench.has(paperKey(c)) &&
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                            );
                         }
-                        for (let sg = perBench; sg < subjGroups.length; sg++) {
-                            let shortestIdx = 0;
-                            for (let s = 1; s < perBench; s++) {
-                                if (laneLists[s].length < laneLists[shortestIdx].length) shortestIdx = s;
-                            }
-                            laneLists[shortestIdx].push(...subjGroups[sg]);
+
+                        // P3: Different Question Paper from everyone on this bench AND not sitting adjacent to leftNeighbor
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                !usedPapersOnBench.has(paperKey(c)) &&
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c))
+                            );
                         }
-                    } else if (subjGroups.length === 2 && perBench === 3) {
-                        const sMajor = subjGroups[0];
-                        const sMinor = subjGroups[1];
-                        const halfSub = Math.ceil(sMajor.length / 2);
-                        laneLists[0] = sMajor.slice(0, halfSub);
-                        laneLists[1] = [...sMinor];
-                        laneLists[2] = sMajor.slice(halfSub);
-                    } else {
-                        // Single grade & single subject only -> distribute evenly across lanes
-                        const chunk = Math.ceil(ordered.length / perBench);
-                        for (let s = 0; s < perBench; s++) {
-                            laneLists[s] = ordered.slice(s * chunk, (s + 1) * chunk);
+
+                        // P4 (3-Seater Sandwich Rule A - B - A): Different Question Paper from leftNeighbor & frontNeighbor
+                        // (e.g. Seat 1 = 11th PHY, Seat 2 = 12th MAT, Seat 3 = 11th PHY -> NO two same-paper students sit side by side!)
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                (!leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)) &&
+                                (!frontNeighbor || paperKey(frontNeighbor) !== paperKey(c))
+                            );
+                        }
+
+                        // P5: Strict No-Side-by-Side Same Paper (different from leftNeighbor even if front matches)
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(c =>
+                                !leftNeighbor || paperKey(leftNeighbor) !== paperKey(c)
+                            );
+                        }
+
+                        // P6 (Unavoidable last resort): Any remaining student
+                        if (!chosenBucket) {
+                            chosenBucket = pickBestBucket(() => true);
+                        }
+
+                        if (chosenBucket && chosenBucket.length > 0) {
+                            const pickedStu = chosenBucket.shift();
+                            benchSeats.push(pickedStu);
+                            smartPlaced.push(pickedStu);
                         }
                     }
                 }
-
-                // If any single lane has more students than `configuredBenches` while another lane still has empty capacity in the room,
-                // only spill excess beyond `configuredBenches` if room capacity permits; otherwise expand benches so lane purity stays intact!
-                const maxLaneLen = Math.max(...laneLists.map(l => l.length));
-                neededBenches = Math.max(neededBenches, maxLaneLen);
+                ordered = smartPlaced;
             }
+
+            const effectiveColRows = [...cRows];
+            let configuredBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            const neededBenches = Math.ceil(ordered.length / perBench);
+            let overflowWarningHtml = '';
 
             if (neededBenches > configuredBenches) {
                 const extraBenches = neededBenches - configuredBenches;
-                overflowWarningHtml = `<div class="mb-2 p-1.5 bg-amber-50 border border-amber-400 text-amber-950 text-[11px] rounded text-center font-semibold">ℹ️ குறிப்பு: ஒரே வகுப்பு வரிசை ஒழுங்கைப் பராமரிக்க (${neededBenches} வரிசைகள் தேவைப்படுவதால்) கூடுதல் பெஞ்சுகள் கீழே இணைக்கப்பட்டுள்ளன.</div>`;
+                overflowWarningHtml = `<div class="mb-3 p-2 bg-red-50 border border-red-400 text-red-900 text-xs rounded text-center font-semibold">⚠️ குறிப்பு: இந்த அறையில் ${configuredBenches} பெஞ்சுகள் (${configuredBenches * perBench} இருக்கைகள்) மட்டுமே அமைக்கப்பட்டுள்ளன; ஆனால் ${ordered.length} மாணவர்கள் ஒதுக்கப்பட்டுள்ளதால் மீதமுள்ள மாணவர்களுக்கும் கூடுதல் பெஞ்சுகள் கீழே தானாக இணைக்கப்பட்டுள்ளன. ('4️⃣ தேர்வு அறைகள்' பகுதியில் வரிசைகளை மாற்றிக்கொள்ளலாம்).</div>`;
                 for (let eb = 0; eb < extraBenches; eb++) {
                     effectiveColRows[eb % rm.cols] = (effectiveColRows[eb % rm.cols] || 0) + 1;
                 }
             }
             const totalRenderedBenches = effectiveColRows.reduce((a, b) => a + b, 0);
+            const totalSlots = totalRenderedBenches * perBench;
 
-            // Map vertical `laneLists` across columns (Col 1 top-to-bottom, then Col 2 top-to-bottom...)
-            // Any bench position where a lane has no student remains `null` (Empty '---')!
+            // Fill slots array (student object or null for empty bench slot)
             const slots = [];
-            for (let b = 0; b < totalRenderedBenches; b++) {
-                for (let s = 0; s < perBench; s++) {
-                    slots.push(laneLists[s][b] || null);
-                }
+            for (let i = 0; i < totalSlots; i++) {
+                slots.push(ordered[i] || null);
             }
 
             const roomGrp = summaryGroups.find(g => String(g.roomNo) === String(rm.roomNo));
@@ -4506,7 +4776,7 @@
             const idx = duties.findIndex(x => String(x.id) === String(editId));
             if (idx > -1) duties[idx] = { ...duties[idx], date, session, roomNo, shortCode, teacherName, role };
         } else {
-            duties.unshift({ id: Date.now(), date, session, roomNo, shortCode, teacherName, role });
+            duties.push({ id: Date.now(), date, session, roomNo, shortCode, teacherName, role });
             logActivity(currentSchool.id, currentSchool.name, `கண்காணிப்பாளர் பணி ஒதுக்கீடு: Room ${roomNo} - ${shortCode}`);
         }
         setData(schoolDataKey('duty'), duties);
