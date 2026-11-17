@@ -1293,7 +1293,19 @@
     function getData(key, fallback) {
         try {
             const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : (_memStore[key] !== undefined ? _memStore[key] : fallback);
+            if (raw) return JSON.parse(raw);
+            
+            // Fallback checks for legacy/alternate keys
+            if (key.includes('_classes_master')) {
+                const alt = localStorage.getItem(key.replace('_classes_master', '_classes'));
+                if (alt) return JSON.parse(alt);
+            }
+            if (key.includes('_subjects_master')) {
+                const alt = localStorage.getItem(key.replace('_subjects_master', '_subjects'));
+                if (alt) return JSON.parse(alt);
+            }
+
+            return _memStore[key] !== undefined ? _memStore[key] : fallback;
         } catch (e) {
             return _memStore[key] !== undefined ? _memStore[key] : fallback;
         }
